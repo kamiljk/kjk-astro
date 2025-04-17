@@ -24,9 +24,8 @@ const { title, allTypes, activeType } = Astro.props;
         <slot />
       </main>
     </div>
-    <!-- Overlay for card detail views -->
-    <div id="card-overlay" class="card-overlay hidden"></div>
-    <script type="module" src="/src/scripts/card-nav.js"></script>
-    <script type="module" src="/src/scripts/sidebar-theme-toggle.js"></script>
+    <!-- Client-side scripts -->
+    <script is:inline src="/scripts/card-nav.js"></script>
+    <script type="module" src="/scripts/sidebar-theme-toggle.js"></script>
   </body>
 </html>

@@ -1,0 +1,139 @@
+---
+import "../assets/global.css";
+
+interface Props {
+  title: string;
+  content: any;
+  date?: Date;
+}
+
+const { title, content, date } = Astro.props;
+---
+
+<div class="hero-card" id="hero-card">
+  <div class="hero-card-wrapper">
+    <div class="hero-card-header">
+      <h1 class="hero-title">{title}</h1>
+      {date && <p class="hero-date">{date.toLocaleDateString()}</p>}
+      <button class="hero-close-btn" id="hero-close-btn" aria-label="Close">
+        &times;
+      </button>
+    </div>
+    <div class="hero-card-content">
+      <div class="hero-markdown">
+        {content && <content.default />}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hero-card {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: calc(var(--spacing) * 2) var(--spacing);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s,
+      visibility 0.3s;
+  }
+
+  .hero-card.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .hero-card-wrapper {
+    background-color: var(--secondary-bg);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 800px;
+    margin-top: calc(var(--spacing) * 4); /* Space for the navbar */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card-header {
+    padding: var(--layout-padding);
+    border-bottom: 1px solid var(--card-border);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-title {
+    margin: 0;
+    font-size: var(--fluid-2);
+  }
+
+  .hero-date {
+    margin: var(--spacing) 0 0;
+    font-size: var(--fluid-0);
+    color: var(--desc-color);
+  }
+
+  .hero-close-btn {
+    position: absolute;
+    top: var(--spacing);
+    right: var(--spacing);
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.2s;
+    z-index: 5;
+  }
+
+  .hero-close-btn:hover {
+    color: var(--primary-color);
+  }
+
+  .hero-card-content {
+    padding: var(--layout-padding);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .hero-markdown :global(h1),
+  .hero-markdown :global(h2),
+  .hero-markdown :global(h3) {
+    margin-top: var(--spacing);
+  }
+
+  .hero-markdown :global(p) {
+    margin: var(--spacing) 0;
+    line-height: 1.6;
+  }
+
+  .hero-markdown :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin: var(--spacing) 0;
+  }
+
+  @media (max-width: 768px) {
+    .hero-card-wrapper {
+      margin-top: var(--spacing);
+      max-height: 90vh;
+    }
+  }
+</style>

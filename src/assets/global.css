@@ -64,13 +64,17 @@ input, button, textarea, select {
   --card-gap: clamp(1rem, 2vw, 2rem);
   --layout-padding: clamp(1rem, 2vw, 1.5rem);
 
+  /* RGB values for frosted glass effect */
+  --secondary-bg-rgb: 255, 255, 255;
+  --card-border-rgb: 221, 221, 221;
+
   /* Fluid modular scale configuration */
   --fluid-min-width: 320;
   --fluid-max-width: 1500;
-  --fluid-min-size: 16;
-  --fluid-max-size: 20;
-  --fluid-min-ratio: 1.2;
-  --fluid-max-ratio: 1.33;
+  --fluid-min-size: 14; /* Further reduced from 15 */
+  --fluid-max-size: 16; /* Further reduced from 18 */
+  --fluid-min-ratio: 1.15; /* Reduced from 1.2 */
+  --fluid-max-ratio: 1.25; /* Reduced from 1.33 */
 
   /* Calculate fluid breakpoints */
   --fluid-screen: 100vw;
@@ -115,6 +119,9 @@ input, button, textarea, select {
 
   /* card border default */
   --card-border: var(--desc-color);
+
+  /* Add background RGB values for gradient effect */
+  --bg-color-rgb: 245, 240, 225; /* Light mode background as RGB */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -128,208 +135,384 @@ input, button, textarea, select {
 }
 
 body[data-theme="light"] {
-  /* Custom light‐mode palette */
-  --bg-color: #f5f0e1;      /* beige/off-white main bg */
-  --text-color: #000000;    /* black text */
-  --primary-color: #39ff14; /* neon highlighter accent */
-  --link-hover-color: #1eff00;
-  --link-active-color: #00cc00;
-  --secondary-bg: #ffffff;  /* white for cards */
-  --desc-color: #333333;
-  --card-border: #cccccc;
+  /* Modern Minimalist NEON / NEUTRAL Light Mode */
+  --bg-color: #f5f0e1;      /* Off-white beige main bg */
+  --text-color: #000000;    /* Black text */
+  --primary-color: #FF1493; /* Neon Magenta/DeepPink accent */
+  --link-hover-color: #FF69B4; /* Lighter Pink (HotPink) on hover */
+  --link-active-color: #C71585; /* Darker Pink (MediumVioletRed) when active/clicked */
+  --secondary-bg: #ffffff;  /* White for cards (brighter than bg) */
+  --desc-color: #333333;    /* Dark gray for descriptions */
+  --card-border: #dddddd;  /* Lighter gray border for cards */
+  
+  /* RGB values for frosted glass effect */
+  --secondary-bg-rgb: 255, 255, 255;
+  --card-border-rgb: 221, 221, 221;
+
+  /* Light mode beige background */
+  --bg-color-rgb: 245, 240, 225;
 }
 
 body[data-theme="dark"] {
   --bg-color: #000000;      /* pure black background */
   --text-color: #f5f5dc;    /* light neutral for text */
   --primary-color: #ffd700; /* gold accent */
-  --link-hover-color: #ffdf00;
-  --link-active-color: #e6c200;
+  --link-hover-color: #ffec8b; /* Lighter Gold on hover */
+  --link-active-color: #e6c200; /* Slightly darker Gold when active/clicked */
   --secondary-bg: #121212;  /* slightly lighter than bg for cards */
   --desc-color: #aaaaaa;
   --card-border: #333333;
+  
+  /* RGB values for frosted glass effect */
+  --secondary-bg-rgb: 18, 18, 18;
+  --card-border-rgb: 51, 51, 51;
+
+  /* Dark mode black background */
+  --bg-color-rgb: 0, 0, 0;
+}
+
+/* Clean slate for positioning */
+html {
+  overflow-x: hidden;
 }
 
 body {
-  font-size: var(--fluid-0);
   margin: 0;
+  padding: 0;
+  font-size: var(--fluid-0);
   font-family: var(--font-family);
   background-color: var(--bg-color);
   color: var(--text-color);
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* Override layout to allow floating navbar */
+/* Top barrier - cleaner implementation */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--spacing));
+  background-color: var(--bg-color);
+  z-index: 999;
+}
+
+/* Simplified layout structure with proper spacing */
 .layout {
   display: block;
+  /* Space for top barrier + navbar + some breathing room */
+  padding-top: calc(var(--spacing) + 60px + var(--spacing));
 }
 
-/* Floating menu island - mobile bottom */
+/* Simplified navbar with precise positioning */
 .navbar {
   position: fixed;
-  bottom: var(--spacing);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  background: var(--secondary-bg); /* Give it a background */
-  border: 1px solid var(--card-border); /* Add a border */
-  border-radius: 12px; /* Rounded corners */
-  padding: 0.5rem 1rem; /* Adjust padding */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Add subtle shadow */
-  width: auto;
-  max-width: 90%;
+  top: var(--spacing); /* Exactly below the top barrier */
+  left: var(--spacing);
+  right: var(--spacing);
+  z-index: 100; /* Below the top barrier */
+  background: rgba(var(--secondary-bg-rgb), 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,0,0,0.8);
+  border-radius: 0; /* Square corners to match cards */
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  width: calc(100% - (var(--spacing) * 2));
+  height: 60px;
   display: flex;
-  flex-direction: row; /* Ensure horizontal layout */
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing);
+  padding: 0 1rem;
 }
 
-/* Logo styling */
-.navbar .logo img {
-  height: 40px; /* Set a fixed height */
-  width: auto; /* Maintain aspect ratio */
-  display: block; /* Ensure proper rendering */
+/* Remove the previous navbar::before that wasn't working */
+.navbar::before {
+  display: none;
+  content: none;
 }
 
-/* Logo color override for dark theme */
-body[data-theme="dark"] .navbar .logo img {
-  filter: invert(1) brightness(2);
-}
+/* -------------- LAYOUT STRUCTURE --------------- */
 
-/* Center logo and theme toggle */
-.navbar .logo,
-.navbar .theme-toggle {
-  align-self: center;
-}
-
-/* Center menu items container */
-.navbar-menu {
-  display: flex;
-  flex-direction: row; /* Ensure horizontal layout */
-  gap: var(--spacing);
-  align-items: center; /* Align items vertically in the center */
-  flex-grow: 1; /* Allow menu to take available space */
-  justify-content: center; /* Center menu items horizontally */
-}
-
-/* Navbar-specific link overrides */
-.navbar-menu a,
-.navbar-submenu a,
-.navbar-menu a:visited,
-.navbar-submenu a:visited,
-.navbar-menu a.active,
-.navbar-submenu a.active {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-.navbar-menu a:hover, .navbar-menu a:focus, .navbar-submenu a:hover, .navbar-submenu a:focus {
-  color: var(--link-hover-color, #39ff14) !important;
-}
-
-/* Force navbar links to black and themed hover */
-.navbar .navbar-menu a,
-.navbar .navbar-submenu a {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-.navbar .navbar-menu a:hover,
-.navbar .navbar-menu a:focus,
-.navbar .navbar-submenu a:hover,
-.navbar .navbar-submenu a:focus {
-  color: var(--link-hover-color, #39ff14) !important;
-}
-
-/* Navbar theme-toggle override */
-.navbar .theme-toggle a {
-  color: #000 !important;
-  text-shadow: none !important;
-}
-.navbar .theme-toggle a:hover,
-.navbar .theme-toggle a:focus {
-  color: var(--link-hover-color) !important;
-}
-
-/* Theme toggle link styling */
-.theme-toggle a {
-  font-size: 1.5rem; /* Slightly smaller for horizontal layout */
-  color: var(--link-color);
-  /* outline letters like other links */
-  text-shadow:
-    -2px -2px 0 #000, 2px -2px 0 #000,
-    -2px 2px 0 #000, 2px 2px 0 #000,
-    -2px 0 0 #000, 2px 0 0 #000,
-    0 -2px 0 #000, 0 2px 0 #000;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  padding: 0.25rem;
-}
-.theme-toggle a:hover,
-.theme-toggle a:focus {
-  color: var(--link-hover-color);
-}
-
-/* Main content area below navbar - mobile */
+/* Main content area - mobile first */
 .main-container {
   max-width: 1200px;
   margin: var(--spacing) auto;
   padding: var(--spacing);
-  padding-bottom: calc(var(--spacing) * 6); /* Space for bottom menu */
 }
 
-/* Responsive Desktop: Left sidebar */
+/* -------------- NAVBAR COMPONENT --------------- */
+
+/* Menu items container */
+.navbar-menu {
+  display: flex;
+  flex-direction: row;
+  gap: calc(var(--spacing) * 2);
+  align-items: center;
+  justify-content: flex-start;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Add right-side container for theme toggle */
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+/* -------------- NAVBAR LINKS STYLING --------------- */
+
+/* Base navbar link styles */
+.navbar a,
+.navbar a:visited,
+.navbar a.active {
+  color: var(--text-color);
+  text-shadow: none;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+  background-image: none;
+  background-size: auto;
+  background-position: initial;
+  transition: color 0.2s ease;
+  font-weight: 600; /* Make menu items bolder */
+}
+
+/* Highlight effect for regular navbar links */
+.navbar a::after {
+  content: '';
+  position: absolute;
+  width: calc(100% + 0.8em);
+  height: calc(1em + 8px);
+  /* Precise positioning to ensure highlight is centered behind text */
+  bottom: -4px;
+  left: -0.4em;
+  background-color: var(--primary-color);
+  transform: skewX(-15deg);
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+  z-index: -1;
+  display: block;
+}
+
+/* Specific adjustment for navbar-menu and navbar-submenu links */
+.navbar-menu a::after,
+.navbar-submenu a::after {
+  /* Same properties, but ensure bottom value is exactly matched for these specific links */
+  bottom: -4px;
+}
+
+/* Hover effect for navbar links */
+.navbar a:hover,
+.navbar a:focus {
+  color: #000; /* Black text on hover */
+  text-decoration: none;
+}
+
+.navbar a:hover::after,
+.navbar a:focus::after {
+  opacity: 1;
+}
+
+/* Active page indication */
+.navbar a.active {
+  color: #000; /* Black text for active links to ensure visibility against highlight */
+}
+
+.navbar a.active::after {
+  opacity: 0.7; /* Show a slightly dimmed highlight for active page */
+}
+
+/* Ensure hover effect still works on active links */
+.navbar a.active:hover::after,
+.navbar a.active:focus::after {
+  opacity: 1; /* Full opacity on hover, even for active links */
+}
+
+/* -------------- LOGO STYLING --------------- */
+
+/* Logo container with better alignment */
+.navbar .logo {
+  align-self: center;
+  margin-right: var(--spacing);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo link with better centering */
+.navbar .logo a {
+  padding: 0;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-image: none;
+  width: 32px;
+  height: 32px;
+}
+
+/* Logo image - smaller for header with proper centering */
+.navbar .logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+  position: relative;
+  z-index: 2;
+}
+
+/* Dark theme logo color - change from gold to white */
+body[data-theme="dark"] .navbar .logo img {
+  filter: brightness(0) saturate(100%) invert(100%); /* White instead of gold */
+}
+
+/* Logo hover effect for the image itself */
+.navbar .logo a:hover img {
+  filter: brightness(0) saturate(0); /* Black on hover */
+  transition: filter 0.3s ease-out;
+}
+
+/* Dark mode logo hover - make it black instead of brighter gold */
+body[data-theme="dark"] .navbar .logo a:hover img {
+  filter: brightness(0) saturate(0); /* Black on hover in dark mode too */
+}
+
+/* Disable highlight effect for logo link */
+.navbar .logo a::after {
+  display: none;
+  content: none;
+}
+
+/* Circular background animation for logo hover - improved positioning */
+.navbar .logo a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px; /* Just slightly larger than the logo */
+  height: 28px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: 1;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Expand the circle on hover/focus */
+.navbar .logo a:hover::before,
+.navbar .logo a:focus::before {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+/* Logo hover effect for the image itself */
+.navbar .logo a:hover img {
+  filter: brightness(1.1) saturate(1.2);
+  transition: filter 0.3s ease-out;
+}
+
+/* Ensure the logo turns to appropriate color on hover in dark mode */
+body[data-theme="dark"] .navbar .logo a:hover img {
+  filter: brightness(0) saturate(0); /* Black on hover in dark mode too */
+}
+
+/* -------------- THEME TOGGLE STYLING --------------- */
+
+/* Theme toggle container */
+.navbar .theme-toggle {
+  align-self: center;
+}
+
+/* Theme toggle link */
+.navbar .theme-toggle a {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5em;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: var(--text-color); /* Change from var(--link-color) to text color */
+  transition: color 0.2s ease;
+  background-image: none;
+}
+
+/* Disable skewed highlight for theme toggle */
+.navbar .theme-toggle a::after {
+  display: none;
+  content: none;
+}
+
+/* Circular background effect for theme toggle */
+.navbar .theme-toggle a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 65%;
+  height: 50%;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  z-index: -1;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Expand the circle on hover/focus */
+.navbar .theme-toggle a:hover::before,
+.navbar .theme-toggle a:focus::before {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+/* Ensure icon stays black on hover */
+.navbar .theme-toggle a:hover,
+.navbar .theme-toggle a:focus,
+body[data-theme="dark"] .navbar .theme-toggle a:hover,
+body[data-theme="dark"] .navbar .theme-toggle a:focus {
+  color: #000;
+}
+
+/* -------------- RESPONSIVE DESIGN: DESKTOP --------------- */
+
 @media (min-width: 768px) {
-  .navbar {
-    bottom: auto;
-    top: var(--spacing);
-    left: var(--spacing);
-    transform: none;
-    flex-direction: column; /* Change to column for desktop */
-    width: var(--sidebar-width);
-    height: calc(100vh - var(--spacing) * 2);
-    align-items: center; /* Center items vertically in sidebar */
-    padding: var(--layout-padding) 0;
-    gap: var(--layout-padding);
-    /* Reset background/border/shadow for sidebar */
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-  }
-  /* Ensure dark mode filter applies on desktop too */
-  body[data-theme="dark"] .navbar .logo img {
-    filter: invert(1) brightness(2);
-  }
-  .navbar .logo {
-    margin-bottom: 1rem;
-  }
-  .navbar .logo img {
-     height: 50px; /* Slightly larger logo for sidebar */
-  }
-  .navbar-menu {
-    flex-direction: column; /* Change to column for desktop */
-    align-items: flex-start; /* Left-align menu items */
-    flex-grow: 1;
-    gap: var(--spacing);
-    width: 100%; /* Ensure menu takes width */
-    padding-left: var(--spacing); /* Indent menu items slightly */
-    justify-content: flex-start; /* Align items to the start */
-  }
-  .navbar .theme-toggle {
-    margin-top: auto;
-  }
-  .theme-toggle a {
-     font-size: 1.8rem; /* Restore larger size for sidebar */
-  }
+  /* Keep main container centered */
   .main-container {
-    margin: var(--spacing) auto var(--spacing) calc(var(--sidebar-width) + var(--spacing) * 2);
+    max-width: 1200px;
+    margin: var(--spacing) auto;
     padding: var(--spacing);
-    padding-bottom: var(--spacing);
-    padding-top: var(--spacing);
   }
 }
 
-main {
-  flex: 1;
-  padding: var(--layout-padding);
+/* Mobile adjustments for navbar */
+@media (max-width: 600px) {
+  .navbar {
+    padding: 0.3rem 0.5rem;
+    height: auto;
+  }
+  
+  .navbar-menu {
+    gap: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .navbar .logo img {
+    height: 24px;
+  }
+  
+  .navbar .theme-toggle a {
+    font-size: 1.2rem;
+    padding: 0.3em;
+  }
 }
 
 /* HeroSection styles */
@@ -352,11 +535,13 @@ main {
 /* CardGrid styles */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 280px);
+  grid-template-columns: repeat(auto-fill, minmax(250px, 280px));
   gap: var(--fluid-1);
-  justify-content: start;
-  justify-items: start;
+  justify-content: center;
   align-items: start;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Card styles */
@@ -365,16 +550,78 @@ main {
   border: 1px solid rgba(0,0,0,0.8);
   box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
   transition: none;
-  overflow: hidden;
+  overflow: visible; /* allow title highlight pseudo-element to show */
   height: 100%;
+  width: 280px; /* Fixed width */
+  max-width: 100%; /* For smaller screens */
   display: flex;
   flex-direction: column;
-  padding: var(--fluid-0);
+  padding: var(--fluid-0); 
+  position: relative;
 }
 
 .card:hover {
   transform: none;
   box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+/* Remove block-level styles from generic .card-link */
+.card-link {
+  /* No block/width styles here */
+  text-decoration: none; /* Keep this */
+}
+
+/* Remove the generic ::after for block-level .card-link */
+.card-link::after {
+  display: none !important; /* Ensure this doesn't apply generically */
+  content: none !important;
+}
+
+/* Remove generic hover/focus underline for block-level .card-link */
+.card-link:hover,
+.card-link:focus {
+  text-decoration: none; /* Reset generic underline */
+}
+
+/* Apply highlight/underline ONLY to links inside card titles */
+.card .title > a {
+  position: relative;
+  display: inline-block; /* Make it inline again */
+  text-decoration: none;
+  color: inherit; /* Inherit color from h2 */
+  z-index: 1; /* Ensure text is above highlight */
+}
+
+.card .title > a::after {
+  content: '';
+  position: absolute;
+  width: calc(100% + 0.4em);
+  height: calc(1em + 18px); /* Increase height for more vertical padding */
+  bottom: 9px;            /* Adjust bottom offset to center the height */
+  left: -0.2em;             /* Adjust position for inline */
+  background-color: var(--primary-color);
+  transform: skewX(-15deg);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 0; /* Ensure highlight stays behind text */
+  display: block;
+}
+
+.card .title > a:hover::after,
+.card .title > a:focus::after {
+  opacity: 1;
+}
+
+.card .title > a:hover,
+.card .title > a:focus {
+  text-decoration: none; /* Remove underline, just use skewbox */
+  color: #000 !important; /* Ensure text turns black */
+}
+
+/* Explicit dark mode override for card title link hover color */
+body[data-theme="dark"] .card .title > a:hover,
+body[data-theme="dark"] .card .title > a:focus {
+  color: #000 !important; /* Ensure text turns black in dark mode */
 }
 
 /* Accessibility Improvements */
@@ -383,68 +630,59 @@ button:focus, a:focus {
   outline-offset: 2px;
 }
 
-/* Base link styles */
-a {
-  color: var(--primary-color);
-  /* multi-directional text-shadow for an outside-only outline */
-  text-shadow: 
-    -2px -2px 0 #000, 2px -2px 0 #000,
-    -2px 2px 0 #000, 2px 2px 0 #000,
-    -2px 0 0 #000, 2px 0 0 #000,
-    0 -2px 0 #000, 0 2px 0 #000;
+/* -------------- GLOBAL LINK STYLES --------------- */
+
+/* Base link styles - for all links EXCEPT navbar links and card links */
+a:not(.navbar a):not(.card-link) {
+  position: relative;
   text-decoration: none;
+  color: var(--text-color); /* Use text color instead of link color */
   transition: color 0.2s ease;
 }
-a:visited {
-  color: var(--primary-color);
-  text-shadow: 
-    -2px -2px 0 #000, 2px -2px 0 #000,
-    -2px 2px 0 #000, 2px 2px 0 #000,
-    -2px 0 0 #000, 2px 0 0 #000,
-    0 -2px 0 #000, 0 2px 0 #000;
-}
-a:hover,
-a:focus {
-  color: var(--link-hover-color);
-  text-shadow: 
-    -2px -2px 0 #000, 2px -2px 0 #000,
-    -2px 2px 0 #000, 2px 2px 0 #000,
-    -2px 0 0 #000, 2px 0 0 #000,
-    0 -2px 0 #000, 0 2px 0 #000;
-}
-a:active {
-  color: var(--link-active-color);
-  text-shadow: 
-    -2px -2px 0 #000, 2px -2px 0 #000,
-    -2px 2px 0 #000, 2px 2px 0 #000,
-    -2px 0 0 #000, 2px 0 0 #000,
-    0 -2px 0 #000, 0 2px 0 #000;
+
+/* Default highlighter for regular links */
+a:not(.navbar a):not(.card-link)::after { 
+  content: '';
+  position: absolute;
+  width: calc(100% + 0.8em);
+  height: calc(1em + 4px);
+  bottom: -2px;
+  left: -0.4em;
+  background-color: var(--primary-color);
+  transform: skewX(-15deg);
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+  z-index: -1;
 }
 
-/* Navbar-specific overrides (placed after base link rules) */
-.navbar-menu a,
-.navbar-submenu a,
-.navbar-menu a:visited,
-.navbar-submenu a:visited,
-.navbar-menu a.active,
-.navbar-submenu a.active {
-  color: #000 !important;
-  text-shadow: none !important;
+/* Hover effect for regular links */
+a:not(.navbar a):not(.card-link):hover,
+a:not(.navbar a):not(.card-link):focus {
+  color: #000; /* Black text on hover for consistency with navbar */
+  text-decoration: none; /* Remove underline on hover */
 }
-.navbar-menu a:hover,
-.navbar-menu a:focus,
-.navbar-submenu a:hover,
-.navbar-submenu a:focus {
-  color: var(--link-hover-color, #39ff14) !important;
+
+a:not(.navbar a):not(.card-link):hover::after,
+a:not(.navbar a):not(.card-link):focus::after {
+  opacity: 1;
+}
+
+/* Dark mode hover text color */
+body[data-theme="dark"] a:not(.navbar a):not(.card-link):hover,
+body[data-theme="dark"] a:not(.navbar a):not(.card-link):focus {
+  color: #000;
 }
 
 /* GameCards styles */
 .game-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 280px);
+  grid-template-columns: repeat(auto-fill, minmax(250px, 280px));
   gap: var(--fluid-1);
   padding: var(--layout-padding);
-  justify-content: start;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .game-card {
@@ -454,7 +692,8 @@ a:active {
   padding: 1rem;
   transition: none;
   display: block;
-  width: 100%;
+  width: 280px; /* Fixed width to match card style */
+  max-width: 100%; /* For smaller screens */
   color: var(--text-color);
 }
 
@@ -481,12 +720,80 @@ p {
   line-height: 1.6;
 }
 
-/* Final navbar link override */
-.navbar a {
-  color: #000 !important;
-  text-shadow: none !important;
+/* Markdown content styling */
+.post-content {
+  max-width: 800px;
+  margin: var(--spacing) auto;
+  padding: var(--layout-padding);
+  color: var(--text-color);
+  line-height: 1.7;
 }
-.navbar a:hover,
-.navbar a:focus {
-  color: var(--link-hover-color) !important;
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  margin-top: var(--spacing);
+  margin-bottom: calc(var(--spacing) / 2);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.post-content h1 { font-size: var(--fluid-4); }
+.post-content h2 { font-size: var(--fluid-3); }
+.post-content h3 { font-size: var(--fluid-2); }
+.post-content h4 { font-size: var(--fluid-1); }
+.post-content p {
+  margin: var(--spacing) 0;
+}
+.post-content a {
+  color: var(--link-color);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.post-content a:hover {
+  color: var(--link-hover-color);
+}
+.post-content ul,
+.post-content ol {
+  margin: var(--spacing) 0 var(--spacing) 1.5em;
+}
+.post-content li {
+  margin-bottom: calc(var(--spacing) / 2);
+}
+.post-content blockquote {
+  margin: var(--spacing) 0;
+  padding-left: var(--spacing);
+  border-left: 4px solid var(--primary-color);
+  color: var(--desc-color);
+  font-style: italic;
+}
+.post-content pre {
+  background: var(--secondary-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: var(--spacing);
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  margin: var(--spacing) 0;
+}
+.post-content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+}
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing) 0;
+}
+.post-content th,
+.post-content td {
+  border: 1px solid var(--card-border);
+  padding: 0.5em 1em;
+}
+.post-content th {
+  background: var(--secondary-bg);
+  font-weight: 600;
 }

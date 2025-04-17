@@ -16,7 +16,11 @@ const { title, slug, description, date } = Astro.props;
 <div class="card game-card">
   <div class="card-content">
     <h2 class="title">
-      <a href={`/games/${slug}/index.html`} target="_blank">{title}</a>
+      <a
+        href={`/games/${slug}/index.html`}
+        target="_blank"
+        rel="noopener noreferrer">{title}</a
+      >
     </h2>
     {description && <p class="description">{description}</p>}
     {date && <p class="date">{date.toLocaleDateString()}</p>}

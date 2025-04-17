@@ -11,12 +11,12 @@ interface Props {
 const { title, slug, description, date } = Astro.props;
 ---
 
-<a class="card-link" href={`/posts/${slug}`}>
-  <div class="card">
-    <div class="card-content">
-      <h2 class="title">{title}</h2>
-      {description && <p class="description">{description}</p>}
-      {date && <p class="date">{date.toLocaleDateString()}</p>}
-    </div>
+<div class="card">
+  <div class="card-content">
+    <h2 class="title">
+      <a href="#" data-post-slug={slug} class="card-open-hero">{title}</a>
+    </h2>
+    {description && <p class="description">{description}</p>}
+    {date && <p class="date">{date.toLocaleDateString()}</p>}
   </div>
-</a>
+</div>

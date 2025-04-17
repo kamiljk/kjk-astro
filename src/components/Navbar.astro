@@ -12,30 +12,29 @@ const { allTypes = [], activeType = "" } = Astro.props;
   </div>
   <ul class="navbar-menu">
     <li class="navbar-item navbar-media">
-      <span>Media</span>
-      <ul class="navbar-submenu">
-        <li class="navbar-subitem">
-          <a href="/" class={activeType === "all" ? "active" : ""}>All</a>
-        </li>
-        {
-          allTypes.map((type: string) => (
-            <li class="navbar-subitem">
-              <a
-                href={`/media/${type}`}
-                class={activeType === type ? "active" : ""}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+      <a href="/media/all" class={activeType === "all" ? "active" : ""}
+        >All Media</a
+      >
     </li>
+    {
+      allTypes.map((type: string) => (
+        <li class="navbar-item">
+          <a
+            href={`/media/${type}`}
+            class={activeType === type ? "active" : ""}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </a>
+        </li>
+      ))
+    }
     <li class="navbar-item">
       <a href="/about" class={activeType === "about" ? "active" : ""}>About</a>
     </li>
   </ul>
-  <div class="theme-toggle">
-    <a id="theme-toggle" href="#" aria-label="Toggle light/dark theme"></a>
+  <div class="navbar-right">
+    <div class="theme-toggle">
+      <a id="theme-toggle" href="#" aria-label="Toggle light/dark theme"></a>
+    </div>
   </div>
 </nav>

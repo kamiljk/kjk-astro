@@ -11,24 +11,287 @@ const filteredFiles =
     : posts;
 ---
 
-<div class="card-grid">
-  {
-    filteredFiles.map((file) =>
-      file.data?.type === "game" ? (
-        <CardGame
-          title={file.data?.title || file.slug || file.id}
-          slug={file.slug || "#"}
-          description={file.data?.description}
-          date={file.data?.date}
-        />
-      ) : (
-        <Card
-          title={file.data?.title || file.slug || file.id}
-          slug={file.slug || "#"}
-          description={file.data?.description}
-          date={file.data?.date}
-        />
+<div id="content-container">
+  <div class="card-grid" id="card-grid">
+    {
+      filteredFiles.map((file) =>
+        file.data?.type === "game" ? (
+          <CardGame
+            title={file.data?.title || file.slug || file.id}
+            slug={file.slug || "#"}
+            description={file.data?.description}
+            date={file.data?.date}
+          />
+        ) : (
+          <Card
+            title={file.data?.title || file.slug || file.id}
+            slug={file.slug || "#"}
+            description={file.data?.description}
+            date={file.data?.date}
+          />
+        )
       )
-    )
-  }
+    }
+  </div>
+
+  <!-- Empty hero card container that will be filled by JS -->
+  <div class="hero-card" id="hero-card" style="display: none;">
+    <div class="hero-card-header">
+      <a
+        href="#"
+        class="hero-back-link card-link"
+        id="hero-back-link"
+        aria-label="Back to all posts"
+      >
+        &larr; Back
+      </a>
+      <div class="hero-title-container">
+        <h1 class="hero-title" id="hero-title"></h1>
+      </div>
+      <p class="hero-date" id="hero-date" style="display: none;"></p>
+    </div>
+    <div class="hero-card-content">
+      <div class="hero-markdown" id="hero-markdown">
+        <p>Loading content…</p>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  // @ts-nocheck
+  function showHeroCard(slug) {
+    // Hide grid, show card
+    document.getElementById("card-grid")!.style.display = "none";
+    const heroCard = document.getElementById("hero-card");
+    heroCard!.style.display = "block";
+
+    // Initialize with empty content until we load the actual content
+    document.getElementById("hero-title")!.textContent = "";
+    const dateEl = document.getElementById("hero-date");
+    dateEl!.style.display = "none";
+    const container = document.getElementById("hero-markdown");
+    container.innerHTML = "<p>Loading content…</p>";
+
+    // Fetch the post via its directory route (works in dev and static builds)
+    const encodedSlug = encodeURIComponent(slug);
+    const dirUrl = `/posts/${encodedSlug}/`;
+    console.log("Fetching content from:", dirUrl);
+    fetch(dirUrl)
+      .then((resp) => {
+        console.log("Response status:", resp.status);
+        if (!resp.ok) {
+          console.error("Fetch failed:", resp.status, resp.statusText);
+          throw new Error(`Failed to fetch post content: ${resp.status}`);
+        }
+        return resp.text();
+      })
+      .then((html) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        // Extract the document title from the HTML - remove the site name if present
+        let docTitle = doc.querySelector("title")?.textContent || "";
+        // If title contains a separator like " | " or " - ", take just the first part
+        if (docTitle.includes(" | ")) {
+          docTitle = docTitle.split(" | ")[0];
+        } else if (docTitle.includes(" - ")) {
+          docTitle = docTitle.split(" - ")[0];
+        }
+        document.getElementById("hero-title")!.textContent = docTitle;
+
+        let content = doc.querySelector(".post-content");
+        if (!content) {
+          console.warn(
+            ".post-content not found, falling back to main.main-container"
+          );
+          content = doc.querySelector("main.main-container");
+        }
+        if (content) {
+          container.innerHTML = content.innerHTML;
+        } else {
+          console.error("No suitable content container found in fetched HTML");
+          container.innerHTML = "<p>Error: Content not found.</p>";
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading content:", err);
+        const container = document.getElementById("hero-markdown");
+        container.innerHTML = `<p>Error loading content: ${err.message}</p>`;
+      });
+  }
+
+  function showCardGrid() {
+    // Hide hero card, show card grid
+    document.getElementById("hero-card")!.style.display = "none";
+    document.getElementById("card-grid")!.style.display = "grid";
+
+    // Update URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete("view");
+    window.history.pushState({}, "", url);
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    // Check URL for view parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewSlug = urlParams.get("view");
+
+    if (viewSlug) {
+      showHeroCard(viewSlug);
+    }
+
+    // Add click handler to all card links
+    document.querySelectorAll(".card-open-hero").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const slug = link.getAttribute("data-post-slug");
+        if (!slug) return;
+
+        // Update URL with view parameter
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", slug);
+        window.history.pushState({}, "", url);
+
+        // Show hero card
+        showHeroCard(slug);
+      });
+    });
+
+    // Handle back link click
+    const backLink = document.getElementById("hero-back-link");
+    if (backLink) {
+      backLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        showCardGrid();
+      });
+    }
+
+    // Handle browser back/forward buttons
+    window.addEventListener("popstate", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewSlug = urlParams.get("view");
+
+      if (viewSlug) {
+        showHeroCard(viewSlug!);
+      } else {
+        showCardGrid();
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Card Grid Styles */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 280px));
+    gap: var(--fluid-1);
+    justify-content: center;
+    align-items: start;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Hero Card Styles */
+  .hero-card {
+    width: 90%; /* Use percentage instead of 100% */
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: var(--secondary-bg);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+  }
+
+  /* Additional left/right spacing on smaller screens */
+  @media (max-width: 1024px) {
+    .hero-card {
+      width: 85%;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-card {
+      width: 80%;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-card {
+      width: 90%;
+      margin: 0 auto;
+    }
+  }
+
+  .hero-card-header {
+    padding: var(--layout-padding);
+    border-bottom: 1px solid var(--card-border);
+    position: relative;
+  }
+
+  .hero-title {
+    margin: 0.5rem 0;
+    font-size: var(--fluid-2);
+  }
+
+  .hero-date {
+    color: var(--desc-color);
+    margin: 0.5rem 0 0;
+  }
+
+  .hero-card-content {
+    padding: var(--layout-padding);
+    overflow-y: auto; /* Let page scroll instead of nested scroll */
+  }
+
+  /* Back link styling with highlight hover like other links */
+  .hero-back-link {
+    position: relative;
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 600;
+    padding-bottom: 2px;
+  }
+
+  /* Title container and divider styling */
+  .hero-title-container {
+    margin-top: 1rem;
+  }
+
+  .hero-divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--card-border);
+    margin-bottom: 1rem;
+  }
+
+  .hero-back-link::after {
+    content: "";
+    position: absolute;
+    width: calc(100% + 0.4em);
+    height: calc(1em + 8px);
+    bottom: 0;
+    left: -0.2em;
+    background-color: var(--primary-color);
+    transform: skewX(-15deg);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: -1;
+    display: block;
+  }
+  .hero-back-link:hover::after,
+  .hero-back-link:focus::after {
+    opacity: 1;
+  }
+  .hero-back-link:hover,
+  .hero-back-link:focus {
+    color: #000;
+    text-decoration: none;
+  }
+</style>

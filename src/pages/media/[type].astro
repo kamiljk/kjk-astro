@@ -30,12 +30,15 @@ const filteredPosts =
 const activeFilters = type === "all" ? new Set(allTypes) : new Set([type]);
 
 export async function getStaticPaths() {
-  const modules = import.meta.glob('../posts/*.md', { eager: true }) as Record<string, any>;
+  const modules = import.meta.glob("../posts/*.md", { eager: true }) as Record<
+    string,
+    any
+  >;
   const types = Object.values(modules)
     .map((mod) => mod.frontmatter?.type)
     .filter(Boolean);
   const uniqueTypes = Array.from(new Set(types));
-  const typesList = ['all', ...uniqueTypes];
+  const typesList = ["all", ...uniqueTypes];
   return typesList.map((type) => ({ params: { type } }));
 }
 ---
