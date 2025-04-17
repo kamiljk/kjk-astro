@@ -1,11 +1,46 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import MainLayout from "../layouts/MainLayout.astro";
+import HeroSection from "../components/HeroSection.astro";
+import CardGrid from "../components/CardGrid.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Load all posts and extract types at the page level
+const modules = import.meta.glob("./posts/*.md", { eager: true }) as Record<
+  string,
+  any
+>;
+const posts = Object.entries(modules).map(([path, mod]) => {
+  const filename = path.split("/").pop()!;
+  const fm = mod.frontmatter || {};
+  return {
+    data: {
+      ...fm,
+      date: fm.date ? new Date(fm.date) : undefined,
+    },
+    slug: filename.replace(/\.md$/, ""),
+  };
+});
+const allTypes = Array.from(
+  new Set(posts.map((f) => f.data?.type).filter(Boolean))
+);
+
+let activeFilters = new Set(allTypes);
+
+// Astro can't do interactive state natively, so we filter on the server by default
+const filteredPosts = posts.filter((post) =>
+  activeFilters.has(post.data?.type)
+);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<MainLayout title="Home | My Astro Site" allTypes={allTypes} activeType="all">
+  <!-- Content grid starts immediately -->
+  <CardGrid posts={filteredPosts} activeFilters={activeFilters} />
+</MainLayout>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    /* allow content to flow and scroll */
+  }
+</style>

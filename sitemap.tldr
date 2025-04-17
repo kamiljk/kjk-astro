@@ -1,0 +1,23 @@
+kjk-astro Site Map (TL;DR)
+==========================
+
+MainLayout
+  ├── Sidebar
+  │     └── ThemeToggle
+  └── MainContent
+        └── HeroSection
+              └── CardGrid
+                    ├── CardGame
+                    ├── CardConcept
+                    ├── CardMusic
+                    ├── CardSocial
+                    └── CardBook
+
+Interaction:
+- Clicking any Card type focuses it (FocusedCard view)
+- Closing FocusedCard returns to CardGrid
+
+Pages:
+- / (Home)
+- /posts/sample-post (Sample Post)
+- /games/* (Games and subpages)

@@ -1,0 +1,55 @@
+---
+import "../assets/global.css";
+
+// About page cards: title and content lines
+const aboutItems = [
+  {
+    title: "About Me",
+    content: [
+      "I’m a developer and designer exploring interactive web experiences.",
+      "This site showcases my portfolio, games, and writing.",
+      "I love combining code, art, and storytelling.",
+    ],
+  },
+  {
+    title: "Colophon",
+    content: [
+      "Built with Astro & Tailwind CSS.",
+      "Hosted on Vercel, deployed via GitHub Actions.",
+      "Icons from Font Awesome; fonts licensed under SIL Open Font License.",
+    ],
+  },
+  {
+    title: "Attributions & Licenses",
+    content: [
+      "All code is open-source under the MIT License.",
+      "Audio samples licensed via Creative Commons. 3rd-party libs credited below.",
+      "Thank you to all contributors and open-source projects!",
+    ],
+  },
+];
+---
+
+<div class="about-grid">
+  {
+    aboutItems.map((item) => (
+      <div class="card">
+        <div class="card-content">
+          <h2 class="title">{item.title}</h2>
+          {item.content.map((line) => (
+            <p class="description">{line}</p>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--card-gap);
+    padding: var(--spacing);
+  }
+</style>

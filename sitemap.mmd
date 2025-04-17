@@ -1,0 +1,197 @@
+---
+id: astro-architecture-unified
+---
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#18181b',
+    'primaryTextColor': '#f5f5f5',
+    'primaryBorderColor': '#f5f5f5',
+    'secondaryColor': '#232323',
+    'secondaryTextColor': '#f5f5f5',
+    'secondaryBorderColor': '#f5f5f5',
+    'tertiaryColor': '#101010',
+    'tertiaryTextColor': '#f5f5f5',
+    'tertiaryBorderColor': '#f5f5f5',
+    'mainBkg': '#101010',
+    'mainContrastColor': '#f5f5f5',
+    'edgeLabelBackground': '#101010',
+    'fontFamily': 'JetBrains Mono, Fira Code, monospace',
+    'fontSize': '15px',
+    'lineColor': '#FFD700',
+    'titleColor': '#FFD700',
+    'nodeTextColor': '#f5f5f5',
+    'noteTextColor': '#b3b3b3',
+    'clusterBkg': '#18181b',
+    'clusterBorder': '#FFD700',
+    'actorBorder': '#FFD700',
+    'actorBkg': '#18181b',
+    'actorTextColor': '#FFD700',
+    'labelBoxBkg': '#101010',
+    'labelBoxBorder': '#FFD700',
+    'altSectionBkg': '#232323',
+    'altSectionBkg2': '#18181b',
+    "disableMulticolor": true,
+    "flowchart": {
+      "curve": "linear",
+      "nodeSpacing": 50,
+      "rankSpacing": 50,
+      "rankDirection": "TB",
+      "useMaxWidth": true,
+      "wrap": true,
+      "arrowMarkerAbsolute": false,
+      "layout": "elk"
+    }
+  }
+}%%
+
+flowchart TB
+
+classDef stateColor fill:#232323,stroke:#FFD700,color:#FFD700,stroke-width:1px;
+classDef buildColor fill:#18181b,stroke:#FFD700,color:#f5f5f5,stroke-width:1px;
+classDef routingColor fill:#232323,stroke:#FFD700,color:#FFD700,stroke-width:1px;
+classDef contentColor fill:#101010,stroke:#FFD700,color:#FFD700,stroke-width:1px;
+classDef renderColor fill:#232323,stroke:#FFD700,color:#FFD700,stroke-width:1px;
+classDef dataColor fill:#18181b,stroke:#FFD700,color:#f5f5f5,stroke-width:1px;
+
+%% 1. State & Signals
+subgraph StateSignals["🧠 <b>State & Signals</b>"]
+  direction TB
+  subgraph UI_Components["🧩 <b>UI Components</b>"]
+    Navbar["<b>Navbar</b>"]
+    CardPrimitive["<b>CardPrimitive</b>"]
+    FocusedCard["<b>FocusedCard</b>"]
+  end
+  subgraph Stores["🧠 <b>State Stores & Signals</b>"]
+    FilterStore["<b>FilterStore</b> <br/><code>(type, tag)</code>"]
+    FocusState["<b>FocusState</b> <br/><code>(activeCardSlug)</code>"]
+    DarkModeSignal["<b>DarkMode</b> <br/><code>(toggle/theme)</code>"]
+  end
+  Navbar -->|sets| FilterStore
+  FilterStore -->|filters| CardPrimitive
+  CardPrimitive -->|onClick| FocusState
+  FocusState -->|controls| FocusedCard
+  Navbar -->|toggles| DarkModeSignal
+  MainLayoutS["<b>MainLayout</b>"] -->|applies class| DarkModeSignal
+end
+class StateSignals stateColor;
+
+%% 2. Build Pipeline
+subgraph BuildPipeline["⚙️ <b>Build Pipeline</b>"]
+  direction LR
+  Markdown["<b>Markdown</b> <br/><code>posts/*.md</code>"]
+  ContentConfig["<b>content.config.ts</b>"]
+  RemarkPlugins["<b>remark/rehype plugins</b> <br/><code>syntax, wiki-link, etc</code>"]
+  AstroParser["<b>Astro Markdown Parser</b>"]
+  ComponentsBP["<b>Components</b> <br/><code>CardGrid, Layout, etc.</code>"]
+  Tailwind["<b>TailwindCSS</b>"]
+  GlobalCSS["<b>global.css</b>"]
+  Vite["<b>Vite Dev Server</b>"]
+  Vercel["<b>Vercel deploy & edge cache</b>"]
+  Markdown --> ContentConfig --> AstroParser
+  AstroParser --> RemarkPlugins
+  AstroParser --> ComponentsBP
+  GlobalCSS --> Vite
+  Tailwind --> Vite
+  ComponentsBP --> Vite
+  Vite --> Vercel
+end
+class BuildPipeline buildColor;
+
+%% 3. Routing & Navigation
+subgraph RoutingNav["🔁 <b>Routing & Navigation</b>"]
+  direction TB
+  Home["<b>/</b> <br/><code>pages/index.astro</code>"]
+  PostSlug["<b>/posts/[slug]</b> <br/><code>pages/posts/[slug].astro</code>"]
+  TagView["<b>/tags/[tag]</b>"]
+  About["<b>/about</b> <br/><code>components/AboutGrid.astro</code>"]
+  NavbarRN["<b>Navbar</b>"]
+  InternalLinks["<b>&lt;a href&gt;</b> <br/>Client navigation"]
+  NavbarRN -->|navigates to| Home
+  NavbarRN --> About
+  CardGridRN["<b>CardGrid</b>"] -->|links to| PostSlug
+  PostSlug -->|back link| Home
+  CardPrimitiveRN["<b>CardPrimitive</b>"] -->|tags| TagView
+  InternalLinks --> Home & PostSlug & TagView
+end
+class RoutingNav routingColor;
+
+%% 4. Content Modeling
+subgraph ContentModel["📦 <b>Content Modeling</b>"]
+  direction TB
+  MarkdownFile["<b>Markdown File</b> <br/><code>posts/*.md</code>"]
+  Frontmatter["<b>Frontmatter Schema</b>"]
+  MarkdownFile --> Frontmatter
+  subgraph FrontmatterFields["<b>Fields</b>"]
+    title
+    description
+    tags
+    type
+    date
+    mediaType
+    pinned
+    draft
+  end
+  Frontmatter --> title & description & tags & type & date & mediaType & pinned & draft
+  type -->|drives| CardVariantsCM["<b>CardVariants</b>"]
+  tags -->|filters| FilterStoreCM["<b>FilterStore</b>"]
+  draft -->|filters out| CardGridCM["<b>CardGrid</b>"]
+end
+class ContentModel contentColor;
+
+%% 5. Render & Composition
+subgraph RenderComp["🖼️ <b>Render & Composition</b>"]
+  direction TB
+  subgraph LayoutRC["<b>Layout & Pages</b>"]
+    MainLayoutRC["<b>MainLayout</b> <br/><code>layouts/MainLayout.astro</code>"]
+    NavbarRC["<b>Navbar</b> <br/><code>components/Navbar.astro</code>"]
+    IndexPage["<b>Index</b> <br/><code>pages/index.astro</code>"]
+    PostPage["<b>Post Page</b> <br/><code>pages/posts/[slug].astro</code>"]
+  end
+  subgraph ComponentsRC["<b>Components</b>"]
+    AboutGridRC["<b>AboutGrid</b> <br/><code>components/AboutGrid.astro</code>"]
+    CardGridRC["<b>CardGrid</b> <br/><code>components/CardGrid.astro</code>"]
+    CardPrimitiveRC["<b>CardPrimitive</b> <br/><code>components/Card.astro</code>"]
+    CardVariantsRC["<b>Variants</b> <br/><code>CardBook, CardApp, ...</code>"]
+    FocusedCardRC["<b>FocusedCard</b> <br/><code>components/FocusedCard.astro</code>"]
+  end
+  MainLayoutRC -->|slots in| IndexPage
+  MainLayoutRC -->|imports| NavbarRC
+  IndexPage -->|uses| AboutGridRC
+  IndexPage -->|uses| CardGridRC
+  PostPage -->|uses| FocusedCardRC
+  CardGridRC -->|maps data to| CardPrimitiveRC
+  CardPrimitiveRC -->|renders| CardVariantsRC
+  CardPrimitiveRC -.onClick.-> FocusedCardRC
+  FocusedCardRC -.Close.-> CardGridRC
+end
+class RenderComp renderColor;
+
+%% 6. Data & Interaction Flow
+subgraph DataInteraction["🔄 <b>Data & Interaction Flow</b>"]
+  direction TB
+  subgraph DataDI["<b>Content & Data</b>"]
+    MarkdownFileDI["<b>Markdown</b> <br/><code>posts/*.md</code>"]
+    FrontmatterDI["<b>Frontmatter</b> <br/><code>title, tags, type...</code>"]
+  end
+  subgraph StateDI["<b>State & Interaction</b>"]
+    FilterStoreDI["<b>FilterStore</b> <br/><code>tag/type filter</code>"]
+    FocusStateDI["<b>FocusState</b> <br/><code>signal/store</code>"]
+  end
+  MarkdownFileDI -->|has| FrontmatterDI
+  MarkdownFileDI -->|parsed into| CardGridDI["<b>CardGrid</b>"]
+  FrontmatterDI -->|drives rendering| CardPrimitiveDI["<b>CardPrimitive</b>"]
+  NavbarDI["<b>Navbar</b>"] -->|sets filter| FilterStoreDI
+  FilterStoreDI -->|filters data| CardGridDI
+  CardPrimitiveDI -->|emits focus| FocusStateDI
+  FocusStateDI -->|shows| FocusedCardDI["<b>FocusedCard</b>"]
+  FocusStateDI -->|resets| CardGridDI
+end
+class DataInteraction dataColor;
+
+%% Inter-subgraph connections
+ContentModel -->|Defines schema for| DataInteraction
+BuildPipeline -->|Supplies processed content & assets to| RenderComp
+ContentModel -->|Provides content structure to| RenderComp
+StateSignals -->|Feeds UI state into| RenderComp
+RoutingNav -->|Informs which pages/components to render in| RenderComp

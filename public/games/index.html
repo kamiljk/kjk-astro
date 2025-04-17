@@ -1,0 +1,60 @@
+<script>
+  // List of games (manually defined or fetched dynamically if possible)
+  const games = [
+    { name: 'Bad Ghost', path: 'badghost/index.html' },
+    { name: 'Chaos Pendulum', path: 'chaos-pendulum/index.html' },
+    { name: 'Chaos Pendulum Graph', path: 'chaos-pendulum-graph/index.html' },
+    { name: 'Electro Ball', path: 'electro-ball/index.html' },
+    { name: 'Particle Party', path: 'particleparty/index.html' },
+    { name: 'Tri Tunnel', path: 'tritunnel/index.html' }
+  ];
+
+  // Container for the cards
+  const container = document.createElement('div');
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+  container.style.gap = '16px';
+  container.style.padding = '16px';
+
+  // Generate cards dynamically
+  games.forEach(game => {
+    const card = document.createElement('div');
+    card.style.border = '1px solid #ccc';
+    card.style.borderRadius = '8px';
+    card.style.padding = '16px';
+    card.style.textAlign = 'center';
+    card.style.backgroundColor = '#f9f9f9';
+    card.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+
+    const title = document.createElement('h3');
+    title.textContent = game.name;
+    title.style.marginBottom = '8px';
+
+    const link = document.createElement('a');
+    link.href = `./games/${game.path}`;
+    link.textContent = 'Play Now';
+    link.style.display = 'inline-block';
+    link.style.marginTop = '8px';
+    link.style.padding = '8px 16px';
+    link.style.color = '#fff';
+    link.style.backgroundColor = '#007BFF';
+    link.style.borderRadius = '4px';
+    link.style.textDecoration = 'none';
+    link.style.fontWeight = 'bold';
+
+    link.addEventListener('mouseover', () => {
+      link.style.backgroundColor = '#0056b3';
+    });
+
+    link.addEventListener('mouseout', () => {
+      link.style.backgroundColor = '#007BFF';
+    });
+
+    card.appendChild(title);
+    card.appendChild(link);
+    container.appendChild(card);
+  });
+
+  // Append the container to the body
+  document.body.appendChild(container);
+</script>

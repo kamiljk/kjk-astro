@@ -1,0 +1,492 @@
+/* Global CSS Reset */
+/* Based on best practices for modern CSS resets */
+
+/* Box sizing reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margin */
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+}
+
+/* Remove list styles on ul, ol elements with a class attribute */
+ul[class], ol[class] {
+  list-style: none;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+}
+
+/* Make images easier to work with */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Inherit fonts for inputs and buttons */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* Remove animations and transitions for people who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Global CSS for the Astro project */
+
+/* Updated Global CSS for fluid scales and sizing */
+
+:root {
+  --sidebar-width: clamp(200px, 15vw, 300px);
+  --primary-color: #0077cc;
+  --secondary-color: #f9f9f9;
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --spacing: 1rem;
+  --base-font-size: clamp(14px, 1.5vw, 18px);
+  --hero-padding: clamp(2rem, 5vw, 4rem);
+  --card-gap: clamp(1rem, 2vw, 2rem);
+  --layout-padding: clamp(1rem, 2vw, 1.5rem);
+
+  /* Fluid modular scale configuration */
+  --fluid-min-width: 320;
+  --fluid-max-width: 1500;
+  --fluid-min-size: 16;
+  --fluid-max-size: 20;
+  --fluid-min-ratio: 1.2;
+  --fluid-max-ratio: 1.33;
+
+  /* Calculate fluid breakpoints */
+  --fluid-screen: 100vw;
+  --fluid-bp: calc((var(--fluid-screen) - ((var(--fluid-min-width) / 16) * 1rem)) / ((var(--fluid-max-width) / 16) - (var(--fluid-min-width) / 16)));
+
+  /* Define fluid scales */
+  --fluid-min-scale-0: var(--fluid-min-ratio);
+  --fluid-min-scale-1: calc(var(--fluid-min-scale-0) * var(--fluid-min-ratio));
+  --fluid-min-scale-2: calc(var(--fluid-min-scale-1) * var(--fluid-min-ratio));
+  --fluid-min-scale-3: calc(var(--fluid-min-scale-2) * var(--fluid-min-ratio));
+  --fluid-min-scale-4: calc(var(--fluid-min-scale-3) * var(--fluid-min-ratio));
+
+  --fluid-max-scale-0: var(--fluid-max-ratio);
+  --fluid-max-scale-1: calc(var(--fluid-max-scale-0) * var(--fluid-max-ratio));
+  --fluid-max-scale-2: calc(var(--fluid-max-scale-1) * var(--fluid-max-ratio));
+  --fluid-max-scale-3: calc(var(--fluid-max-scale-2) * var(--fluid-max-ratio));
+  --fluid-max-scale-4: calc(var(--fluid-max-scale-3) * var(--fluid-max-ratio));
+
+  --fluid-min-size-0: calc(var(--fluid-min-size) / 16);
+  --fluid-min-size-1: calc(var(--fluid-min-size) * var(--fluid-min-scale-0) / 16);
+  --fluid-min-size-2: calc(var(--fluid-min-size) * var(--fluid-min-scale-1) / 16);
+  --fluid-min-size-3: calc(var(--fluid-min-size) * var(--fluid-min-scale-2) / 16);
+  --fluid-min-size-4: calc(var(--fluid-min-size) * var(--fluid-min-scale-3) / 16);
+
+  --fluid-max-size-0: calc(var(--fluid-max-size) / 16);
+  --fluid-max-size-1: calc(var(--fluid-max-size) * var(--fluid-max-scale-0) / 16);
+  --fluid-max-size-2: calc(var(--fluid-max-size) * var(--fluid-max-scale-1) / 16);
+  --fluid-max-size-3: calc(var(--fluid-max-size) * var(--fluid-max-scale-2) / 16);
+  --fluid-max-size-4: calc(var(--fluid-max-size) * var(--fluid-max-scale-3) / 16);
+
+  --fluid-0: calc(((var(--fluid-min-size-0) * 1rem) + (var(--fluid-max-size-0) - var(--fluid-min-size-0)) * var(--fluid-bp)));
+  --fluid-1: calc(((var(--fluid-min-size-1) * 1rem) + (var(--fluid-max-size-1) - var(--fluid-min-size-1)) * var(--fluid-bp)));
+  --fluid-2: calc(((var(--fluid-min-size-2) * 1rem) + (var(--fluid-max-size-2) - var(--fluid-min-size-2)) * var(--fluid-bp)));
+  --fluid-3: calc(((var(--fluid-min-size-3) * 1rem) + (var(--fluid-max-size-3) - var(--fluid-min-size-3)) * var(--fluid-bp)));
+  --fluid-4: calc(((var(--fluid-min-size-4) * 1rem) + (var(--fluid-max-size-4) - var(--fluid-min-size-4)) * var(--fluid-bp)));
+
+  --bg-color: #f2f2f2;
+  --text-color: #111;
+  --link-color: var(--primary-color);
+  --secondary-bg: #fff;
+  --desc-color: #666;
+
+  /* card border default */
+  --card-border: var(--desc-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0d0d0d;
+    --text-color: #eee;
+    --link-color: #66aaff;
+    --secondary-bg: #1a1a1a;
+    --desc-color: #aaa;
+  }
+}
+
+body[data-theme="light"] {
+  /* Custom light‐mode palette */
+  --bg-color: #f5f0e1;      /* beige/off-white main bg */
+  --text-color: #000000;    /* black text */
+  --primary-color: #39ff14; /* neon highlighter accent */
+  --link-hover-color: #1eff00;
+  --link-active-color: #00cc00;
+  --secondary-bg: #ffffff;  /* white for cards */
+  --desc-color: #333333;
+  --card-border: #cccccc;
+}
+
+body[data-theme="dark"] {
+  --bg-color: #000000;      /* pure black background */
+  --text-color: #f5f5dc;    /* light neutral for text */
+  --primary-color: #ffd700; /* gold accent */
+  --link-hover-color: #ffdf00;
+  --link-active-color: #e6c200;
+  --secondary-bg: #121212;  /* slightly lighter than bg for cards */
+  --desc-color: #aaaaaa;
+  --card-border: #333333;
+}
+
+body {
+  font-size: var(--fluid-0);
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* Override layout to allow floating navbar */
+.layout {
+  display: block;
+}
+
+/* Floating menu island - mobile bottom */
+.navbar {
+  position: fixed;
+  bottom: var(--spacing);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: var(--secondary-bg); /* Give it a background */
+  border: 1px solid var(--card-border); /* Add a border */
+  border-radius: 12px; /* Rounded corners */
+  padding: 0.5rem 1rem; /* Adjust padding */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Add subtle shadow */
+  width: auto;
+  max-width: 90%;
+  display: flex;
+  flex-direction: row; /* Ensure horizontal layout */
+  align-items: center;
+  gap: var(--spacing);
+}
+
+/* Logo styling */
+.navbar .logo img {
+  height: 40px; /* Set a fixed height */
+  width: auto; /* Maintain aspect ratio */
+  display: block; /* Ensure proper rendering */
+}
+
+/* Logo color override for dark theme */
+body[data-theme="dark"] .navbar .logo img {
+  filter: invert(1) brightness(2);
+}
+
+/* Center logo and theme toggle */
+.navbar .logo,
+.navbar .theme-toggle {
+  align-self: center;
+}
+
+/* Center menu items container */
+.navbar-menu {
+  display: flex;
+  flex-direction: row; /* Ensure horizontal layout */
+  gap: var(--spacing);
+  align-items: center; /* Align items vertically in the center */
+  flex-grow: 1; /* Allow menu to take available space */
+  justify-content: center; /* Center menu items horizontally */
+}
+
+/* Navbar-specific link overrides */
+.navbar-menu a,
+.navbar-submenu a,
+.navbar-menu a:visited,
+.navbar-submenu a:visited,
+.navbar-menu a.active,
+.navbar-submenu a.active {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+.navbar-menu a:hover, .navbar-menu a:focus, .navbar-submenu a:hover, .navbar-submenu a:focus {
+  color: var(--link-hover-color, #39ff14) !important;
+}
+
+/* Force navbar links to black and themed hover */
+.navbar .navbar-menu a,
+.navbar .navbar-submenu a {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+.navbar .navbar-menu a:hover,
+.navbar .navbar-menu a:focus,
+.navbar .navbar-submenu a:hover,
+.navbar .navbar-submenu a:focus {
+  color: var(--link-hover-color, #39ff14) !important;
+}
+
+/* Navbar theme-toggle override */
+.navbar .theme-toggle a {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+.navbar .theme-toggle a:hover,
+.navbar .theme-toggle a:focus {
+  color: var(--link-hover-color) !important;
+}
+
+/* Theme toggle link styling */
+.theme-toggle a {
+  font-size: 1.5rem; /* Slightly smaller for horizontal layout */
+  color: var(--link-color);
+  /* outline letters like other links */
+  text-shadow:
+    -2px -2px 0 #000, 2px -2px 0 #000,
+    -2px 2px 0 #000, 2px 2px 0 #000,
+    -2px 0 0 #000, 2px 0 0 #000,
+    0 -2px 0 #000, 0 2px 0 #000;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  padding: 0.25rem;
+}
+.theme-toggle a:hover,
+.theme-toggle a:focus {
+  color: var(--link-hover-color);
+}
+
+/* Main content area below navbar - mobile */
+.main-container {
+  max-width: 1200px;
+  margin: var(--spacing) auto;
+  padding: var(--spacing);
+  padding-bottom: calc(var(--spacing) * 6); /* Space for bottom menu */
+}
+
+/* Responsive Desktop: Left sidebar */
+@media (min-width: 768px) {
+  .navbar {
+    bottom: auto;
+    top: var(--spacing);
+    left: var(--spacing);
+    transform: none;
+    flex-direction: column; /* Change to column for desktop */
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--spacing) * 2);
+    align-items: center; /* Center items vertically in sidebar */
+    padding: var(--layout-padding) 0;
+    gap: var(--layout-padding);
+    /* Reset background/border/shadow for sidebar */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  /* Ensure dark mode filter applies on desktop too */
+  body[data-theme="dark"] .navbar .logo img {
+    filter: invert(1) brightness(2);
+  }
+  .navbar .logo {
+    margin-bottom: 1rem;
+  }
+  .navbar .logo img {
+     height: 50px; /* Slightly larger logo for sidebar */
+  }
+  .navbar-menu {
+    flex-direction: column; /* Change to column for desktop */
+    align-items: flex-start; /* Left-align menu items */
+    flex-grow: 1;
+    gap: var(--spacing);
+    width: 100%; /* Ensure menu takes width */
+    padding-left: var(--spacing); /* Indent menu items slightly */
+    justify-content: flex-start; /* Align items to the start */
+  }
+  .navbar .theme-toggle {
+    margin-top: auto;
+  }
+  .theme-toggle a {
+     font-size: 1.8rem; /* Restore larger size for sidebar */
+  }
+  .main-container {
+    margin: var(--spacing) auto var(--spacing) calc(var(--sidebar-width) + var(--spacing) * 2);
+    padding: var(--spacing);
+    padding-bottom: var(--spacing);
+    padding-top: var(--spacing);
+  }
+}
+
+main {
+  flex: 1;
+  padding: var(--layout-padding);
+}
+
+/* HeroSection styles */
+.hero {
+  padding: var(--fluid-1);
+}
+
+.hero .hero-content {
+  max-width: 800px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.hero .description {
+  font-size: 1.2rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* CardGrid styles */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 280px);
+  gap: var(--fluid-1);
+  justify-content: start;
+  justify-items: start;
+  align-items: start;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--secondary-bg);
+  border: 1px solid rgba(0,0,0,0.8);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  transition: none;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--fluid-0);
+}
+
+.card:hover {
+  transform: none;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+/* Accessibility Improvements */
+button:focus, a:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Base link styles */
+a {
+  color: var(--primary-color);
+  /* multi-directional text-shadow for an outside-only outline */
+  text-shadow: 
+    -2px -2px 0 #000, 2px -2px 0 #000,
+    -2px 2px 0 #000, 2px 2px 0 #000,
+    -2px 0 0 #000, 2px 0 0 #000,
+    0 -2px 0 #000, 0 2px 0 #000;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:visited {
+  color: var(--primary-color);
+  text-shadow: 
+    -2px -2px 0 #000, 2px -2px 0 #000,
+    -2px 2px 0 #000, 2px 2px 0 #000,
+    -2px 0 0 #000, 2px 0 0 #000,
+    0 -2px 0 #000, 0 2px 0 #000;
+}
+a:hover,
+a:focus {
+  color: var(--link-hover-color);
+  text-shadow: 
+    -2px -2px 0 #000, 2px -2px 0 #000,
+    -2px 2px 0 #000, 2px 2px 0 #000,
+    -2px 0 0 #000, 2px 0 0 #000,
+    0 -2px 0 #000, 0 2px 0 #000;
+}
+a:active {
+  color: var(--link-active-color);
+  text-shadow: 
+    -2px -2px 0 #000, 2px -2px 0 #000,
+    -2px 2px 0 #000, 2px 2px 0 #000,
+    -2px 0 0 #000, 2px 0 0 #000,
+    0 -2px 0 #000, 0 2px 0 #000;
+}
+
+/* Navbar-specific overrides (placed after base link rules) */
+.navbar-menu a,
+.navbar-submenu a,
+.navbar-menu a:visited,
+.navbar-submenu a:visited,
+.navbar-menu a.active,
+.navbar-submenu a.active {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+.navbar-menu a:hover,
+.navbar-menu a:focus,
+.navbar-submenu a:hover,
+.navbar-submenu a:focus {
+  color: var(--link-hover-color, #39ff14) !important;
+}
+
+/* GameCards styles */
+.game-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 280px);
+  gap: var(--fluid-1);
+  padding: var(--layout-padding);
+  justify-content: start;
+}
+
+.game-card {
+  background: var(--secondary-bg);
+  border: 1px solid rgba(0,0,0,0.8);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  padding: 1rem;
+  transition: none;
+  display: block;
+  width: 100%;
+  color: var(--text-color);
+}
+
+.game-card:hover {
+  transform: none;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+}
+
+.game-card-content {
+  text-align: center;
+  color: var(--text-color);
+}
+
+h1 {
+  font-size: var(--fluid-2);
+}
+
+h2 {
+  font-size: var(--fluid-1);
+}
+
+p {
+  font-size: var(--fluid-0);
+  line-height: 1.6;
+}
+
+/* Final navbar link override */
+.navbar a {
+  color: #000 !important;
+  text-shadow: none !important;
+}
+.navbar a:hover,
+.navbar a:focus {
+  color: var(--link-hover-color) !important;
+}

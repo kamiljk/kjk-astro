@@ -1,0 +1,39 @@
+---
+import CardGrid from "./CardGrid.astro";
+import "../assets/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  showHeader?: boolean;
+}
+
+const {
+  title = "Welcome",
+  description = "Explore our content",
+  showHeader = true,
+} = Astro.props;
+---
+
+{showHeader && (
+  <div class="hero">
+    <div class="hero-grid">
+      <!-- Add grid items here if needed -->
+    </div>
+  </div>
+)}
+
+<style>
+  .hero {
+    display: grid;
+    place-items: center;
+    padding: var(--hero-padding);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--card-gap);
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+import Card from "./Card.astro";
+import CardGame from "./CardGame.astro";
+import "../assets/global.css";
+
+const { posts = [], activeFilters = new Set() } = Astro.props;
+
+const filteredFiles =
+  activeFilters.size > 0
+    ? posts.filter((file) => activeFilters.has(file.data?.type))
+    : posts;
+---
+
+<div class="card-grid">
+  {
+    filteredFiles.map((file) =>
+      file.data?.type === "game" ? (
+        <CardGame
+          title={file.data?.title || file.slug || file.id}
+          slug={file.slug || "#"}
+          description={file.data?.description}
+          date={file.data?.date}
+        />
+      ) : (
+        <Card
+          title={file.data?.title || file.slug || file.id}
+          slug={file.slug || "#"}
+          description={file.data?.description}
+          date={file.data?.date}
+        />
+      )
+    )
+  }
+</div>

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Electro Ball</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <style>
+    body { margin: 0; overflow: hidden; background: black; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+    #error-message { position: absolute; top: 10px; left: 10px; color: red; font-family: monospace; z-index: 100; }
+    #p5-loading-status { position: absolute; top: 10px; left: 10px; color: white; font-family: monospace; z-index: 99; }
+    #debug-info { position: absolute; bottom: 10px; left: 10px; color: rgba(255,255,255,0.7); font-family: monospace; font-size: 12px; z-index: 98; }
+    #interaction-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 97; }
+    #fallback-canvas { width: 100%; height: 100vh; background-color: #222; display: none; }
+  </style>
+  <!-- Load p5.js from multiple CDNs for reliability -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>
+  <script>
+    // In case the primary CDN fails, try a fallback
+    if (!window.p5) {
+      console.log("Primary p5.js CDN failed, trying fallback");
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"><\/script>');
+    }
+  </script>
+</head>
+<body>
+<div id="error-message"></div>
+<div id="p5-loading-status">Loading electro-ball...</div>
+<div id="debug-info"></div>
+<div id="interaction-area"></div>
+<canvas id="fallback-canvas"></canvas>
+
+<script>
+// Display any errors that occur during initialization
+window.onerror = function(message, source, lineno, colno, error) {
+  document.getElementById('error-message').innerText = `Error: ${message} at line ${lineno}`;
+  console.error(message, error);
+  return true;
+};
+
+// Define p5.js constants that would normally be available after setup
+// This ensures they're available even if referenced before setup runs
+const PI = Math.PI;
+const TWO_PI = Math.PI * 2;
+const WEBGL = 'webgl';
+
+// Debug function to show events are being captured
+function updateDebugInfo(text) {
+  const debugEl = document.getElementById('debug-info');
+  debugEl.textContent = text;
+  // Auto-clear after 2 seconds
+  setTimeout(() => {
+    if (debugEl.textContent === text) {
+      debugEl.textContent = '';
+    }
+  }, 2000);
+}
+
+// Define constants for wireframe appearance
+const WIREFRAME_MIN_BRIGHTNESS = 40;    // Darker start (was 200-255)
+const WIREFRAME_MAX_BRIGHTNESS = 200;   // Max brightness with momentum
+const GLOW_INTENSITY_MIN = 0;           // No glow at rest
+const GLOW_INTENSITY_MAX = 40;          // Maximum glow with high momentum
+const GLOW_SPREAD_MIN = 0;              // No spread at rest
+const GLOW_SPREAD_MAX = 25;             // Maximum blur spread
+
+// Momentum visualization thresholds
+const MOMENTUM_THRESHOLD_LOW = 0.001;   // Minimal momentum
+const MOMENTUM_THRESHOLD_MED = 0.01;    // Medium momentum
+const MOMENTUM_THRESHOLD_HIGH = 0.04;   // High momentum
+
+// ADDED: Variables for dithered noise background effect
+let noiseScale = 0.04;          // Controls the scale of the noise pattern
+let noisePoints = [];           // Array to store noise points
+let noiseResolution = 15;       // Number of points in each dimension (lower = more performant)
+let noiseIntensity = 0.7;       // How strong the noise effect is
+let pixelSize = 5;              // Size of "pixels" for pixelated effect
+let glitchIntensity = 0.3;      // How glitchy the effect appears
+let glitchIntervals = [];       // Intervals for glitch effects
+let pixelGrid = [];             // For pixelated dithered effect
+
+// ADDED: Generate noise points for the dithered effect
+function generateNoisePoints() {
+  noisePoints = [];
+  pixelGrid = [];
+  const radius = 350; // Radius of the noise field
+  
+  // Generate pixel grid for pixelated dithered effect
+  for (let x = -radius; x < radius; x += pixelSize) {
+    for (let y = -radius; y < radius; y += pixelSize) {
+      // Only include points within the circle radius
+      const dist = Math.sqrt(x*x + y*y);
+      if (dist <= radius) {
+        pixelGrid.push({
+          x: x,
+          y: y,
+          // Random attributes for each pixel
+          noise: Math.random(),
+          threshold: Math.random() * 0.7 + 0.1,
+          glitchFactor: Math.random(),
+          glitchTimer: Math.floor(Math.random() * 60),
+          colorShift: Math.floor(Math.random() * 3), // 0, 1, or 2 for RGB shifting
+          visible: Math.random() > 0.3 // Some pixels are initially invisible (dithered effect)
+        });
+      }
+    }
+  }
+  
+  // Also keep original noise points for additional effects
+  for (let i = -noiseResolution; i <= noiseResolution; i++) {
+    for (let j = -noiseResolution; j <= noiseResolution; j++) {
+      // Create a grid of points within a circular area
+      const x = (i / noiseResolution) * radius;
+      const y = (j / noiseResolution) * radius;
+      
+      // Only include points within the circle radius
+      const dist = Math.sqrt(x*x + y*y);
+      if (dist <= radius) {
+        noisePoints.push({
+          x: x,
+          y: y,
+          z: (Math.random() * 2 - 1) * 100, // Random z-offset for 3D effect
+          size: 1 + Math.random() * 3,     // Random point size
+          speed: 0.5 + Math.random() * 2   // Random speed
+        });
+      }
+    }
+  }
+  
+  // Set up glitch intervals - random moments when glitches will be more intense
+  glitchIntervals = [];
+  for (let i = 0; i < 5; i++) {
+    glitchIntervals.push(Math.floor(Math.random() * 300)); // Random frames when glitches happen
+  }
+}
+
+// ADDED: Critical discharge variables and constants
+const CRITICAL_CHANCE_START = 0.001;   // Base chance when ball is spinning fast
+const CRITICAL_CHANCE_MAX = 0.01;      // Maximum chance after extended spinning
+const CRITICAL_MOMENTUM_THRESHOLD = 0.015; // Minimum momentum to start building critical chance
+const CRITICAL_DISCHARGE_COLOR = [60, 220, 255]; // Bright cyan for critical discharge
+let criticalCharge = 0;                // Builds up while continuously spinning
+let criticalChargeMax = 1.0;           // When charge can trigger a critical event
+let criticalChargeBuildRate = 0.003;   // How quickly critical charge builds (slower = rarer)
+let consecutiveSpinningFrames = 0;     // Track how long the ball has been spinning
+
+// ADDED: Variables for smoothing out visual effects
+let currentGlow = 0;                    // Current glow value (smoothed)
+let currentBrightness = WIREFRAME_MIN_BRIGHTNESS; // Current brightness (smoothed)
+let glowBuildupRate = 0.03;             // How quickly glow builds up (slower = less flickering)
+let glowDecayRate = 0.02;               // How quickly glow fades (slower = more persistent glow)
+
+// ADDED: Variables to handle critical discharge effects
+let inCriticalDischarge = false;        // Currently in a critical discharge state
+let criticalDischargeTimer = 0;         // How long the critical discharge lasts
+let criticalDischargeColor = [60, 220, 255]; // Color during critical discharge
+let criticalPulseRate = 0;              // Pulsing rate during critical discharge
+
+let sphere = [];
+let discharges = [];
+let rotX = 0, rotY = 0;
+let isDragging = false;
+let prevMouseX, prevMouseY;
+let momentumX = 0, momentumY = 0;
+let multitouch = false;
+let multitouchStartDist = 0;
+let multitouchEffect = 0;
+let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+let gravity = 0.004; // Stronger gravity for heavier feel
+
+// MODIFIED: Removed autoRotate flag and reduced auto-rotation to near zero
+let autoRotateSpeedX = 0.00001; // Almost no auto-rotation
+let autoRotateSpeedY = 0.00001; // Almost no auto-rotation
+
+// MODIFIED: Removed socketing effect and adjusted momentum values
+const MOMENTUM_DAMPING = 0.985; // Slightly slower decay for smoother motion
+// REMOVED: No more GRAVITY_CENTER or GRAVITY_STRENGTH constants
+const CHARGE_DISSIPATION = 0.002; // How fast charge leaks if not spinning
+
+// MODIFIED: Increased sensitivity for user interactions
+const SPARK_BASE_FREQ = 0.01; 
+const SPARK_MAX_FREQ = 0.5;
+const SCROLL_SENSITIVITY = 0.002; // Further increased sensitivity for scroll
+const DRAG_SENSITIVITY = 0.006; // Further increased sensitivity for drag
+
+let charge = 0;
+const CHARGE_MAX = 1.0;
+const CHARGE_RATE = 0.0012; // How fast charge builds up
+const GLOW_MIN = 20;
+const GLOW_MAX = 120;
+let discharging = false;
+let dischargeTimer = 0;
+let p5Canvas; // Keep reference to the main canvas
+let frameCount = 0; // Manual frame counter
+let lastInteractionTime = 0; // Track when user last interacted
+let eventHandlersAttached = false; // Track if event handlers are attached
+
+function requestFullscreenIfIOS() {
+  if (isIOS && document.body.requestFullscreen) {
+    document.body.requestFullscreen();
+  } else if (isIOS && document.documentElement.webkitRequestFullscreen) {
+    document.documentElement.webkitRequestFullscreen();
+  }
+}
+
+// Make sure all p5.js functions we use are properly defined if not available yet
+function map(value, start1, stop1, start2, stop2, withinBounds) {
+  if (window.map) return window.map(value, start1, stop1, start2, stop2, withinBounds);
+  
+  let newval = start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
+  if (!withinBounds) {
+    return newval;
+  }
+  if (start2 < stop2) {
+    return constrain(newval, start2, stop2);
+  } else {
+    return constrain(newval, stop2, start2);
+  }
+}
+
+function constrain(n, low, high) {
+  if (window.constrain) return window.constrain(n, low, high);
+  return Math.max(Math.min(n, high), low);
+}
+
+function random(min, max) {
+  if (window.random) return window.random(min, max);
+  if (min === undefined) return Math.random();
+  if (max === undefined) {
+    max = min;
+    min = 0;
+  }
+  return Math.random() * (max - min) + min;
+}
+
+function floor(n) {
+  if (window.floor) return window.floor(n);
+  return Math.floor(n);
+}
+
+function sin(angle) {
+  if (window.sin) return window.sin(angle);
+  return Math.sin(angle);
+}
+
+function cos(angle) {
+  if (window.cos) return window.cos(angle);
+  return Math.cos(angle);
+}
+
+// --- Dynamo-based charge mechanics ---
+function getAngularVelocity() {
+  // Use the magnitude of the momentum vector as a proxy for angular velocity
+  return Math.sqrt(momentumX * momentumX + momentumY * momentumY);
+}
+
+function setupEventListeners() {
+  if (eventHandlersAttached) return;
+  
+  // Clear any existing listeners first
+  const interactionArea = document.getElementById('interaction-area');
+  interactionArea.removeEventListener('mousedown', onPointerDown);
+  interactionArea.removeEventListener('touchstart', onPointerDown);
+  window.removeEventListener('wheel', onWheel);
+  
+  // Add event listeners to both the canvas and the interaction area for redundancy
+  updateDebugInfo('Setting up event listeners');
+  
+  // Attach to canvas
+  const canvasEl = document.querySelector('canvas');
+  if (canvasEl) {
+    canvasEl.addEventListener('mousedown', onPointerDown, { passive: false });
+    canvasEl.addEventListener('touchstart', onPointerDown, { passive: false });
+  }
+  
+  // Attach to interaction area (div covering the whole screen)
+  interactionArea.addEventListener('mousedown', onPointerDown, { passive: false });
+  interactionArea.addEventListener('touchstart', onPointerDown, { passive: false });
+  
+  // Attach wheel event to window for better coverage
+  window.addEventListener('wheel', onWheel, { passive: false });
+  
+  // Prevent double-tap zoom on iOS
+  document.body.addEventListener('touchstart', function(e) { 
+    if (e.touches.length > 1) e.preventDefault(); 
+  }, { passive: false });
+  
+  // Request fullscreen on first interaction (iOS)
+  document.body.addEventListener('pointerdown', requestFullscreenIfIOS, { once: true });
+  
+  eventHandlersAttached = true;
+  console.log("Event listeners attached");
+}
+
+function setup() {
+  p5Canvas = createCanvas(windowWidth, windowHeight, WEBGL);
+  noFill();
+  stroke(200, 220, 255);
+  strokeWeight(1);
+  createSphere(200, 16);
+  
+  // Generate noise points for dithered background effect
+  generateNoisePoints();
+  
+  // Update status
+  document.getElementById('p5-loading-status').textContent = "Electro-ball ready! Click or touch to interact";
+  setTimeout(() => {
+    document.getElementById('p5-loading-status').style.opacity = 0.5;
+  }, 4000);
+  
+  // Setup Event Listeners - moved to a separate function for reliability
+  setupEventListeners();
+  
+  // Force a manual test interaction
+  setTimeout(() => {
+    // This gives a tiny impulse to show it's working
+    momentumX = 0.01;
+    momentumY = 0.01;
+    lastInteractionTime = frameCount;
+  }, 1000);
+  
+  console.log("Setup complete!");
+}
+
+function draw() {
+  frameCount++; // Manual frame counter increment
+  background(0);
+
+  // Check if event handlers are attached, if not, try to attach them again
+  if (!eventHandlersAttached && frameCount % 60 === 0) {
+    setupEventListeners();
+  }
+
+  // Get angular velocity for visual effects
+  let angularV = getAngularVelocity();
+  
+  // Map angular velocity to visual effects in a natural-looking way
+  // These follow an exponential curve for more natural appearance
+  let momentumFactor = Math.min(1, angularV / MOMENTUM_THRESHOLD_HIGH);
+  
+  // MODIFIED: Calculate target values but don't apply them directly
+  let targetBrightness = WIREFRAME_MIN_BRIGHTNESS + 
+                     Math.pow(momentumFactor, 1.5) * (WIREFRAME_MAX_BRIGHTNESS - WIREFRAME_MIN_BRIGHTNESS);
+  let targetGlowSpread = Math.pow(momentumFactor, 1.8) * GLOW_SPREAD_MAX;
+  
+  // ADDED: Critical discharge logic
+  // Only build up critical charge if spinning above threshold
+  if (angularV > CRITICAL_MOMENTUM_THRESHOLD) {
+    consecutiveSpinningFrames++;
+    
+    // Start building critical charge after consistent spinning
+    if (consecutiveSpinningFrames > 120) { // About 2 seconds of consistent spinning
+      criticalCharge += criticalChargeBuildRate;
+      criticalCharge = Math.min(criticalCharge, criticalChargeMax);
+      
+      // Check for critical discharge trigger (rare chance that increases with time)
+      let criticalChanceNow = CRITICAL_CHANCE_START + 
+                             (criticalCharge / criticalChargeMax) * (CRITICAL_CHANCE_MAX - CRITICAL_CHANCE_START);
+      
+      if (random() < criticalChanceNow && !inCriticalDischarge && !discharging) {
+        // Trigger critical discharge!
+        inCriticalDischarge = true;
+        criticalDischargeTimer = 120; // About 2 seconds
+        criticalPulseRate = frameCount;
+        criticalCharge = 0; // Reset for next time
+        consecutiveSpinningFrames = 0;
+        
+        // Create multiple discharges in quick succession
+        for (let i = 0; i < 12; i++) {
+          setTimeout(() => {
+            if (window.p5 && p5.Vector) {
+              createCriticalDischarge();
+            }
+          }, i * 100); // Staggered discharges every 100ms
+        }
+        
+        // Stronger vibration for critical event
+        if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 50, 30, 100]);
+        
+        // Show visual indicator
+        updateDebugInfo("⚡ CRITICAL DISCHARGE ⚡");
+      }
+    }
+  } else {
+    // Reset consecutive spinning counter if momentum drops
+    consecutiveSpinningFrames = Math.max(0, consecutiveSpinningFrames - 5);
+    
+    // Slowly lose critical charge if not spinning
+    criticalCharge *= 0.995;
+  }
+  
+  // ADDED: Smooth transitions for all visual effects
+  // Brightness increases faster than it decreases for natural feel
+  if (targetBrightness > currentBrightness) {
+    currentBrightness += (targetBrightness - currentBrightness) * glowBuildupRate;
+  } else {
+    currentBrightness += (targetBrightness - currentBrightness) * glowDecayRate;
+  }
+  
+  // Glow smoothly follows the target with damping
+  currentGlow += (targetGlowSpread - currentGlow) * (currentGlow < targetGlowSpread ? 
+                                                    glowBuildupRate : glowDecayRate);
+  
+  // Calculate colors based on smoothed brightness and critical state
+  let colorR, colorG, colorB, alpha;
+  
+  if (inCriticalDischarge) {
+    // During critical discharge, use special color and pulsing effect
+    let pulseIntensity = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
+    colorR = CRITICAL_DISCHARGE_COLOR[0] + pulseIntensity * 50;
+    colorG = CRITICAL_DISCHARGE_COLOR[1] + pulseIntensity * 35;
+    colorB = CRITICAL_DISCHARGE_COLOR[2];
+    alpha = 140 + 115 * pulseIntensity; // Stronger pulsing in alpha
+    
+    // Update critical timer
+    criticalDischargeTimer--;
+    if (criticalDischargeTimer <= 0) {
+      inCriticalDischarge = false;
+    }
+  } else {
+    // Normal coloring
+    colorR = Math.floor(currentBrightness * 0.7);
+    colorG = Math.floor(currentBrightness * 0.85);
+    colorB = Math.floor(currentBrightness);
+    alpha = 140 + 75 * Math.min(momentumFactor, currentGlow/GLOW_SPREAD_MAX);
+  }
+  
+  // Dynamo: charge builds up from angular velocity (spinning)
+  let dynChargeRate = map(angularV, 0, 0.04, 0, 0.012, true);
+  
+  try {
+    // Regular discharge logic
+    if (!discharging && !inCriticalDischarge) {
+      if (dynChargeRate > 0.0005) {
+        charge += dynChargeRate;
+      } else {
+        charge -= CHARGE_DISSIPATION;
+      }
+      charge = constrain(charge, 0, CHARGE_MAX);
+      
+      if (charge >= CHARGE_MAX) {
+        discharging = true;
+        dischargeTimer = 60; // Discharge duration
+        createDischarge(true); // Main discharge
+        if (window.navigator.vibrate) window.navigator.vibrate(50);
+      }
+    } else if (discharging && !inCriticalDischarge) {
+      charge *= 0.95; // Rapidly decrease charge during discharge
+      dischargeTimer--;
+      if (dischargeTimer <= 0) discharging = false;
+      
+      if (random() < SPARK_MAX_FREQ) {
+        createDischarge(false); // Sparks during discharge
+      }
+    }
+    
+    // --- Glow Effect ---
+    if (drawingContext) {
+      // Apply appropriate glow based on state
+      if (inCriticalDischarge) {
+        // Stronger, more colorful glow during critical discharge
+        let criticalPulse = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
+        drawingContext.shadowBlur = 25 + criticalPulse * 20;
+        drawingContext.shadowColor = `rgba(${CRITICAL_DISCHARGE_COLOR[0]}, 
+                                           ${CRITICAL_DISCHARGE_COLOR[1]}, 
+                                           ${CRITICAL_DISCHARGE_COLOR[2]}, 
+                                           ${0.5 + criticalPulse * 0.4})`;
+      } else {
+        // Normal smoothed glow effect
+        drawingContext.shadowBlur = currentGlow;
+        
+        // Smooth transition for glow alpha as well
+        let glowAlpha = Math.min(0.7, (currentGlow/GLOW_SPREAD_MAX) * 0.7);
+        drawingContext.shadowColor = `rgba(${colorR + 50}, ${colorG + 50}, 255, ${glowAlpha})`;
+      }
+    }
+    
+    // --- Rotation & Drawing ---
+    let timeSinceInteraction = frameCount - lastInteractionTime;
+    if (!isDragging) {
+      // Apply very minimal auto-rotation only after period of no interaction
+      if (timeSinceInteraction > 300) { // After ~5 seconds of no interaction
+        // Apply just enough motion to seem alive but not self-spinning
+        momentumX += autoRotateSpeedX * Math.sin(frameCount * 0.01);
+        momentumY += autoRotateSpeedY * Math.cos(frameCount * 0.01);
+      }
+      
+      // Apply momentum from mouse wheel or drag
+      rotX += momentumX;
+      rotY += momentumY;
+      
+      // Natural momentum decay - same in all directions
+      momentumX *= MOMENTUM_DAMPING;
+      momentumY *= MOMENTUM_DAMPING;
+      
+      // ADDED: Force momentum to zero if it's very small
+      if (Math.abs(momentumX) < 0.0001) momentumX = 0;
+      if (Math.abs(momentumY) < 0.0001) momentumY = 0;
+    }
+    
+    // Make the ball semi-transparent so you can see through it
+    noFill(); // Ensure the sphere has no fill
+    
+    // Set stroke color and opacity based on state
+    if (inCriticalDischarge) {
+      // Pulsing effect for critical discharge
+      let pulseIntensity = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
+      stroke(colorR, colorG, colorB, alpha);
+    } else if (multitouchEffect > 0) {
+      // Special effect for multitouch - pulsing brightness
+      stroke(Math.min(255, colorR + 100), Math.min(255, colorG + 100), 255, 
+             180 + 75 * Math.sin(frameCount * 0.2));
+      multitouchEffect--;
+    } else {
+      // Use smoothed color values for stable appearance
+      stroke(colorR, colorG, colorB, alpha);
+    }
+    
+    push();
+    rotateY(rotX);
+    rotateX(rotY);
+    
+    // Draw sphere with appropriate appearance
+    if (inCriticalDischarge) {
+      let pulseIntensity = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
+      strokeWeight(1.2 + pulseIntensity * 1.0); // Thicker stroke during critical
+    } else {
+      // Normal smooth stroke weight changes
+      let targetStrokeWeight = 0.8 + 0.7 * (currentGlow/GLOW_SPREAD_MAX);
+      strokeWeight(targetStrokeWeight);
+    }
+    
+    for (let line of sphere) {
+      beginShape();
+      for (let v of line) {
+        vertex(v.x, v.y, v.z);
+      }
+      endShape();
+    }
+    
+    // --- Discharges ---
+    updateDischarges();
+    pop();
+    
+    // Background ambient effects
+    if (inCriticalDischarge) {
+      // MODIFIED: Create a pixelated glitchy dithered discharge effect
+      drawingContext.globalCompositeOperation = 'lighter';
+      noStroke();
+      
+      // Get pulse and glitch timing factors
+      let pulseIntensity = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
+      let glitchTiming = frameCount * 0.3; // Controls overall glitch timing
+      let majorGlitch = false;
+      
+      // Check if we're in a "glitch moment"
+      for (let i = 0; i < glitchIntervals.length; i++) {
+        if (Math.abs((frameCount % 300) - glitchIntervals[i]) < 10) {
+          majorGlitch = true;
+          break;
+        }
+      }
+      
+      push();
+      translate(0, 0, -50); // Behind the ball
+      
+      // Draw pixelated grid with glitchy effects
+      for (let i = 0; i < pixelGrid.length; i++) {
+        const pixel = pixelGrid[i];
+        
+        // Dynamic visibility based on noise and glitchy effects
+        let visibility = (Math.sin(glitchTiming + pixel.x * 0.02 + pixel.y * 0.02) * 0.5 + 0.5) > pixel.threshold;
+        
+        // Apply glitching effects
+        if (majorGlitch) {
+          // During glitch moments, create more extreme effects
+          visibility = Math.random() > 0.5; // Random flickering
+          
+          // Occasionally draw "corruption" lines
+          if (Math.random() < 0.01) {
+            let lineLength = Math.floor(Math.random() * 40) + 10;
+            let angle = Math.random() * Math.PI * 2;
+            stroke(60, 220, 255, 180);
+            strokeWeight(2);
+            line(
+              pixel.x, 
+              pixel.y, 
+              pixel.x + Math.cos(angle) * lineLength, 
+              pixel.y + Math.sin(angle) * lineLength
+            );
+            noStroke();
+          }
+          
+          // Randomly offset some pixels during glitches
+          if (Math.random() < 0.2) {
+            pixel.x += (Math.random() * 10 - 5);
+            pixel.y += (Math.random() * 10 - 5);
+          }
+        }
+        
+        // Update pixel visibility based on noise and glitch effects
+        pixel.visible = visibility && (Math.random() > 0.05); // Add some random flickering
+        
+        if (pixel.visible) {
+          // Calculate pixel intensity and color
+          pixel.glitchTimer = (pixel.glitchTimer + 1) % 60;
+          let pixelIntensity = Math.sin(pixel.glitchTimer * 0.1 + pixel.noise * 5) * 0.5 + 0.5;
+          
+          // Distance from center affects intensity
+          let dist = Math.sqrt(pixel.x * pixel.x + pixel.y * pixel.y);
+          let distFactor = Math.max(0, 1 - dist / 350);
+          
+          // Base cyan color for electric look
+          let r = 60 + (pixel.colorShift === 0 ? 40 : 0);
+          let g = 220 + (pixel.colorShift === 1 ? 35 : 0);
+          let b = 255;
+          
+          // During major glitches, some pixels get corrupted colors
+          if (majorGlitch && Math.random() < 0.2) {
+            if (Math.random() < 0.5) {
+              // "Corrupted" pixels
+              r = 255;
+              g = 50;
+              b = 50;
+            } else {
+              // Digital noise pixels
+              r = g = b = Math.random() * 255;
+            }
+          }
+          
+          // Apply alpha based on distance and pixelated intensity
+          let alpha = 90 + 165 * pixelIntensity * distFactor * pulseIntensity;
+          
+          // Draw the pixel - slightly randomize size for more digital noise look
+          let size = pixelSize * (1 + (majorGlitch ? (Math.random() * 0.5) : 0));
+          fill(r, g, b, alpha);
+          rect(pixel.x, pixel.y, size, size);
+          
+          // Occasionally draw tiny bright pixel "highlights"
+          if (Math.random() < 0.05 * pulseIntensity) {
+            fill(255, 255, 255, 200);
+            rect(pixel.x + pixelSize/4, pixel.y + pixelSize/4, pixelSize/2, pixelSize/2);
+          }
+        }
+      }
+      
+      // Draw occasional horizontal "scan lines" for a digital effect
+      let scanLineCount = 12;
+      let scanLineHeight = 1;
+      stroke(60, 220, 255, 60);
+      strokeWeight(scanLineHeight);
+      for (let i = 0; i < scanLineCount; i++) {
+        let y = -350 + i * (700 / scanLineCount);
+        
+        // Glitch the scan lines during major glitches
+        if (majorGlitch && Math.random() < 0.3) {
+          y += Math.random() * 20 - 10;
+          stroke(255, 255, 255, 100);
+        } else {
+          stroke(60, 220, 255, 40 + 20 * pulseIntensity);
+        }
+        
+        line(-350, y, 350, y);
+      }
+      
+      // Add random "bit corruption" blocks during major glitches
+      if (majorGlitch && Math.random() < 0.4) {
+        let blockSize = Math.floor(Math.random() * 40) + 10;
+        let x = Math.random() * 700 - 350;
+        let y = Math.random() * 700 - 350;
+        noStroke();
+        fill(60, 220, 255, 150 * pulseIntensity);
+        rect(x, y, blockSize, blockSize);
+      }
+      
+      pop();
+      
+      drawingContext.globalCompositeOperation = 'source-over';
+    } else {
+      // Normal momentum-based ambient glow
+      let normalizedGlow = currentGlow/GLOW_SPREAD_MAX;
+      if (normalizedGlow > 0.4) {
+        drawingContext.globalCompositeOperation = 'lighter';
+        noStroke();
+        fill(20, 40, 80, 20 * (normalizedGlow - 0.4) / 0.6);
+        
+        // Create a subtle ambient glow around the ball
+        push();
+        translate(0, 0, -50);
+        ellipse(0, 0, 500, 500);
+        pop();
+        
+        drawingContext.globalCompositeOperation = 'source-over';
+      }
+    }
+    
+    // Show critical charge building in debug
+    if (criticalCharge > 0.2 && !inCriticalDischarge) {
+      let pct = Math.floor(criticalCharge * 100 / criticalChargeMax);
+      if (pct > 50) {
+        updateDebugInfo(`Critical: ${pct}%`);
+      }
+    }
+    
+  } catch (err) {
+    console.error("Error in draw function:", err);
+    document.getElementById('error-message').innerText = `Drawing error: ${err.message}`;
+  }
+}
+
+function createVector(x, y, z) {
+  if (window.createVector) return window.createVector(x, y, z);
+  
+  // Fallback vector implementation if p5.js createVector is not available
+  return {
+    x: x || 0,
+    y: y || 0,
+    z: z || 0,
+    copy: function() {
+      return createVector(this.x, this.y, this.z);
+    }
+  };
+}
+
+function createSphere(r, detail) {
+  try {
+    // Longitude lines
+    for (let i = 0; i < detail; i++) {
+      let lon = map(i, 0, detail, 0, TWO_PI);
+      let points = [];
+      for (let j = 0; j <= detail; j++) {
+        let lat = map(j, 0, detail, 0, PI);
+        let x = r * sin(lat) * cos(lon);
+        let y = r * sin(lat) * sin(lon);
+        let z = r * cos(lat);
+        points.push(createVector(x, y, z));
+      }
+      sphere.push(points);
+    }
+    // Latitude lines
+    for (let j = 1; j < detail; j++) {
+      let lat = map(j, 0, detail, 0, PI);
+      let points = [];
+      for (let i = 0; i <= detail; i++) {
+        let lon = map(i, 0, detail, 0, TWO_PI);
+        let x = r * sin(lat) * cos(lon);
+        let y = r * sin(lat) * sin(lon);
+        let z = r * cos(lat);
+        points.push(createVector(x, y, z));
+      }
+      sphere.push(points);
+    }
+  } catch (err) {
+    console.error("Error creating sphere:", err);
+    document.getElementById('error-message').innerText = `Sphere creation error: ${err.message}`;
+  }
+}
+
+// --- Discharge: more dramatic for main, subtle for sparks ---
+function createDischarge(isMain = false) {
+  try {
+    if (!window.p5 || !p5.Vector) {
+      console.warn("p5.Vector not available, using fallback for discharge");
+      return; // Skip discharge creation if p5.Vector not available
+    }
+    
+    let discharge = {
+      start: p5.Vector.random3D().mult(200),
+      segments: [],
+      life: isMain ? 18 + random(10) : 6 + random(6)
+    };
+    
+    let numSegments = isMain ? floor(random(4, 8)) : floor(random(2, 4));
+    let currentPoint = discharge.start.copy();
+    let dir = p5.Vector.random3D().normalize();
+    
+    for (let i = 0; i < numSegments; i++) {
+      let length = isMain ? random(20, 50) : random(8, 18);
+      let nextPoint = p5.Vector.add(
+        currentPoint,
+        p5.Vector.add(dir.copy().mult(length), p5.Vector.random3D().mult(length * (isMain ? 0.7 : 0.4)))
+      );
+      discharge.segments.push({
+        p1: currentPoint.copy(),
+        p2: nextPoint.copy()
+      });
+      currentPoint = nextPoint;
+    }
+    
+    discharges.push(discharge);
+  } catch (err) {
+    console.error("Error creating discharge:", err);
+    document.getElementById('error-message').innerText = `Discharge error: ${err.message}`;
+  }
+}
+
+// --- Special critical discharge effect ---
+function createCriticalDischarge() {
+  try {
+    if (!window.p5 || !p5.Vector) {
+      console.warn("p5.Vector not available, skipping critical discharge");
+      return;
+    }
+    
+    // Critical discharges are more dramatic, longer, and brighter
+    let discharge = {
+      start: p5.Vector.random3D().mult(200), // Start from surface
+      segments: [],
+      life: 30 + random(20), // Longer life
+      isCritical: true // Mark as critical for special rendering
+    };
+    
+    // More complex, branching structure
+    let numSegments = floor(random(6, 12)); // More segments
+    let currentPoint = discharge.start.copy();
+    let dir = p5.Vector.random3D().normalize();
+    
+    // Main branch
+    for (let i = 0; i < numSegments; i++) {
+      let length = random(30, 60); // Longer arcs
+      let nextPoint = p5.Vector.add(
+        currentPoint,
+        p5.Vector.add(dir.copy().mult(length), p5.Vector.random3D().mult(length * 0.4))
+      );
+      
+      discharge.segments.push({
+        p1: currentPoint.copy(),
+        p2: nextPoint.copy(),
+        thickness: random(1.5, 3), // Thicker lines for critical
+        brightness: 0.7 + random(0.3) // Brighter
+      });
+      
+      // Add sub-branches (forking) with random chance
+      if (i > 1 && random() < 0.4) {
+        let branchDir = p5.Vector.random3D().normalize();
+        let branchLength = random(15, 30);
+        let branchEnd = p5.Vector.add(
+          currentPoint,
+          branchDir.mult(branchLength)
+        );
+        
+        discharge.segments.push({
+          p1: currentPoint.copy(),
+          p2: branchEnd.copy(),
+          thickness: random(1, 2),
+          brightness: 0.6 + random(0.3)
+        });
+      }
+      
+      currentPoint = nextPoint;
+    }
+    
+    discharges.push(discharge);
+  } catch (err) {
+    console.error("Error creating critical discharge:", err);
+  }
+}
+
+function updateDischarges() {
+  if (!window.p5 || !p5.Vector) return; // Skip if p5.Vector is not available
+  
+  try {
+    for (let i = discharges.length - 1; i >= 0; i--) {
+      let d = discharges[i];
+      d.life--;
+      if (d.life <= 0) {
+        discharges.splice(i, 1);
+        continue;
+      }
+      
+      // Handle different discharge types
+      if (d.isCritical) {
+        // Special rendering for critical discharges
+        for (let seg of d.segments) {
+          // Use segment-specific properties if available
+          let thickness = seg.thickness || 2;
+          let brightness = seg.brightness || 0.8;
+          
+          // Cyan color for critical discharge
+          stroke(60, 220, 255, d.life * brightness * 10);
+          strokeWeight(thickness);
+          line(seg.p1.x, seg.p1.y, seg.p1.z, seg.p2.x, seg.p2.y, seg.p2.z);
+        }
+      } else {
+        // Regular discharge rendering
+        let alpha = map(d.life, 0, 20, 0, 255) * (0.5 + random(0.5));
+        stroke(200, 220, 255, alpha);
+        strokeWeight(1);
+        for (let seg of d.segments) {
+          line(seg.p1.x, seg.p1.y, seg.p1.z, seg.p2.x, seg.p2.y, seg.p2.z);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error updating discharges:", err);
+  }
+}
+
+// --- Event handlers ---
+function onPointerDown(e) {
+  e.preventDefault(); // Prevent default to ensure drag works
+  updateDebugInfo(`Pointer down at ${e.clientX || (e.touches && e.touches[0].clientX)}, ${e.clientY || (e.touches && e.touches[0].clientY)}`);
+  
+  lastInteractionTime = frameCount;
+  
+  if (e.touches && e.touches.length > 1) {
+    multitouch = true;
+    multitouchStartDist = getTouchDistance(e.touches);
+    multitouchEffect = 30; // trigger effect for a few frames
+    if (window.navigator.vibrate) window.navigator.vibrate(30);
+    return;
+  }
+  
+  isDragging = true;
+  prevMouseX = e.touches ? e.touches[0].clientX : e.clientX;
+  prevMouseY = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  // Start with a small impulse to ensure movement is visible
+  momentumX = 0.005;
+  momentumY = 0.005;
+  
+  window.addEventListener('mousemove', onPointerMove, { passive: false });
+  window.addEventListener('mouseup', onPointerUp);
+  window.addEventListener('touchmove', onPointerMove, { passive: false });
+  window.addEventListener('touchend', onPointerUp);
+}
+
+function onPointerMove(e) {
+  e.preventDefault(); // Prevent default scrolling/dragging
+  lastInteractionTime = frameCount;
+  
+  if (multitouch && e.touches && e.touches.length > 1) {
+    // Multitouch gesture: trigger more effects, but no zoom
+    let dist = getTouchDistance(e.touches);
+    if (Math.abs(dist - multitouchStartDist) > 30) {
+      multitouchEffect = 60;
+      if (window.navigator.vibrate) window.navigator.vibrate([20, 20, 20]);
+    }
+    return;
+  }
+  
+  if (!isDragging) return;
+  
+  let x = e.touches ? e.touches[0].clientX : e.clientX;
+  let y = e.touches ? e.touches[0].clientY : e.clientY;
+  let dx = x - prevMouseX;
+  let dy = y - prevMouseY;
+  
+  // Only respond to significant movements (helps with jumpy touch events)
+  if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+    rotX += dx * DRAG_SENSITIVITY;
+    rotY += dy * DRAG_SENSITIVITY;
+    momentumX = dx * DRAG_SENSITIVITY * 0.7;
+    momentumY = dy * DRAG_SENSITIVITY * 0.7;
+    
+    updateDebugInfo(`Drag delta: ${dx.toFixed(1)}, ${dy.toFixed(1)}`);
+  }
+  
+  prevMouseX = x;
+  prevMouseY = y;
+}
+
+function onPointerUp(e) {
+  isDragging = false;
+  multitouch = false;
+  window.removeEventListener('mousemove', onPointerMove);
+  window.removeEventListener('mouseup', onPointerUp);
+  window.removeEventListener('touchmove', onPointerMove);
+  window.removeEventListener('touchend', onPointerUp);
+  
+  updateDebugInfo('Pointer up');
+}
+
+// MODIFIED: Update onWheel to record interaction
+function onWheel(e) {
+  e.preventDefault(); // Prevent default scrolling
+  lastInteractionTime = frameCount;
+  
+  // Scrollwheel rotates the ball with increased sensitivity
+  momentumX += e.deltaX * SCROLL_SENSITIVITY;
+  momentumY += e.deltaY * SCROLL_SENSITIVITY;
+  
+  updateDebugInfo(`Wheel delta: ${e.deltaX.toFixed(1)}, ${e.deltaY.toFixed(1)}`);
+}
+
+function getTouchDistance(touches) {
+  if (touches.length < 2) return 0;
+  let dx = touches[0].clientX - touches[1].clientX;
+  let dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function windowResized() {
+  if (typeof resizeCanvas === 'function') {
+    resizeCanvas(windowWidth, windowHeight);
+  }
+}
+
+// Check if p5 is working after a delay
+setTimeout(function() {
+  if (!window.p5) {
+    console.error("p5.js is not available after loading time");
+    document.getElementById('error-message').innerText = "p5.js failed to load properly";
+    
+    // Show fallback canvas
+    const canvas = document.getElementById('fallback-canvas');
+    if (canvas) {
+      canvas.style.display = "block";
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        ctx.fillStyle = 'white';
+        ctx.font = '20px monospace';
+        ctx.fillText('p5.js loading issue - using fallback', 50, 50);
+        ctx.strokeStyle = '#3a86ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(window.innerWidth/2, window.innerHeight/2, 100, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+  }
+}, 2000);
+
+// Make sure to call setupEventListeners even if window.onload already fired
+if (document.readyState === 'complete') {
+  console.log("Document already loaded, setting up event listeners now");
+  setupEventListeners();
+} else {
+  window.addEventListener('load', function() {
+    console.log("Window loaded, setting up event listeners");
+    setupEventListeners();
+  });
+}
+
+// Expose functions to the global scope 
+window.setup = setup;
+window.draw = draw;
+window.windowResized = windowResized;
+window.onPointerDown = onPointerDown;
+window.onPointerMove = onPointerMove;
+window.onPointerUp = onPointerUp;
+window.onWheel = onWheel;
+</script>
+</body>
+</html>

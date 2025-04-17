@@ -1,0 +1,44 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+const { slug } = Astro.params;
+// Glob all post modules
+const modules = import.meta.glob("./*.md", { eager: true }) as Record<
+  string,
+  any
+>;
+// Find the matching post by filename
+const match = Object.entries(modules).find(([path]) =>
+  path.endsWith(`${slug}.md`)
+);
+if (!match) throw new Error(`Post not found: ${slug}`);
+const [, post] = match;
+
+export async function getStaticPaths() {
+  const modules = import.meta.glob('./*.md', { eager: true }) as Record<string, any>;
+  const slugs = Object.keys(modules).map((path) => path.split('/').pop()!.replace(/\.md$/, ''));
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+---
+
+<MainLayout title={post.frontmatter.title}>
+  <article class="post-content">
+    {/* Render the full markdown content */}
+    <post.default />
+  </article>
+</MainLayout>
+
+<style>
+  .post-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--layout-padding);
+  }
+  .post-content h1,
+  .post-content h2,
+  .post-content h3 {
+    margin-top: var(--spacing);
+  }
+  .post-content p {
+    margin: var(--spacing) 0;
+  }
+</style>

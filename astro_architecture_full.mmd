@@ -1,0 +1,141 @@
+%%{ init: { "theme": "default", "themeVariables": { "primaryColor": "#ffcc00", "edgeLabelBackground":"#ffffff", "tertiaryColor": "#f4f4f4" }, "elk": { "algorithm": "layered" } } }%%
+flowchart TB
+  subgraph State_Signals_View["🧠 State & Signals View"]
+    subgraph UI_Components["🧩 UI Components"]
+      Navbar
+      CardPrimitive
+      FocusedCard
+    end
+
+    subgraph Stores["🧠 State Stores & Signals"]
+      FilterStore["<b>FilterStore</b><br><code>type, tag</code>"]
+      FocusState["<b>FocusState</b><br><code>activeCardSlug</code>"]
+      DarkModeSignal["<b>DarkMode</b><br><code>toggle/theme</code>"]
+    end
+
+    Navbar -->|sets| FilterStore
+    FilterStore -->|filters| CardPrimitive
+
+    CardPrimitive -->|onClick| FocusState
+    FocusState -->|controls| FocusedCard
+
+    Navbar -->|toggles| DarkModeSignal
+    MainLayout -->|applies class| DarkModeSignal
+  end
+
+  subgraph Build_Pipeline_View["⚙️ Build Pipeline View"]
+    Markdown["<b>Markdown</b><br>posts/*.md"]
+    ContentConfig["<b>content.config.ts</b>"]
+    RemarkPlugins["<b>remark/rehype plugins</b><br>syntax, wiki-link, etc"]
+    AstroParser["<b>Astro Markdown Parser</b>"]
+    Components["<b>Components</b><br>CardGrid, Layout, etc."]
+    Tailwind["<b>TailwindCSS</b>"]
+    GlobalCSS["<b>global.css</b>"]
+    Vite["<b>Vite Dev Server</b>"]
+    Vercel["<b>Vercel</b><br>deploy & edge cache"]
+
+    Markdown --> ContentConfig
+    ContentConfig --> AstroParser
+    AstroParser --> RemarkPlugins
+    AstroParser --> Components
+    GlobalCSS --> Vite
+    Tailwind --> Vite
+    Components --> Vite
+    Vite --> Vercel
+  end
+
+  subgraph Routing_Navigation_View["🔁 Routing & Navigation View"]
+    Home["<b>/</b><br><code>pages/index.astro</code>"]
+    PostSlug["<b>/posts/[slug]</b><br><code>pages/posts/[slug].astro</code>"]
+    TagView["<b>/tags/[tag]</b>"]
+    About["<b>/about</b><br><code>components/AboutGrid.astro</code>"]
+    Navbar
+    InternalLinks["<b>&lt;a href&gt;</b><br>Client navigation"]
+
+    Navbar -->|navigates to| Home
+    Navbar --> About
+    CardGrid -->|links to| PostSlug
+    PostSlug -->|back link| Home
+    CardPrimitive -->|tags| TagView
+    InternalLinks --> Home & PostSlug & TagView
+  end
+
+  subgraph Content_Modeling_View["📦 Content Modeling View"]
+    MarkdownFile["<b>Markdown File</b><br>posts/*.md"]
+    Frontmatter["<b>Frontmatter Schema</b>"]
+
+    MarkdownFile --> Frontmatter
+
+    subgraph FrontmatterFields["Fields"]
+      title
+      description
+      tags
+      type
+      date
+      mediaType
+      pinned
+      draft
+    end
+
+    Frontmatter --> title & description & tags & type & date & mediaType & pinned & draft
+
+    type -->|drives| CardVariants
+    tags -->|filters| FilterStore
+    draft -->|filters out| CardGrid
+  end
+
+  subgraph Render_Composition_View["🖼️ Render & Composition View"]
+    subgraph Layout["🧱 Layout & Pages"]
+      MainLayout["<b>MainLayout</b><br><code>layouts/MainLayout.astro</code>"]
+      Navbar["<b>Navbar</b><br><code>components/Navbar.astro</code>"]
+      IndexPage["<b>Index</b><br><code>pages/index.astro</code>"]
+      PostPage["<b>Post Page</b><br><code>pages/posts/[slug].astro</code>"]
+    end
+
+    subgraph Components["🧩 Components"]
+      AboutGrid["<b>AboutGrid</b><br><code>components/AboutGrid.astro</code>"]
+      CardGrid["<b>CardGrid</b><br><code>components/CardGrid.astro</code>"]
+      CardPrimitive["<b>CardPrimitive</b><br><code>components/Card.astro</code>"]
+      CardVariants["<b>Variants</b><br><code>CardBook, CardApp, ...</code>"]
+      FocusedCard["<b>FocusedCard</b><br><code>components/FocusedCard.astro</code>"]
+    end
+
+    MainLayout -->|slots in| IndexPage
+    MainLayout -->|imports| Navbar
+    IndexPage -->|uses| AboutGrid
+    IndexPage -->|uses| CardGrid
+    PostPage -->|uses| FocusedCard
+    CardGrid -->|maps data to| CardPrimitive
+    CardPrimitive -->|renders| CardVariants
+    CardPrimitive -.onClick.-> FocusedCard
+    FocusedCard -.Close.-> CardGrid
+  end
+
+  subgraph Data_Interaction_Flow["🔄 Data & Interaction Flow"]
+    subgraph Data["📦 Content & Data"]
+      MarkdownFile["<b>Markdown</b><br><code>posts/*.md</code>"]
+      Frontmatter["<b>Frontmatter</b><br><code>title, tags, type...</code>"]
+    end
+
+    subgraph State["🧠 State & Interaction"]
+      FilterStore["<b>FilterStore</b><br><code>e.g. tag/type filter</code>"]
+      FocusState["<b>FocusState</b><br><code>signal/store</code>"]
+    end
+
+    MarkdownFile -->|has| Frontmatter
+    MarkdownFile -->|parsed into| CardGrid
+    Frontmatter -->|drives rendering| CardPrimitive
+    Navbar -->|sets filter| FilterStore
+    FilterStore -->|filters data| CardGrid
+    CardPrimitive -->|emits focus| FocusState
+    FocusState -->|shows| FocusedCard
+    FocusState -->|resets| CardGrid
+  end
+
+  %% Relationships between subgraphs
+  State_Signals_View --> Build_Pipeline_View
+  Build_Pipeline_View --> Routing_Navigation_View
+  Routing_Navigation_View --> Content_Modeling_View
+  Content_Modeling_View --> Render_Composition_View
+  Render_Composition_View --> Data_Interaction_Flow
+

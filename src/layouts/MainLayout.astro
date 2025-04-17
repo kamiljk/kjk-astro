@@ -1,0 +1,32 @@
+---
+import "../assets/global.css";
+import Navbar from "../components/Navbar.astro";
+interface Props {
+  title: string;
+  allTypes: string[];
+  activeType: string;
+}
+
+const { title, allTypes, activeType } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="layout">
+      <Navbar allTypes={allTypes} activeType={activeType} />
+      <main class="main-container">
+        <slot />
+      </main>
+    </div>
+    <!-- Overlay for card detail views -->
+    <div id="card-overlay" class="card-overlay hidden"></div>
+    <script type="module" src="/src/scripts/card-nav.js"></script>
+    <script type="module" src="/src/scripts/sidebar-theme-toggle.js"></script>
+  </body>
+</html>

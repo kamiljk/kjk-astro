@@ -1,0 +1,23 @@
+---
+import "../assets/global.css";
+import fs from "fs";
+import path from "path";
+
+const gamesDir = path.resolve("./public/games");
+const games = fs.readdirSync(gamesDir).filter((game) => {
+  const gamePath = path.join(gamesDir, game);
+  return fs.statSync(gamePath).isDirectory();
+});
+---
+
+<div class="game-cards">
+  {
+    games.map((game) => (
+      <a href={`/games/${game}/index.html`} class="game-card" target="_blank">
+        <div class="game-card-content">
+          <h3>{game.replace(/-/g, " ")}</h3>
+        </div>
+      </a>
+    ))
+  }
+</div>

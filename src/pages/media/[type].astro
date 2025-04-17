@@ -1,0 +1,57 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import CardGrid from "../../components/CardGrid.astro";
+
+const type = Astro.params.type as string;
+
+// Load all posts and extract types at the page level
+const modules = import.meta.glob("../posts/*.md", { eager: true }) as Record<
+  string,
+  any
+>;
+const posts = Object.entries(modules).map(([path, mod]) => {
+  const filename = path.split("/").pop()!;
+  const fm = mod.frontmatter || {};
+  return {
+    data: {
+      ...fm,
+      date: fm.date ? new Date(fm.date) : undefined,
+    },
+    slug: filename.replace(/\.md$/, ""),
+  };
+});
+const allTypes = Array.from(
+  new Set(posts.map((f) => f.data?.type).filter(Boolean))
+);
+
+// Filter posts by type param or show all
+const filteredPosts =
+  type === "all" ? posts : posts.filter((post) => post.data?.type === type);
+const activeFilters = type === "all" ? new Set(allTypes) : new Set([type]);
+
+export async function getStaticPaths() {
+  const modules = import.meta.glob('../posts/*.md', { eager: true }) as Record<string, any>;
+  const types = Object.values(modules)
+    .map((mod) => mod.frontmatter?.type)
+    .filter(Boolean);
+  const uniqueTypes = Array.from(new Set(types));
+  const typesList = ['all', ...uniqueTypes];
+  return typesList.map((type) => ({ params: { type } }));
+}
+---
+
+<MainLayout
+  title={`Media | ${type.charAt(0).toUpperCase() + type.slice(1)}`}
+  allTypes={allTypes}
+  activeType={type}
+>
+  <CardGrid posts={filteredPosts} activeFilters={activeFilters} />
+</MainLayout>
+
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+</style>
