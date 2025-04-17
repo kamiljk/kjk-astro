@@ -13,6 +13,10 @@ const match = Object.entries(modules).find(([path]) =>
 if (!match) throw new Error(`Post not found: ${slug}`);
 const [, post] = match;
 
+// Extract date information with fallbacks
+const dateCreated = post.frontmatter.dateCreated || post.frontmatter.date;
+const dateUpdated = post.frontmatter.dateUpdated;
+
 export async function getStaticPaths() {
   const modules = import.meta.glob("./*.md", { eager: true }) as Record<
     string,
@@ -26,6 +30,9 @@ export async function getStaticPaths() {
 ---
 
 <MainLayout title={post.frontmatter.title}>
+  {/* Add metadata for dates that can be accessed by JavaScript */}
+  {dateCreated && <meta name="dateCreated" content={dateCreated} />}
+  {dateUpdated && <meta name="dateUpdated" content={dateUpdated} />}
   <article class="post-content">
     {/* Render the full markdown content */}
     <post.default />

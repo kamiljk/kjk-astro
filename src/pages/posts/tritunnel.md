@@ -1,9 +1,9 @@
 ---
-title: Tri Tunnel
-description: Navigate through a triangular tunnel.
-type: game
-date: 2024-01-06
-slug: tritunnel
+layout: ../../layouts/MainLayout.astro
+title: "Tritunnel"
+description: "Navigate through a procedurally generated tunnel."
+date: 2025-04-01
+type: "game"
 ---
 
 Play the game [here](/games/tritunnel/index.html).

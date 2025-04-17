@@ -20,14 +20,16 @@ const filteredFiles =
             title={file.data?.title || file.slug || file.id}
             slug={file.slug || "#"}
             description={file.data?.description}
-            date={file.data?.date}
+            dateCreated={file.data?.dateCreated}
+            dateUpdated={file.data?.dateUpdated}
           />
         ) : (
           <Card
             title={file.data?.title || file.slug || file.id}
             slug={file.slug || "#"}
             description={file.data?.description}
-            date={file.data?.date}
+            dateCreated={file.data?.dateCreated}
+            dateUpdated={file.data?.dateUpdated}
           />
         )
       )
@@ -48,7 +50,20 @@ const filteredFiles =
       <div class="hero-title-container">
         <h1 class="hero-title" id="hero-title"></h1>
       </div>
-      <p class="hero-date" id="hero-date" style="display: none;"></p>
+      <div class="hero-dates">
+        <p
+          class="hero-date-created"
+          id="hero-date-created"
+          style="display: none;"
+        >
+        </p>
+        <p
+          class="hero-date-updated"
+          id="hero-date-updated"
+          style="display: none;"
+        >
+        </p>
+      </div>
     </div>
     <div class="hero-card-content">
       <div class="hero-markdown" id="hero-markdown">
@@ -68,8 +83,10 @@ const filteredFiles =
 
     // Initialize with empty content until we load the actual content
     document.getElementById("hero-title")!.textContent = "";
-    const dateEl = document.getElementById("hero-date");
-    dateEl!.style.display = "none";
+    const dateCreatedEl = document.getElementById("hero-date-created");
+    const dateUpdatedEl = document.getElementById("hero-date-updated");
+    dateCreatedEl!.style.display = "none";
+    dateUpdatedEl!.style.display = "none";
     const container = document.getElementById("hero-markdown");
     container.innerHTML = "<p>Loading content…</p>";
 
@@ -99,6 +116,46 @@ const filteredFiles =
           docTitle = docTitle.split(" - ")[0];
         }
         document.getElementById("hero-title")!.textContent = docTitle;
+
+        // Extract date metadata from the document
+        const meta = doc.querySelectorAll("meta");
+        let dateCreated = null;
+        let dateUpdated = null;
+
+        meta.forEach((metaTag) => {
+          if (metaTag.getAttribute("name") === "dateCreated") {
+            dateCreated = metaTag.getAttribute("content");
+          }
+          if (metaTag.getAttribute("name") === "dateUpdated") {
+            dateUpdated = metaTag.getAttribute("content");
+          }
+        });
+
+        // Show the updated date if available
+        if (dateUpdated) {
+          dateUpdatedEl!.textContent = `Updated: ${new Date(dateUpdated).toLocaleDateString()}`;
+          dateUpdatedEl!.style.display = "block";
+
+          // Only show created date if it's significantly different from updated date
+          // (at least 7 days difference)
+          if (dateCreated) {
+            const createdDate = new Date(dateCreated);
+            const updatedDate = new Date(dateUpdated);
+            const diffDays = Math.floor(
+              (updatedDate.getTime() - createdDate.getTime()) /
+                (1000 * 60 * 60 * 24)
+            );
+
+            if (diffDays >= 7) {
+              dateCreatedEl!.textContent = `Created: ${createdDate.toLocaleDateString()}`;
+              dateCreatedEl!.style.display = "block";
+            }
+          }
+        } else if (dateCreated) {
+          // If no updated date but we have created date, just show that
+          dateCreatedEl!.textContent = `Created: ${new Date(dateCreated).toLocaleDateString()}`;
+          dateCreatedEl!.style.display = "block";
+        }
 
         let content = doc.querySelector(".post-content");
         if (!content) {
@@ -242,6 +299,28 @@ const filteredFiles =
   .hero-date {
     color: var(--desc-color);
     margin: 0.5rem 0 0;
+  }
+
+  .hero-dates {
+    margin: 0.5rem 0;
+  }
+
+  .hero-date-created,
+  .hero-date-updated {
+    color: var(--desc-color);
+    opacity: 0.7;
+    margin: 0.25rem 0;
+    font-size: 0.8em;
+    font-style: italic;
+  }
+
+  .card .date-created,
+  .card .date-updated {
+    color: var(--desc-color);
+    opacity: 0.7;
+    font-size: 0.75em;
+    margin: 0.25rem 0;
+    font-style: italic;
   }
 
   .hero-card-content {

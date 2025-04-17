@@ -1,9 +1,9 @@
 ---
-title: Bad Ghost
-description: A spooky arcade game where you dodge obstacles as a ghost.
-type: game
-date: 2024-01-01
-slug: badghost
+layout: ../../layouts/MainLayout.astro
+title: "Badghost"
+description: "A spooky arcade game where you dodge obstacles as a ghost."
+date: 2025-04-01
+type: "game"
 ---
 
 Play the game [here](/games/badghost/index.html).

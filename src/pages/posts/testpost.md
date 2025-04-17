@@ -2,7 +2,8 @@
 title: Test Post
 description: This is a test post for CardGrid.
 type: post
-date: 2025-04-15
+dateCreated: 2025-04-01
+dateUpdated: 2025-04-17
 slug: testpost
 ---
 

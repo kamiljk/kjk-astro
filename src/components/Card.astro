@@ -5,10 +5,19 @@ interface Props {
   title: string;
   slug: string;
   description?: string;
-  date?: Date;
+  dateCreated?: Date;
+  dateUpdated?: Date;
 }
 
-const { title, slug, description, date } = Astro.props;
+const { title, slug, description, dateCreated, dateUpdated } = Astro.props;
+
+// Ensure we have proper Date objects before calling toLocaleDateString
+const formatDate = (date: Date | string | undefined) => {
+  if (!date) return "";
+  return date instanceof Date
+    ? date.toLocaleDateString()
+    : new Date(date).toLocaleDateString();
+};
 ---
 
 <div class="card">
@@ -17,6 +26,10 @@ const { title, slug, description, date } = Astro.props;
       <a href="#" data-post-slug={slug} class="card-open-hero">{title}</a>
     </h2>
     {description && <p class="description">{description}</p>}
-    {date && <p class="date">{date.toLocaleDateString()}</p>}
+    {
+      dateUpdated && (
+        <p class="date-updated">Updated: {formatDate(dateUpdated)}</p>
+      )
+    }
   </div>
 </div>

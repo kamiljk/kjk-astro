@@ -11,21 +11,35 @@ const modules = import.meta.glob("./posts/*.md", { eager: true }) as Record<
 const posts = Object.entries(modules).map(([path, mod]) => {
   const filename = path.split("/").pop()!;
   const fm = mod.frontmatter || {};
+
+  // Enhanced date handling
+  const dateCreated = fm.dateCreated
+    ? new Date(fm.dateCreated)
+    : fm.date
+      ? new Date(fm.date)
+      : undefined;
+  const dateUpdated = fm.dateUpdated ? new Date(fm.dateUpdated) : undefined;
+
   return {
     data: {
       ...fm,
-      date: fm.date ? new Date(fm.date) : undefined,
+      dateCreated,
+      dateUpdated,
+      // If type is missing, set a default type
+      type: fm.type || "post",
     },
     slug: filename.replace(/\.md$/, ""),
   };
 });
+
+// Get all unique types
 const allTypes = Array.from(
   new Set(posts.map((f) => f.data?.type).filter(Boolean))
 );
 
 let activeFilters = new Set(allTypes);
 
-// Astro can't do interactive state natively, so we filter on the server by default
+// Now all posts will be included because they all have a type (either original or default "post")
 const filteredPosts = posts.filter((post) =>
   activeFilters.has(post.data?.type)
 );

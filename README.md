@@ -1,228 +1,118 @@
-# Astro Portfolio & Media Gallery
+# KJK Astro Portfolio & Media Gallery
 
-This project is a modular, responsive web application built with [Astro](https://astro.build/). It serves as a personal portfolio and interactive media/game gallery, with a focus on extensibility, content filtering, and a clean, card-based UI.
+A modular, responsive website built with Astro that serves as a personal portfolio, blog, and interactive gallery of HTML5 games.
 
----
+## 🏗️ Architecture Overview
 
-## 🗂️ Entity Model & Relationships
+This site follows a component-based architecture with clear separation of concerns:
 
-### **Entities**
+### Core Components & Data Flow
 
-- **MainLayout**: The root layout for all pages. Contains the Navbar and the main content area.
-- **Navbar**: Floating or fixed navigation bar. Controls filtering of media types in the CardGrid and loads the AboutGrid.
-- **CardGrid**: The main content area. Always loads all cards by default, displaying them in a responsive grid (single column on mobile, multi-column on larger screens). Filtering is controlled by the Navbar.
-- **CardPrimitive**: The base card component. All card types (CardBook, CardMusic, CardGame, CardApp, CardDoc, CardLink, etc.) extend this primitive. Each card displays the minimum info to describe a file: if frontmatter is present, uses title and abstract; otherwise, falls back to filename.
-- **AboutGrid**: Special grid loaded via the Navbar's About link. Contains cards about the author, site colophon, and other meta information.
-- **File**: Content source for cards. May contain frontmatter (title, abstract, mediaType).
-- **Device**: Represents the responsive environment (mobile, tablet, desktop).
+- **MainLayout**: Base layout wrapper containing Navbar and content areas
+- **Navbar/Sidebar**: Navigation components for site-wide navigation and theme toggle 
+- **CardGrid**: Primary content display component that renders a responsive grid of content cards
+- **Card System**: Extensible card components (Card.astro, CardGame.astro) that display content from markdown files
+- **Dynamic Routes**: `[slug].astro` and `[type].astro` power the content filtering system
 
-### **Relationships & Flow**
+### Content Management
 
-```mermaid
-flowchart LR
+- **Markdown Content**: Blog posts and game descriptions stored as markdown files with frontmatter
+- **Content Types**: Posts categorized by `type` frontmatter property for filtering
+- **Interactive HTML5 Games**: Self-contained game folders in `/public/games/` 
 
-%%{init: {
-  "theme": "dark",
-  "themeVariables": {
-    "darkMode": true,
-    "fontFamily": "JetBrains Mono, Fira Code, monospace",
-    "fontSize": "15px",
+### User Experience Features
 
-    "background": "#0e0f11",
-    "mainBkg": "#101010",
-    "primaryColor": "#18181b",
-    "primaryTextColor": "#f5f5f5",
-    "primaryBorderColor": "#FFD700",
+- **Light/Dark Theme**: Client-side theme toggle with system preference detection
+- **Responsive Design**: Mobile-first design with fluid typography and layout adjustments
+- **Content Filtering**: Media types filterable via `/media/[type]` routes
+- **Hero Cards**: Expanded view of content items with smooth transitions
+- **About Section**: Dedicated about page with modular information cards
 
-    "secondaryColor": "#232323",
-    "secondaryTextColor": "#f5f5f5",
-    "secondaryBorderColor": "#FFD700",
+## 🚀 Features
 
-    "tertiaryColor": "#101010",
-    "tertiaryTextColor": "#f5f5f5",
-    "tertiaryBorderColor": "#FFD700",
+- **Astro Framework**: Fast, content-driven static site generator
+- **Markdown Posts**: Blog posts stored in `src/pages/posts/*.md` with frontmatter fields (title, description, date, type)
+- **Media Filtering**: `/media/[type]` pages filter posts by frontmatter `type` (e.g., game, article)
+- **Game Library**: HTML5 game pages under `public/games/<game>/` and an auto-generated listing on `/games/`
+- **Responsive UI**: Card-based grid layout adapts to mobile, tablet, and desktop
+- **Dark/Light Theme Toggle**: Client‑side theme switcher with system preference support
+- **Custom Layouts & Components**: Reusable Astro components (Navbar, Sidebar, Card, CardGrid, CardGame, AboutGrid, HeroSection)
 
-    "lineColor": "#FFD700",
-    "titleColor": "#FFD700",
-    "nodeTextColor": "#f5f5f5",
-    "noteTextColor": "#b3b3b3",
-    "edgeLabelBackground": "#0e0f11",
-
-    "clusterBkg": "#18181b",
-    "clusterBorder": "#FFD700",
-    "mainContrastColor": "#FFD700",
-
-    "actorBorder": "#FFD700",
-    "actorBkg": "#18181b",
-    "actorTextColor": "#FFD700",
-    "labelBoxBkg": "#101010",
-    "labelBoxBorder": "#FFD700",
-    "altSectionBkg": "#232323",
-    "altSectionBkg2": "#18181b",
-
-    "shadow1": "0 0 0 transparent",
-    "textAlign": "left"
-  }
-}}%%
-
-%% MAIN FLOW (left to right)
-  %% 1. Layout
-  subgraph Layout[Layout]
-    direction LR
-    MainLayout["<b>MainLayout</b><br/><code>src/layouts/MainLayout.astro</code>"]:::siteInteractionColor
-    Navbar["<b>Navbar</b><br/><code>src/components/Navbar.astro</code>"]:::userInteractionColor
-    MainContent["<b>Main Content</b><br/><code>src/pages/index.astro</code><br/><code>src/pages/posts/*.md</code>"]:::contentColor
-  end
-
-  %% 2. Content
-  subgraph Content[Content & Data]
-    direction LR
-    AboutGrid["<b>AboutGrid</b><br/><code>src/components/AboutGrid.astro</code>"]:::contentColor
-    File["<b>File</b><br/><code>src/pages/posts/*.md</code>"]:::contentColor
-    Frontmatter["<b>Frontmatter</b> in .md"]:::contentColor
-  end
-
-  %% 3. Media
-  subgraph MediaCards[Media Cards]
-    direction LR
-    CardGrid["<b>CardGrid</b><br/><code>src/components/CardGrid.astro</code>"]:::siteInteractionColor
-  end
-
-  %% 4. Interaction
-  subgraph Interaction[User Interaction]
-    direction LR
-    FocusedCard["<b>FocusedCard</b><br/><code>src/components/FocusedCard.astro</code>"]:::userInteractionColor
-  end
-
-  %% Connections
-  Layout --> Content
-  Content --> MediaCards
-  MediaCards --> Interaction
-
-  MainLayout --> Navbar
-  MainLayout -->|Default| CardGrid
-  Navbar -->|Media filters| CardGrid
-  Navbar -->|About| AboutGrid
-  MainContent --> AboutGrid
-  MainContent --> CardGrid
-
-  CardGrid ---|Uses media queries| GlobalCSS["<b>GlobalCSS</b><br/><code>src/assets/global.css</code>"]:::siteInteractionColor
-  FocusedCard -. "Close/Back" .-> CardGrid
-
-%% CARD PRIMITIVES TO THE RIGHT
-subgraph CardPrimitives[Card Primitives]
-  direction LR
-  CardPrimitive["<b>CardPrimitive</b><br/><code>src/components/Card.astro</code>"]:::contentColor
-
-  subgraph CardVarieties[Varieties]
-    direction LR
-    CardVarietiesBox["CardBook.astro<br/>CardMusic.astro<br/>CardGame.astro<br/>CardApp.astro<br/>CardDoc.astro<br/>CardLink.astro<br/>CardOther.astro"]:::contentColor
-  end
-
-  CardPrimitive --> CardVarieties
-end
-
-%% CROSS-CONNECTIONS
-File -->|Has FM| Frontmatter
-CardGrid -->|Uses| CardPrimitive
-CardPrimitive -. "handles clicks" .-> FocusedCard
-
-classDef siteInteractionColor fill:#1a2b1d,stroke:#39ff14,color:#39ff14,stroke-width:1px;
-classDef userInteractionColor fill:#1f2f25,stroke:#00ffe7,color:#00ffe7,stroke-width:1px;
-classDef contentColor fill:#101618,stroke:#39ff14,color:#e6ffe5,stroke-width:1px;
-classDef highlightColor fill:#162c1f,stroke:#39ff14,color:#00ffe7,stroke-width:1px;
-classDef focusColor fill:#1c1c1c,stroke:#00ffe7,color:#39ff14,stroke-width:1px;
-```
-
----
-
-## 🧩 Card Primitive
-
-- **Purpose**: Serves as the template for all card types.
-- **Fields**:
-  - `title`: From frontmatter, or filename if missing
-  - `abstract`: From frontmatter, or blank if missing
-  - `mediaType`: From frontmatter, used for filtering
-  - `filename`: Used as fallback display
-- **Extensible**: Specialized cards (Book, Music, Game, App, Doc, Link, Other) inherit from CardPrimitive and can add custom fields/styles.
-
----
-
-## 🗂️ Filtering & About Grid
-
-- **Filtering**: Navbar toggles visibility of mediaTypes in CardGrid. All cards are shown by default; users can hide/show types interactively.
-- **AboutGrid**: Triggered by the About link/icon in Navbar. Displays cards about the author, site colophon, and other meta content.
-
----
-
-## 📱 Responsive Design
-
-- **Mobile**: CardGrid is single-column.
-- **Tablet/Desktop**: CardGrid increases columns based on screen size.
-- **Adaptive**: Layout and Navbar adjust for device width.
-
----
-
-## 📦 Project Structure (Summary)
+## 📁 Project Structure
 
 ```
 / (root)
-├── public/
-│   ├── favicon.svg, images, fonts
-│   └── games/
-│       └── <game>/ (HTML5 games)
+├── public/               Static assets and games
+│   ├── scripts/          Shared client scripts (card-nav.js, theme toggle)
+│   ├── games/            HTML5 game folders (index.html, assets, scripts)
+│   ├── favicon.svg       Site favicon
+│   └── fonts/            Custom fonts
 ├── src/
-│   ├── assets/ (global.css)
-│   ├── components/ (Astro UI)
-│   ├── layouts/ (MainLayout)
-│   ├── pages/ (index, posts)
-│   └── scripts/ (theme toggle)
-├── astro.config.mjs
-├── package.json
-└── README.md
+│   ├── assets/           global.css for resets and design system
+│   ├── components/       Reusable UI components
+│   │   ├── AboutGrid.astro    About page information cards
+│   │   ├── Card.astro         Base card component for content items
+│   │   ├── CardGame.astro     Specialized card for game entries
+│   │   ├── CardGrid.astro     Responsive grid for displaying cards
+│   │   ├── GameCards.astro    Grid container for game cards
+│   │   ├── HeroCard.astro     Expanded view of content items
+│   │   ├── HeroSection.astro  Header section with site intro
+│   │   ├── Navbar.astro       Top navigation bar
+│   │   └── Sidebar.astro      Alternative navigation component
+│   ├── layouts/
+│   │   └── MainLayout.astro   Base layout template for all pages
+│   ├── pages/
+│   │   ├── index.astro        Home page
+│   │   ├── about.astro        About page
+│   │   ├── media/             Content filtering by type
+│   │   │   └── [type].astro   Dynamic routes for filtering
+│   │   └── posts/             Markdown content
+│   │       ├── *.md           Individual posts with frontmatter
+│   │       └── [slug].astro   Dynamic route to render posts
+│   └── scripts/               Client-side JavaScript
+├── astro.config.mjs           Astro configuration
+├── package.json               Dependencies and scripts
+├── tsconfig.json              TypeScript configuration
+└── README.md                  This documentation
 ```
-
----
-
-## 🛠️ Development Manifest
-
-Below is a manifest of items to develop or refactor to fully realize the architecture:
-
-- [ ] **Refactor Sidebar.astro to Navbar.astro**
-  - Make navigation generic (not sidebar-specific)
-  - Add About link/icon (e.g., question mark icon)
-  - Implement mediaType filter controls
-- [ ] **Implement CardBook.astro, CardMusic.astro, CardGame.astro, CardApp.astro, CardDoc.astro, CardLink.astro, CardOther.astro**
-  - Extend CardPrimitive for each type
-  - Add custom fields/styles as needed
-- [ ] **Implement AboutGrid.astro**
-  - Loads when About is selected in Navbar
-  - Contains cards for about, colophon, etc.
-- [ ] **Implement FocusedCard.astro**
-  - Modal/detail view for a card when clicked
-  - Close/back returns to CardGrid
-- [ ] **Enhance CardGrid.astro**
-  - Filtering logic for mediaTypes
-  - Responsive column logic (if not already present)
-- [ ] **Update global.css**
-  - Ensure responsive grid and Navbar styles
-- [ ] **Update Card.astro (CardPrimitive)**
-  - Ensure fallback to filename if no frontmatter
-  - Expose base fields for extension
-- [ ] **Update documentation as features are completed**
-
----
 
 ## 🛠️ Development
 
-- Install: `npm install`
-- Dev server: `npm run dev`
-- Build: `npm run build`
-- Preview: `npm run preview`
+Install dependencies:
 
----
+```
+npm install
+```
 
-## 📖 Further Reading
+Run dev server:
 
-- [Astro Documentation](https://docs.astro.build)
-- [Vercel Deployment](https://vercel.com/docs)
+```
+npm run dev
+```
+
+Build for production:
+
+```
+npm run build
+```
+
+Preview production build locally:
+
+```
+npm run preview
+```
+
+## 📦 Deployment
+
+This site is configured for Vercel via `@astrojs/vercel`. Simply push to GitHub and deploy. Ensure environment settings if needed.
+
+## 💡 Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Submit a pull request
+
+## 🔗 Links
+
+- Astro Docs: https://docs.astro.build
+- Vercel Deployment: https://vercel.com/docs

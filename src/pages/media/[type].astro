@@ -15,7 +15,14 @@ const posts = Object.entries(modules).map(([path, mod]) => {
   return {
     data: {
       ...fm,
-      date: fm.date ? new Date(fm.date) : undefined,
+      dateCreated: fm.dateCreated
+        ? new Date(fm.dateCreated)
+        : fm.date
+          ? new Date(fm.date)
+          : undefined,
+      dateUpdated: fm.dateUpdated ? new Date(fm.dateUpdated) : undefined,
+      // If type is missing, set a default type
+      type: fm.type || "post",
     },
     slug: filename.replace(/\.md$/, ""),
   };
