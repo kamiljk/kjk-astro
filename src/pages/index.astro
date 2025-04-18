@@ -2,47 +2,19 @@
 import MainLayout from "../layouts/MainLayout.astro";
 import HeroSection from "../components/HeroSection.astro";
 import CardGrid from "../components/CardGrid.astro";
+import { getCollection } from "astro:content";
 
-// Load all posts and extract types at the page level
-const modules = import.meta.glob("./posts/*.md", { eager: true }) as Record<
-  string,
-  any
->;
-const posts = Object.entries(modules).map(([path, mod]) => {
-  const filename = path.split("/").pop()!;
-  const fm = mod.frontmatter || {};
-
-  // Enhanced date handling
-  const dateCreated = fm.dateCreated
-    ? new Date(fm.dateCreated)
-    : fm.date
-      ? new Date(fm.date)
-      : undefined;
-  const dateUpdated = fm.dateUpdated ? new Date(fm.dateUpdated) : undefined;
-
-  return {
-    data: {
-      ...fm,
-      dateCreated,
-      dateUpdated,
-      // If type is missing, set a default type
-      type: fm.type || "post",
-    },
-    slug: filename.replace(/\.md$/, ""),
-  };
-});
-
-// Get all unique types
-const allTypes = Array.from(
-  new Set(posts.map((f) => f.data?.type).filter(Boolean))
-);
-
-let activeFilters = new Set(allTypes);
-
-// Now all posts will be included because they all have a type (either original or default "post")
-const filteredPosts = posts.filter((post) =>
-  activeFilters.has(post.data?.type)
-);
+// Load all posts from content collection
+const postsCollection = await getCollection("posts");
+// Map entries to data + slug
+const posts = postsCollection.map((entry) => ({
+  data: entry.data,
+  slug: entry.slug,
+}));
+// Extract all types
+const allTypes = Array.from(new Set(posts.map((p) => p.data.type)));
+const activeFilters = new Set(allTypes);
+const filteredPosts = posts;
 ---
 
 <MainLayout title="Home | My Astro Site" allTypes={allTypes} activeType="all">

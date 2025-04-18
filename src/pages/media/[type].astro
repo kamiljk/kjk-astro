@@ -1,51 +1,20 @@
 ---
 import MainLayout from "../../layouts/MainLayout.astro";
 import CardGrid from "../../components/CardGrid.astro";
+import { getCollection } from "astro:content";
 
 const type = Astro.params.type as string;
-
-// Load all posts and extract types at the page level
-const modules = import.meta.glob("../posts/*.md", { eager: true }) as Record<
-  string,
-  any
->;
-const posts = Object.entries(modules).map(([path, mod]) => {
-  const filename = path.split("/").pop()!;
-  const fm = mod.frontmatter || {};
-  return {
-    data: {
-      ...fm,
-      dateCreated: fm.dateCreated
-        ? new Date(fm.dateCreated)
-        : fm.date
-          ? new Date(fm.date)
-          : undefined,
-      dateUpdated: fm.dateUpdated ? new Date(fm.dateUpdated) : undefined,
-      // If type is missing, set a default type
-      type: fm.type || "post",
-    },
-    slug: filename.replace(/\.md$/, ""),
-  };
-});
-const allTypes = Array.from(
-  new Set(posts.map((f) => f.data?.type).filter(Boolean))
-);
-
-// Filter posts by type param or show all
+// Load posts from the 'posts' content collection
+const postsCollection = await getCollection("posts");
+const allTypes = Array.from(new Set(postsCollection.map((p) => p.data.type)));
+const posts = postsCollection.map((p) => ({ data: p.data, slug: p.slug }));
 const filteredPosts =
-  type === "all" ? posts : posts.filter((post) => post.data?.type === type);
+  type === "all" ? posts : posts.filter((p) => p.data.type === type);
 const activeFilters = type === "all" ? new Set(allTypes) : new Set([type]);
 
 export async function getStaticPaths() {
-  const modules = import.meta.glob("../posts/*.md", { eager: true }) as Record<
-    string,
-    any
-  >;
-  const types = Object.values(modules)
-    .map((mod) => mod.frontmatter?.type)
-    .filter(Boolean);
-  const uniqueTypes = Array.from(new Set(types));
-  const typesList = ["all", ...uniqueTypes];
+  // Pre-generate pages for each type
+  const typesList = ["all", ...allTypes];
   return typesList.map((type) => ({ params: { type } }));
 }
 ---

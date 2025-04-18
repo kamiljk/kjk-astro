@@ -1,13 +1,15 @@
 ---
 import "../assets/global.css";
 import Navbar from "../components/Navbar.astro";
+// Props: title required, allTypes and activeType optional
 interface Props {
   title: string;
-  allTypes: string[];
-  activeType: string;
+  allTypes?: string[];
+  activeType?: string;
 }
 
-const { title, allTypes, activeType } = Astro.props;
+// Provide defaults for optional props
+const { title, allTypes = [], activeType = "" } = Astro.props as Props;
 ---
 
 <html lang="en">

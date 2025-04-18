@@ -1,42 +1,24 @@
 ---
 import MainLayout from "../../layouts/MainLayout.astro";
+import { getCollection, getEntryBySlug } from "astro:content";
+
 const { slug } = Astro.params;
-// Glob all post modules
-const modules = import.meta.glob("./*.md", { eager: true }) as Record<
-  string,
-  any
->;
-// Find the matching post by filename
-const match = Object.entries(modules).find(([path]) =>
-  path.endsWith(`${slug}.md`)
-);
-if (!match) throw new Error(`Post not found: ${slug}`);
-const [, post] = match;
-
-// Extract date information with fallbacks
-const dateCreated = post.frontmatter.dateCreated || post.frontmatter.date;
-const dateUpdated = post.frontmatter.dateUpdated;
-
+// Generate static paths from the 'posts' collection
 export async function getStaticPaths() {
-  const modules = import.meta.glob("./*.md", { eager: true }) as Record<
-    string,
-    any
-  >;
-  const slugs = Object.keys(modules).map((path) =>
-    path.split("/").pop()!.replace(/\.md$/, "")
-  );
-  return slugs.map((slug) => ({ params: { slug } }));
+  const posts = await getCollection("posts");
+  return posts.map((p) => ({ params: { slug: p.slug } }));
 }
+
+// Load this post entry by slug
+const postEntry = await getEntryBySlug("posts", slug);
+if (!postEntry) throw new Error(`Post not found: ${slug}`);
+const { data, body } = postEntry;
 ---
 
-<MainLayout title={post.frontmatter.title}>
-  {/* Add metadata for dates that can be accessed by JavaScript */}
-  {dateCreated && <meta name="dateCreated" content={dateCreated} />}
-  {dateUpdated && <meta name="dateUpdated" content={dateUpdated} />}
-  <article class="post-content">
-    {/* Render the full markdown content */}
-    <post.default />
-  </article>
+<MainLayout title={data.title}>
+  {data.date && <meta name="dateCreated" content={data.date} />}
+  {data.dateUpdated && <meta name="dateUpdated" content={data.dateUpdated} />}
+  <article class="post-content" set:html={body} />
 </MainLayout>
 
 <style>
