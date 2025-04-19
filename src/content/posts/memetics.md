@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Memetics"
 description: "The study of how ideas, behaviors, and cultural information spread and evolve within a culture, often through imitation and transmission between individuals."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

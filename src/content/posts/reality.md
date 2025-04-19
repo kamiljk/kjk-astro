@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Reality"
 description: "The state of things as they actually exist, encompassing both objective phenomena and subjective experiences."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

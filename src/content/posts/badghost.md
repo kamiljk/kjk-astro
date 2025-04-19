@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Badghost"
 description: "A spooky arcade game where you dodge obstacles as a ghost."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "game"
 ---
 

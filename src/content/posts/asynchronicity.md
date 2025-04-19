@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Asynchronicity"
 description: "The state or quality of not occurring at the same time or rate, often regarding events, processes, or communications that don't happen simultaneously."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

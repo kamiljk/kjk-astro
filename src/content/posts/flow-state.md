@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Flow State"
 description: "A mental state of complete immersion and focus, often experienced during activities that are both challenging and rewarding."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

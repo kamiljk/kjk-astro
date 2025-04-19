@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Hauntology"
 description: "A concept examining how the past persists in the present, particularly through cultural elements that evoke nostalgia, grief, or unfulfilled potentials."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

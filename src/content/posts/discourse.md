@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Discourse"
 description: "Systems of thought, communication, and expression that shape and are shaped by social structures, power relations, and knowledge production."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

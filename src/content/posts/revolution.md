@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Revolution"
 description: "A fundamental change in power, organizational structures, or social order that occurs in a relatively short period of time."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

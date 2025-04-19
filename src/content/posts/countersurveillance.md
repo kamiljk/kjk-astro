@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Countersurveillance"
 description: "Methods and tactics used to avoid, disable, or disrupt surveillance systems and technologies."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

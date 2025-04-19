@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Particle Party"
 description: "A particle simulation sandbox."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "game"
 ---
 

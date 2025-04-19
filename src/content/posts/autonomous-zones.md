@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Autonomous Zones"
 description: "Territories or spaces that operate outside the control of traditional state authority, often self-governed by alternative social structures."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

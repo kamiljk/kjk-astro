@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Egregore"
 description: "A collective thoughtform or entity created by the combined energy and intentions of a group of people, often taking on a life of its own."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

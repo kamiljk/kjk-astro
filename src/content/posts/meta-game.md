@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Meta Game"
 description: "The strategic layer of gameplay that involves understanding and manipulating the rules, systems, and social dynamics beyond the immediate game mechanics."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

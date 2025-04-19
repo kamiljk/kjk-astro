@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Conspicuous Consumption"
 description: "The practice of purchasing and displaying goods or services primarily to demonstrate one's social status or wealth rather than to fulfill a practical need."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

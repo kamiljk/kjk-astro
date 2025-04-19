@@ -1,7 +1,8 @@
 ---
+layout: ../../layouts/MainLayout.astro
 title: "Actor-Network Theory"
 description: "A theoretical framework that views social and technological systems as networks of human and non-human actors, emphasizing the agency of objects and technologies."
-dateCreated: 2025-04-01
+date: 2025-04-01
 type: "post"
 ---
 

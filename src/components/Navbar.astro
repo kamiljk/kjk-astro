@@ -17,19 +17,23 @@ const { allTypes = [], activeType = "" } = Astro.props;
       >
     </li>
     {
-      allTypes.map((type: string) => (
-        <li class="navbar-item">
-          <a
-            href={`/media/${type}`}
-            class={activeType === type ? "active" : ""}
-          >
-            {type.charAt(0).toUpperCase() + type.slice(1)}
-          </a>
-        </li>
-      ))
+      allTypes
+        .filter((type: string) => type !== "about")
+        .map((type: string) => (
+          <li class="navbar-item">
+            <a
+              href={`/media/${type}`}
+              class={activeType === type ? "active" : ""}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </a>
+          </li>
+        ))
     }
     <li class="navbar-item">
-      <a href="/about" class={activeType === "about" ? "active" : ""}>About</a>
+      <a href="/media/about" class={activeType === "about" ? "active" : ""}
+        >About</a
+      >
     </li>
   </ul>
   <div class="navbar-right">
@@ -40,14 +44,14 @@ const { allTypes = [], activeType = "" } = Astro.props;
 </nav>
 
 <style>
-/* Logo link with better centering */
-.navbar .logo a {
-  width: 64px;
-  height: 64px;
-}
+  /* Logo link with better centering */
+  .navbar .logo a {
+    width: 64px;
+    height: 64px;
+  }
 
-/* Logo image - enlarged for header with proper centering */
-.navbar .logo img {
-  height: 64px;
-}
+  /* Logo image - enlarged for header with proper centering */
+  .navbar .logo img {
+    height: 64px;
+  }
 </style>

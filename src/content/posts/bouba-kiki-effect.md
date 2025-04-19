@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Bouba-Kiki Effect"
 description: "A phenomenon in which people across different languages and cultures consistently associate certain shapes with specific sounds or words."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

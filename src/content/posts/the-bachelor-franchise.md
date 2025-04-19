@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "The Bachelor Franchise"
 description: "An analysis of how dating reality shows like The Bachelor create artificial liminal spaces where participants navigate relationships under extreme conditions."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

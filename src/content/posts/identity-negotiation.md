@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Identity Negotiation"
 description: "The process by which individuals and groups navigate, construct, and express their identities within social contexts, often involving negotiation of multiple, intersecting identities."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

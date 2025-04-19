@@ -13,8 +13,12 @@ const filteredPosts =
 const activeFilters = type === "all" ? new Set(allTypes) : new Set([type]);
 
 export async function getStaticPaths() {
-  // Pre-generate pages for each type
-  const typesList = ["all", ...allTypes];
+  // Pre-generate pages for each media type
+  const postsCollection = await getCollection("posts");
+  const allTypesLocal = Array.from(
+    new Set(postsCollection.map((p) => p.data.type))
+  );
+  const typesList = ["all", ...allTypesLocal];
   return typesList.map((type) => ({ params: { type } }));
 }
 ---

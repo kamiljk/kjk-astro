@@ -5,8 +5,9 @@ export const collections = {
     schema: z.object({
       title: z.string(),
       description: z.string(),
-      date: z.string(),
+      dateCreated: z.coerce.date(),
+      dateUpdated: z.optional(z.coerce.date()),
       type: z.string(),
-    }),
+    }).passthrough(),
   }),
 };

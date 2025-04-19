@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Syzygy"
 description: "A concept describing meaningful alignments or conjunctions of elements, often used in astronomy, psychology, and literary analysis."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

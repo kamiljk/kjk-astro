@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Homonoia"
 description: "An ancient Greek concept referring to unity of mind or concord, often used to describe social harmony and collective agreement."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

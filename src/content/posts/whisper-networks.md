@@ -1,5 +1,6 @@
 ---
 title: "Whisper Networks"
+type: "post"
 scale: "micro"
 maturity: "captured"
 status: "active"

@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Structural Analysis"
 description: "An approach that examines the underlying patterns, relationships, and systems that organize social, cultural, and linguistic phenomena."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

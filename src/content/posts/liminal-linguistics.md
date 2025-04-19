@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Liminal Linguistics"
 description: "The study of language at boundaries and thresholds, examining how meaning is negotiated and transformed in spaces between established linguistic categories."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

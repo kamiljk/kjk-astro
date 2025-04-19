@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Hybrid Forms"
 description: "Entities, concepts, or structures that combine elements from different domains, creating unique combinations that transcend traditional boundaries and categories."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

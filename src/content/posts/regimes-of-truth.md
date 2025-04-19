@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Regimes of Truth"
 description: "Systems of power-knowledge that establish what is accepted as true or false within a society, including the mechanisms, institutions, and discourses that validate certain claims."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

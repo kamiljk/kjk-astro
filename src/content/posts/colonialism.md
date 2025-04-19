@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Colonialism"
 description: "The policy and practice of one nation acquiring political control over another, often involving economic exploitation, cultural domination, and territorial settlement."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

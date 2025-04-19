@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Resistance"
 description: "Opposition to established power structures, systems, or authorities, often manifesting as social, political, or cultural movements."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

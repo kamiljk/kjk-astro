@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Intersectionality"
 description: "A framework for understanding how multiple social identities intersect to create unique experiences of oppression and privilege."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

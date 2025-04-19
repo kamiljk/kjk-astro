@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Consensus-Dissensus"
 description: "Explores the dynamics of agreement and disagreement within groups, highlighting how consensus and dissensus shape decision-making, power relations, and social cohesion."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

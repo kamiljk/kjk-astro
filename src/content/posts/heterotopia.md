@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Heterotopia"
 description: "A concept introduced by Michel Foucault to describe spaces that are other, different, or separate from normal or everyday spaces, often reflecting or contesting societal norms."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

@@ -3,40 +3,64 @@ import Card from "./Card.astro";
 import CardGame from "./CardGame.astro";
 import "../assets/global.css";
 
-const { posts = [], activeFilters = new Set() } = Astro.props;
+// Eagerly import all markdown posts as components
+const modules = import.meta.glob("../content/posts/*.md", { eager: true });
+const allPosts = Object.entries(modules).map(([path, mod]) => {
+  const frontmatter = mod.frontmatter;
+  // Manually convert date strings to Date objects
+  const dateCreated = frontmatter.dateCreated
+    ? new Date(frontmatter.dateCreated)
+    : undefined;
+  const dateUpdated = frontmatter.dateUpdated
+    ? new Date(frontmatter.dateUpdated)
+    : undefined;
 
-const filteredFiles =
+  return {
+    slug: path.split("/").pop()!.replace(/\.md$/, ""),
+    Component: mod.default, // The actual Astro component
+    data: {
+      ...frontmatter, // Keep other frontmatter data
+      dateCreated, // Overwrite with Date object
+      dateUpdated, // Overwrite with Date object
+    },
+  };
+});
+
+const { activeFilters = new Set() } = Astro.props;
+
+// Filter posts based on active filters (passed from the page)
+const filteredPosts =
   activeFilters.size > 0
-    ? posts.filter((file) => activeFilters.has(file.data?.type))
-    : posts;
+    ? allPosts.filter((post) => activeFilters.has(post.data?.type))
+    : allPosts;
 ---
 
 <div id="content-container">
   <div class="card-grid" id="card-grid">
     {
-      filteredFiles.map((file) =>
-        file.data?.type === "game" ? (
+      filteredPosts.map((post) =>
+        post.data?.type === "game" ? (
           <CardGame
-            title={file.data?.title || file.slug || file.id}
-            slug={file.slug || "#"}
-            description={file.data?.description}
-            dateCreated={file.data?.dateCreated}
-            dateUpdated={file.data?.dateUpdated}
+            title={post.data?.title || post.slug}
+            slug={post.slug}
+            description={post.data?.description}
+            dateCreated={post.data?.dateCreated}
+            dateUpdated={post.data?.dateUpdated}
           />
         ) : (
           <Card
-            title={file.data?.title || file.slug || file.id}
-            slug={file.slug || "#"}
-            description={file.data?.description}
-            dateCreated={file.data?.dateCreated}
-            dateUpdated={file.data?.dateUpdated}
+            title={post.data?.title || post.slug}
+            slug={post.slug}
+            description={post.data?.description}
+            dateCreated={post.data?.dateCreated}
+            dateUpdated={post.data?.dateUpdated}
           />
         )
       )
     }
   </div>
 
-  <!-- Empty hero card container that will be filled by JS -->
+  <!-- Hero card container -->
   <div class="hero-card" id="hero-card" style="display: none;">
     <div class="hero-card-header">
       <a
@@ -71,111 +95,75 @@ const filteredFiles =
       </div>
     </div>
   </div>
+
+  <!-- Hidden templates containing pre-rendered post content -->
+  {
+    allPosts.map((post) => (
+      <template
+        id={`content-${post.slug}`}
+        data-title={post.data.title}
+        data-date-created={post.data.dateCreated?.toISOString()}
+        data-date-updated={post.data.dateUpdated?.toISOString()}
+      >
+        <article class="post-content">
+          <post.Component />
+        </article>
+      </template>
+    ))
+  }
 </div>
 
 <script>
   // @ts-nocheck
   function showHeroCard(slug) {
-    // Hide grid, show card
-    document.getElementById("card-grid")!.style.display = "none";
+    // Hide grid, show hero card
+    document.getElementById("card-grid").style.display = "none";
     const heroCard = document.getElementById("hero-card");
-    heroCard!.style.display = "block";
-
-    // Initialize with empty content until we load the actual content
-    document.getElementById("hero-title")!.textContent = "";
-    const dateCreatedEl = document.getElementById("hero-date-created");
-    const dateUpdatedEl = document.getElementById("hero-date-updated");
-    dateCreatedEl!.style.display = "none";
-    dateUpdatedEl!.style.display = "none";
+    heroCard.style.display = "block";
     const container = document.getElementById("hero-markdown");
-    container.innerHTML = "<p>Loading content…</p>";
 
-    // Fetch the post via its directory route (works in dev and static builds)
-    const encodedSlug = encodeURIComponent(slug);
-    const dirUrl = `/posts/${encodedSlug}/`;
-    console.log("Fetching content from:", dirUrl);
-    fetch(dirUrl)
-      .then((resp) => {
-        console.log("Response status:", resp.status);
-        if (!resp.ok) {
-          console.error("Fetch failed:", resp.status, resp.statusText);
-          throw new Error(`Failed to fetch post content: ${resp.status}`);
-        }
-        return resp.text();
-      })
-      .then((html) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
+    // Find the pre-rendered content template
+    const template = document.getElementById(`content-${slug}`);
+    if (template) {
+      // Inject the pre-rendered HTML
+      container.innerHTML = template.innerHTML;
 
-        // Extract the document title from the HTML - remove the site name if present
-        let docTitle = doc.querySelector("title")?.textContent || "";
-        // If title contains a separator like " | " or " - ", take just the first part
-        if (docTitle.includes(" | ")) {
-          docTitle = docTitle.split(" | ")[0];
-        } else if (docTitle.includes(" - ")) {
-          docTitle = docTitle.split(" - ")[0];
-        }
-        document.getElementById("hero-title")!.textContent = docTitle;
+      // Update title and dates from template data attributes
+      const title = template.dataset.title || slug;
+      const dateCreatedStr = template.dataset.dateCreated;
+      const dateUpdatedStr = template.dataset.dateUpdated;
 
-        // Extract date metadata from the document
-        const meta = doc.querySelectorAll("meta");
-        let dateCreated = null;
-        let dateUpdated = null;
+      document.getElementById("hero-title").textContent = title;
 
-        meta.forEach((metaTag) => {
-          if (metaTag.getAttribute("name") === "dateCreated") {
-            dateCreated = metaTag.getAttribute("content");
-          }
-          if (metaTag.getAttribute("name") === "dateUpdated") {
-            dateUpdated = metaTag.getAttribute("content");
-          }
-        });
+      const dateCreatedEl = document.getElementById("hero-date-created");
+      const dateUpdatedEl = document.getElementById("hero-date-updated");
+      dateCreatedEl.style.display = "none"; // Reset display
+      dateUpdatedEl.style.display = "none"; // Reset display
 
-        // Show the updated date if available
-        if (dateUpdated) {
-          dateUpdatedEl!.textContent = `Updated: ${new Date(dateUpdated).toLocaleDateString()}`;
-          dateUpdatedEl!.style.display = "block";
+      const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
-          // Only show created date if it's significantly different from updated date
-          // (at least 7 days difference)
-          if (dateCreated) {
-            const createdDate = new Date(dateCreated);
-            const updatedDate = new Date(dateUpdated);
-            const diffDays = Math.floor(
-              (updatedDate.getTime() - createdDate.getTime()) /
-                (1000 * 60 * 60 * 24)
-            );
-
-            if (diffDays >= 7) {
-              dateCreatedEl!.textContent = `Created: ${createdDate.toLocaleDateString()}`;
-              dateCreatedEl!.style.display = "block";
-            }
-          }
-        } else if (dateCreated) {
-          // If no updated date but we have created date, just show that
-          dateCreatedEl!.textContent = `Created: ${new Date(dateCreated).toLocaleDateString()}`;
-          dateCreatedEl!.style.display = "block";
-        }
-
-        let content = doc.querySelector(".post-content");
-        if (!content) {
-          console.warn(
-            ".post-content not found, falling back to main.main-container"
+      if (dateUpdatedStr) {
+        dateUpdatedEl.textContent = `Updated: ${formatDate(dateUpdatedStr)}`;
+        dateUpdatedEl.style.display = "block";
+        if (dateCreatedStr) {
+          const createdDate = new Date(dateCreatedStr);
+          const updatedDate = new Date(dateUpdatedStr);
+          const diffDays = Math.floor(
+            (updatedDate - createdDate) / (1000 * 60 * 60 * 24)
           );
-          content = doc.querySelector("main.main-container");
+          if (diffDays >= 7) {
+            dateCreatedEl.textContent = `Created: ${formatDate(dateCreatedStr)}`;
+            dateCreatedEl.style.display = "block";
+          }
         }
-        if (content) {
-          container.innerHTML = content.innerHTML;
-        } else {
-          console.error("No suitable content container found in fetched HTML");
-          container.innerHTML = "<p>Error: Content not found.</p>";
-        }
-      })
-      .catch((err) => {
-        console.error("Error loading content:", err);
-        const container = document.getElementById("hero-markdown");
-        container.innerHTML = `<p>Error loading content: ${err.message}</p>`;
-      });
+      } else if (dateCreatedStr) {
+        dateCreatedEl.textContent = `Created: ${formatDate(dateCreatedStr)}`;
+        dateCreatedEl.style.display = "block";
+      }
+    } else {
+      console.error(`Content template not found for slug: ${slug}`);
+      container.innerHTML = `<p>Error: Content not found for ${slug}.</p>`;
+    }
   }
 
   function showCardGrid() {

@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Identity Fluidity"
 description: "The concept that identity is not fixed or static but is continuously evolving and changing in response to social, cultural, and personal factors."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

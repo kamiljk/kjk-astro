@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Cosplay and LARPing"
 description: "Explores the intersection of cosplay and live-action role-playing (LARPing), highlighting how participants blend costume creation with immersive role-playing experiences."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

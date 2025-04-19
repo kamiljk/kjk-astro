@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Synchronicity"
 description: "Meaningful coincidences that occur with no causal relationship yet seem to be meaningfully related, a concept developed by Carl Jung."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

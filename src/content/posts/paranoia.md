@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Paranoia"
 description: "A thought process characterized by excessive anxiety, suspicion, and distrust, often accompanied by beliefs that one is being persecuted or threatened."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

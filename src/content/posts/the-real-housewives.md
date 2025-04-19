@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "The Real Housewives"
 description: "Analysis of how reality television franchises like The Real Housewives create and exploit liminal spaces of performance, authenticity, and social dynamics."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

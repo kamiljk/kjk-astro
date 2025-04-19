@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Memetics & Antimemetics"
 description: "Memetics and antimemetics explore how ideas propagate, mutate, and vanish within cultural and cognitive ecosystems."
-date: 2025-04-17
+dateCreated: 2025-04-17
 type: post
 ---
 

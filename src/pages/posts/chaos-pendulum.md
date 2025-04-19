@@ -1,7 +1,8 @@
 ---
+layout: ../../layouts/MainLayout.astro
 title: "Chaos Pendulum"
 description: "Simulate a chaotic double pendulum."
-dateCreated: 2025-04-01
+date: 2025-04-01
 type: "game"
 ---
 

@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Bias"
 description: "A systematic inclination or prejudice for or against a particular person, group, or perspective, often operating unconsciously."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

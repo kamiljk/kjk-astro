@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Tactical Nomadism"
 description: "A strategy of movement and mobility to avoid control, surveillance, or repression, often employed by marginalized groups or political actors."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

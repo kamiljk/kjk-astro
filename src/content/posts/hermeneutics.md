@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Hermeneutics"
 description: "The study of interpretation, especially the interpretation of texts, language, and symbolic expressions, exploring how meaning is constructed and understood."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

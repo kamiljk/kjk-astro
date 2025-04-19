@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Spectrum of Agency"
 description: "A framework for understanding the different ways that entities can exercise power, influence, and autonomy within complex systems."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

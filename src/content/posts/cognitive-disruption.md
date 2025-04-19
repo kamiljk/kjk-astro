@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Cognitive Disruption"
 description: "Processes or events that interrupt, challenge, or reconfigure established patterns of thought, perception, or understanding."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 

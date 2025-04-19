@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Electro Ball"
 description: "Control a charged ball with device motion."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "game"
 ---
 

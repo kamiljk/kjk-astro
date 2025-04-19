@@ -1,8 +1,7 @@
 ---
-layout: ../../layouts/MainLayout.astro
 title: "Political Parties"
 description: "Organizations that seek to influence governance by nominating candidates for elected office and advocating for specific policies or ideologies."
-date: 2025-04-01
+dateCreated: 2025-04-01
 type: "post"
 ---
 
