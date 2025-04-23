@@ -1,6 +1,5 @@
 /* Global CSS Reset */
 /* Based on best practices for modern CSS resets */
-
 /* Box sizing reset */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -50,9 +49,7 @@ input, button, textarea, select {
 }
 
 /* Global CSS for the Astro project */
-
 /* Updated Global CSS for fluid scales and sizing */
-
 :root {
   --sidebar-width: clamp(200px, 15vw, 300px);
   --primary-color: #0077cc;
@@ -63,65 +60,52 @@ input, button, textarea, select {
   --hero-padding: clamp(2rem, 5vw, 4rem);
   --card-gap: clamp(1rem, 2vw, 2rem);
   --layout-padding: clamp(1rem, 2vw, 1.5rem);
-
+  --hero-padding: clamp(2rem, 5vw, 4rem);
   /* RGB values for frosted glass effect */
   --secondary-bg-rgb: 255, 255, 255;
   --card-border-rgb: 221, 221, 221;
-
   /* Fluid modular scale configuration */
   --fluid-min-width: 320;
   --fluid-max-width: 1500;
-  --fluid-min-size: 14; /* Further reduced from 15 */
-  --fluid-max-size: 16; /* Further reduced from 18 */
-  --fluid-min-ratio: 1.15; /* Reduced from 1.2 */
-  --fluid-max-ratio: 1.25; /* Reduced from 1.33 */
-
-  /* Calculate fluid breakpoints */
+  --fluid-min-size: 14;
+  --fluid-max-size: 16;
+  --fluid-min-ratio: 1.15;
+  --fluid-max-ratio: 1.25;
   --fluid-screen: 100vw;
   --fluid-bp: calc((var(--fluid-screen) - ((var(--fluid-min-width) / 16) * 1rem)) / ((var(--fluid-max-width) / 16) - (var(--fluid-min-width) / 16)));
-
   /* Define fluid scales */
   --fluid-min-scale-0: var(--fluid-min-ratio);
   --fluid-min-scale-1: calc(var(--fluid-min-scale-0) * var(--fluid-min-ratio));
   --fluid-min-scale-2: calc(var(--fluid-min-scale-1) * var(--fluid-min-ratio));
   --fluid-min-scale-3: calc(var(--fluid-min-scale-2) * var(--fluid-min-ratio));
   --fluid-min-scale-4: calc(var(--fluid-min-scale-3) * var(--fluid-min-ratio));
-
   --fluid-max-scale-0: var(--fluid-max-ratio);
   --fluid-max-scale-1: calc(var(--fluid-max-scale-0) * var(--fluid-max-ratio));
   --fluid-max-scale-2: calc(var(--fluid-max-scale-1) * var(--fluid-max-ratio));
   --fluid-max-scale-3: calc(var(--fluid-max-scale-2) * var(--fluid-max-ratio));
   --fluid-max-scale-4: calc(var(--fluid-max-scale-3) * var(--fluid-max-ratio));
-
   --fluid-min-size-0: calc(var(--fluid-min-size) / 16);
   --fluid-min-size-1: calc(var(--fluid-min-size) * var(--fluid-min-scale-0) / 16);
   --fluid-min-size-2: calc(var(--fluid-min-size) * var(--fluid-min-scale-1) / 16);
   --fluid-min-size-3: calc(var(--fluid-min-size) * var(--fluid-min-scale-2) / 16);
   --fluid-min-size-4: calc(var(--fluid-min-size) * var(--fluid-min-scale-3) / 16);
-
   --fluid-max-size-0: calc(var(--fluid-max-size) / 16);
   --fluid-max-size-1: calc(var(--fluid-max-size) * var(--fluid-max-scale-0) / 16);
   --fluid-max-size-2: calc(var(--fluid-max-size) * var(--fluid-max-scale-1) / 16);
   --fluid-max-size-3: calc(var(--fluid-max-size) * var(--fluid-max-scale-2) / 16);
   --fluid-max-size-4: calc(var(--fluid-max-size) * var(--fluid-max-scale-3) / 16);
-
   --fluid-0: calc(((var(--fluid-min-size-0) * 1rem) + (var(--fluid-max-size-0) - var(--fluid-min-size-0)) * var(--fluid-bp)));
   --fluid-1: calc(((var(--fluid-min-size-1) * 1rem) + (var(--fluid-max-size-1) - var(--fluid-min-size-1)) * var(--fluid-bp)));
   --fluid-2: calc(((var(--fluid-min-size-2) * 1rem) + (var(--fluid-max-size-2) - var(--fluid-min-size-2)) * var(--fluid-bp)));
   --fluid-3: calc(((var(--fluid-min-size-3) * 1rem) + (var(--fluid-max-size-3) - var(--fluid-min-size-3)) * var(--fluid-bp)));
   --fluid-4: calc(((var(--fluid-min-size-4) * 1rem) + (var(--fluid-max-size-4) - var(--fluid-min-size-4)) * var(--fluid-bp)));
-
   --bg-color: #f2f2f2;
   --text-color: #111;
   --link-color: var(--primary-color);
   --secondary-bg: #fff;
   --desc-color: #666;
-
-  /* card border default */
   --card-border: var(--desc-color);
-
-  /* Add background RGB values for gradient effect */
-  --bg-color-rgb: 245, 240, 225; /* Light mode background as RGB */
+  --bg-color-rgb: 245, 240, 225;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -135,43 +119,33 @@ input, button, textarea, select {
 }
 
 body[data-theme="light"] {
-  /* Modern Minimalist NEON / NEUTRAL Light Mode */
-  --bg-color: #f5f0e1;      /* Off-white beige main bg */
-  --text-color: #000000;    /* Black text */
-  --primary-color: #FF1493; /* Neon Magenta/DeepPink accent */
-  --link-hover-color: #FF69B4; /* Lighter Pink (HotPink) on hover */
-  --link-active-color: #C71585; /* Darker Pink (MediumVioletRed) when active/clicked */
-  --secondary-bg: #ffffff;  /* White for cards (brighter than bg) */
-  --desc-color: #333333;    /* Dark gray for descriptions */
-  --card-border: #dddddd;  /* Lighter gray border for cards */
-  
-  /* RGB values for frosted glass effect */
+  --bg-color: #f5f0e1;
+  --text-color: #000000;
+  --primary-color: #FF1493;
+  --link-hover-color: #FF69B4;
+  --link-active-color: #C71585;
+  --secondary-bg: #ffffff;
+  --desc-color: #333333;
+  --card-border: #dddddd;
   --secondary-bg-rgb: 255, 255, 255;
   --card-border-rgb: 221, 221, 221;
-
-  /* Light mode beige background */
   --bg-color-rgb: 245, 240, 225;
 }
 
 body[data-theme="dark"] {
-  --bg-color: #000000;      /* pure black background */
-  --text-color: #f5f5dc;    /* light neutral for text */
-  --primary-color: #ffd700; /* gold accent */
-  --link-hover-color: #ffec8b; /* Lighter Gold on hover */
-  --link-active-color: #e6c200; /* Slightly darker Gold when active/clicked */
-  --secondary-bg: #121212;  /* slightly lighter than bg for cards */
+  --bg-color: #000000;
+  --text-color: #f5f5dc;
+  --primary-color: #ffd700;
+  --link-hover-color: #ffec8b;
+  --link-active-color: #e6c200;
+  --secondary-bg: #121212;
   --desc-color: #aaaaaa;
   --card-border: #333333;
-  
-  /* RGB values for frosted glass effect */
   --secondary-bg-rgb: 18, 18, 18;
   --card-border-rgb: 51, 51, 51;
-
-  /* Dark mode black background */
   --bg-color-rgb: 0, 0, 0;
 }
 
-/* Clean slate for positioning */
 html {
   overflow-x: hidden;
 }
@@ -187,7 +161,6 @@ body {
   min-height: 100vh;
 }
 
-/* Top barrier - cleaner implementation */
 body::before {
   content: '';
   position: fixed;
@@ -199,69 +172,272 @@ body::before {
   z-index: 999;
 }
 
-/* Simplified layout structure with proper spacing */
 .layout {
   display: block;
-  /* Space for top barrier + navbar + some breathing room */
-  padding-top: calc(var(--spacing) + 60px + var(--spacing));
+  padding-top: calc(var(--spacing) + 80px + var(--spacing));
 }
 
-/* Simplified navbar with precise positioning */
 .navbar {
   position: fixed;
-  top: var(--spacing); /* Exactly below the top barrier */
+  top: var(--spacing);
   left: var(--spacing);
   right: var(--spacing);
-  z-index: 100; /* Below the top barrier */
+  z-index: 100;
   background: rgba(var(--secondary-bg-rgb), 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(0,0,0,0.8);
-  border-radius: 0; /* Square corners to match cards */
+  border-radius: 0;
   box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
   width: calc(100% - (var(--spacing) * 2));
-  height: 60px;
+  height: clamp(60px, 7vw, 80px);
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing);
   padding: 0 1rem;
+  transition: height 0.3s ease;
 }
 
-/* Remove the previous navbar::before that wasn't working */
 .navbar::before {
   display: none;
   content: none;
 }
 
-/* -------------- LAYOUT STRUCTURE --------------- */
+.hamburger-menu {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.hamburger-icon {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--text-color);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.hamburger-icon::before {
+  top: -7px;
+}
+
+.hamburger-icon::after {
+  top: 7px;
+}
+
+.navbar.expanded .hamburger-icon {
+  background-color: var(--text-color);
+}
+
+.navbar.expanded .hamburger-icon::before {
+  top: -7px;
+}
+
+.navbar.expanded .hamburger-icon::after {
+  top: 7px;
+}
+
+/* Menu items container */
+.nav-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.nav-center li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-center a {
+  color: var(--text-color);
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+  font-weight: 600;
+}
+
+/* Mobile adjustments for navbar */
+@media (max-width: 600px) {
+  .navbar {
+    flex-wrap: wrap;
+    height: 60px;
+    padding: 0 0.75rem;
+    min-height: unset;
+    transition: height 0.3s ease;
+    position: relative;
+    min-width: 280px;
+    width: calc(100% - (var(--spacing) * 2));
+    margin: 0 auto;
+  }
+
+  .navbar.expanded {
+    height: auto;
+  }
+
+  .nav-left.logo {
+    display: flex;
+    order: 1;
+    flex-shrink: 0;
+    align-items: center;
+    margin-right: 0;
+  }
+
+  .hamburger-menu {
+    display: block;
+    order: 2;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .nav-right {
+    order: 3;
+    flex-shrink: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    align-self: center;
+  }
+
+  .nav-center {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0 0.5rem;
+    order: 4;
+    border-top: 1px solid rgba(var(--card-border-rgb), 0.3);
+    margin-top: 0.5rem;
+  }
+
+  .navbar.expanded .nav-center {
+    display: flex;
+  }
+
+  .nav-center li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-center a {
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .nav-center a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background-color: #a2f783;
+    opacity: 0;
+    transform: none;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+  }
+
+  .nav-center a:hover::after,
+  .nav-center a:focus::after {
+    opacity: 1;
+  }
+
+  .nav-center a.active::after {
+    opacity: 0.7;
+  }
+
+  .nav-center li:nth-child(1) a::after {
+    background-color: #a2f783;
+  }
+
+  .nav-center li:nth-child(2) a::after {
+    background-color: #a2f783;
+  }
+
+  .nav-center li:nth-child(3) a::after {
+    background-color: #00ffff;
+  }
+
+  .nav-center li:nth-child(4) a::after {
+    background-color: #a2f783;
+  }
+}
+
+/* Minimum sizes for very small viewports */
+@media (max-width: 300px) {
+  .layout {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .navbar {
+    min-height: 50px;
+    padding: 0 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  .navbar .logo img {
+    height: 36px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    min-width: 220px;
+    width: 100%;
+  }
+}
 
 /* Main content area - mobile first */
 .main-container {
   max-width: 1200px;
   margin: var(--spacing) auto;
   padding: var(--spacing);
-}
-
-/* -------------- NAVBAR COMPONENT --------------- */
-
-/* Menu items container */
-.navbar-menu {
-  display: flex;
-  flex-direction: row;
-  gap: calc(var(--spacing) * 2);
-  align-items: center;
-  justify-content: flex-start;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* Add right-side container for theme toggle */
-.navbar-right {
-  display: flex;
-  align-items: center;
 }
 
 /* -------------- NAVBAR LINKS STYLING --------------- */
@@ -276,10 +452,8 @@ body::before {
   position: relative;
   z-index: 1;
   background-image: none;
-  background-size: auto;
-  background-position: initial;
   transition: color 0.2s ease;
-  font-weight: 600; /* Make menu items bolder */
+  font-weight: 600;
 }
 
 /* Highlight effect for regular navbar links */
@@ -288,7 +462,6 @@ body::before {
   position: absolute;
   width: calc(100% + 0.8em);
   height: calc(1em + 8px);
-  /* Precise positioning to ensure highlight is centered behind text */
   bottom: -4px;
   left: -0.4em;
   background-color: var(--primary-color);
@@ -299,17 +472,9 @@ body::before {
   display: block;
 }
 
-/* Specific adjustment for navbar-menu and navbar-submenu links */
-.navbar-menu a::after,
-.navbar-submenu a::after {
-  /* Same properties, but ensure bottom value is exactly matched for these specific links */
-  bottom: -4px;
-}
-
-/* Hover effect for navbar links */
 .navbar a:hover,
 .navbar a:focus {
-  color: #000; /* Black text on hover */
+  color: #000;
   text-decoration: none;
 }
 
@@ -318,19 +483,14 @@ body::before {
   opacity: 1;
 }
 
-/* Active page indication */
-.navbar a.active {
-  color: #000; /* Black text for active links to ensure visibility against highlight */
-}
-
 .navbar a.active::after {
-  opacity: 0.7; /* Show a slightly dimmed highlight for active page */
+  opacity: 0.7;
+  background-color: #a2f783;
 }
 
-/* Ensure hover effect still works on active links */
 .navbar a.active:hover::after,
 .navbar a.active:focus::after {
-  opacity: 1; /* Full opacity on hover, even for active links */
+  opacity: 1;
 }
 
 /* -------------- LOGO STYLING --------------- */
@@ -340,6 +500,7 @@ body::before {
   align-self: center;
   margin-right: var(--spacing);
   position: relative;
+  z-index: 101;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -358,44 +519,39 @@ body::before {
   height: 32px;
 }
 
-/* Logo image - smaller for header with proper centering */
+/* Logo image - larger for header with proper centering */
 .navbar .logo img {
-  height: 32px;
+  height: clamp(40px, 6vw, 64px);
   width: auto;
   display: block;
   position: relative;
   z-index: 2;
+  transition: height 0.3s ease;
 }
 
-/* Dark theme logo color - change from gold to white */
 body[data-theme="dark"] .navbar .logo img {
-  filter: brightness(0) saturate(100%) invert(100%); /* White instead of gold */
+  filter: brightness(0) saturate(100%) invert(100%);
 }
 
-/* Logo hover effect for the image itself */
 .navbar .logo a:hover img {
-  filter: brightness(0) saturate(0); /* Black on hover */
+  filter: brightness(0) saturate(0);
   transition: filter 0.3s ease-out;
 }
 
-/* Dark mode logo hover - make it black instead of brighter gold */
 body[data-theme="dark"] .navbar .logo a:hover img {
-  filter: brightness(0) saturate(0); /* Black on hover in dark mode too */
+  filter: brightness(0) saturate(0);
 }
 
-/* Disable highlight effect for logo link */
 .navbar .logo a::after {
   display: none;
-  content: none;
 }
 
-/* Circular background animation for logo hover - improved positioning */
 .navbar .logo a::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 28px; /* Just slightly larger than the logo */
+  width: 28px;
   height: 28px;
   background-color: var(--primary-color);
   border-radius: 50%;
@@ -405,22 +561,10 @@ body[data-theme="dark"] .navbar .logo a:hover img {
   transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 
-/* Expand the circle on hover/focus */
 .navbar .logo a:hover::before,
 .navbar .logo a:focus::before {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
-}
-
-/* Logo hover effect for the image itself */
-.navbar .logo a:hover img {
-  filter: brightness(1.1) saturate(1.2);
-  transition: filter 0.3s ease-out;
-}
-
-/* Ensure the logo turns to appropriate color on hover in dark mode */
-body[data-theme="dark"] .navbar .logo a:hover img {
-  filter: brightness(0) saturate(0); /* Black on hover in dark mode too */
 }
 
 /* -------------- THEME TOGGLE STYLING --------------- */
@@ -440,18 +584,15 @@ body[data-theme="dark"] .navbar .logo a:hover img {
   padding: 0.5em;
   border-radius: 50%;
   font-size: 1.5rem;
-  color: var(--text-color); /* Change from var(--link-color) to text color */
+  color: var(--text-color);
   transition: color 0.2s ease;
   background-image: none;
 }
 
-/* Disable skewed highlight for theme toggle */
 .navbar .theme-toggle a::after {
   display: none;
-  content: none;
 }
 
-/* Circular background effect for theme toggle */
 .navbar .theme-toggle a::before {
   content: '';
   position: absolute;
@@ -467,15 +608,12 @@ body[data-theme="dark"] .navbar .logo a:hover img {
   transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 
-/* Expand the circle on hover/focus */
 .navbar .theme-toggle a:hover::before,
 .navbar .theme-toggle a:focus::before {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
 
-/* Ensure icon stays black on hover */
-.navbar .theme-toggle a:hover,
 .navbar .theme-toggle a:focus,
 body[data-theme="dark"] .navbar .theme-toggle a:hover,
 body[data-theme="dark"] .navbar .theme-toggle a:focus {
@@ -485,7 +623,6 @@ body[data-theme="dark"] .navbar .theme-toggle a:focus {
 /* -------------- RESPONSIVE DESIGN: DESKTOP --------------- */
 
 @media (min-width: 768px) {
-  /* Keep main container centered */
   .main-container {
     max-width: 1200px;
     margin: var(--spacing) auto;
@@ -493,31 +630,11 @@ body[data-theme="dark"] .navbar .theme-toggle a:focus {
   }
 }
 
-/* Mobile adjustments for navbar */
-@media (max-width: 600px) {
-  .navbar {
-    padding: 0.3rem 0.5rem;
-    height: auto;
-  }
-  
-  .navbar-menu {
-    gap: 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .navbar .logo img {
-    height: 24px;
-  }
-  
-  .navbar .theme-toggle a {
-    font-size: 1.2rem;
-    padding: 0.3em;
-  }
-}
-
 /* HeroSection styles */
 .hero {
   padding: var(--fluid-1);
+  width: 100%;
+  max-width: 1200px;
 }
 
 .hero .hero-content {
@@ -550,13 +667,13 @@ body[data-theme="dark"] .navbar .theme-toggle a:focus {
   border: 1px solid rgba(0,0,0,0.8);
   box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
   transition: none;
-  overflow: visible; /* allow title highlight pseudo-element to show */
+  overflow: visible;
   height: 100%;
-  width: 280px; /* Fixed width */
-  max-width: 100%; /* For smaller screens */
+  width: 280px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  padding: var(--fluid-0); 
+  padding: var(--fluid-0);
   position: relative;
 }
 
@@ -565,45 +682,41 @@ body[data-theme="dark"] .navbar .theme-toggle a:focus {
   box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
 }
 
-/* Remove block-level styles from generic .card-link */
 .card-link {
-  /* No block/width styles here */
-  text-decoration: none; /* Keep this */
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Remove the generic ::after for block-level .card-link */
 .card-link::after {
-  display: none !important; /* Ensure this doesn't apply generically */
+  display: none !important;
   content: none !important;
 }
 
-/* Remove generic hover/focus underline for block-level .card-link */
 .card-link:hover,
 .card-link:focus {
-  text-decoration: none; /* Reset generic underline */
+  text-decoration: none;
 }
 
-/* Apply highlight/underline ONLY to links inside card titles */
 .card .title > a {
   position: relative;
-  display: inline-block; /* Make it inline again */
+  display: inline-block;
   text-decoration: none;
-  color: inherit; /* Inherit color from h2 */
-  z-index: 1; /* Ensure text is above highlight */
+  color: inherit;
+  z-index: 1;
 }
 
 .card .title > a::after {
   content: '';
   position: absolute;
   width: calc(100% + 0.4em);
-  height: calc(1em + 18px); /* Increase height for more vertical padding */
-  bottom: 9px;            /* Adjust bottom offset to center the height */
-  left: -0.2em;             /* Adjust position for inline */
+  height: calc(1em + 18px);
+  bottom: 9px;
+  left: -0.2em;
   background-color: var(--primary-color);
   transform: skewX(-15deg);
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
-  z-index: 0; /* Ensure highlight stays behind text */
+  z-index: 0;
   display: block;
 }
 
@@ -614,14 +727,13 @@ body[data-theme="dark"] .navbar .theme-toggle a:focus {
 
 .card .title > a:hover,
 .card .title > a:focus {
-  text-decoration: none; /* Remove underline, just use skewbox */
-  color: #000 !important; /* Ensure text turns black */
+  text-decoration: none;
+  color: #000 !important;
 }
 
-/* Explicit dark mode override for card title link hover color */
 body[data-theme="dark"] .card .title > a:hover,
 body[data-theme="dark"] .card .title > a:focus {
-  color: #000 !important; /* Ensure text turns black in dark mode */
+  color: #000 !important;
 }
 
 /* Accessibility Improvements */
@@ -630,18 +742,15 @@ button:focus, a:focus {
   outline-offset: 2px;
 }
 
-/* -------------- GLOBAL LINK STYLES --------------- */
-
 /* Base link styles - for all links EXCEPT navbar links and card links */
 a:not(.navbar a):not(.card-link) {
   position: relative;
   text-decoration: none;
-  color: var(--text-color); /* Use text color instead of link color */
+  color: var(--text-color);
   transition: color 0.2s ease;
 }
 
-/* Default highlighter for regular links */
-a:not(.navbar a):not(.card-link)::after { 
+a:not(.navbar a):not(.card-link)::after {
   content: '';
   position: absolute;
   width: calc(100% + 0.8em);
@@ -655,11 +764,10 @@ a:not(.navbar a):not(.card-link)::after {
   z-index: -1;
 }
 
-/* Hover effect for regular links */
 a:not(.navbar a):not(.card-link):hover,
 a:not(.navbar a):not(.card-link):focus {
-  color: #000; /* Black text on hover for consistency with navbar */
-  text-decoration: none; /* Remove underline on hover */
+  color: #000;
+  text-decoration: none;
 }
 
 a:not(.navbar a):not(.card-link):hover::after,
@@ -667,7 +775,6 @@ a:not(.navbar a):not(.card-link):focus::after {
   opacity: 1;
 }
 
-/* Dark mode hover text color */
 body[data-theme="dark"] a:not(.navbar a):not(.card-link):hover,
 body[data-theme="dark"] a:not(.navbar a):not(.card-link):focus {
   color: #000;
@@ -692,8 +799,8 @@ body[data-theme="dark"] a:not(.navbar a):not(.card-link):focus {
   padding: 1rem;
   transition: none;
   display: block;
-  width: 280px; /* Fixed width to match card style */
-  max-width: 100%; /* For smaller screens */
+  width: 280px;
+  max-width: 100%;
   color: var(--text-color);
 }
 
@@ -704,6 +811,7 @@ body[data-theme="dark"] a:not(.navbar a):not(.card-link):focus {
 
 .game-card-content {
   text-align: center;
+  padding: var(--layout-padding);
   color: var(--text-color);
 }
 
@@ -728,6 +836,7 @@ p {
   color: var(--text-color);
   line-height: 1.7;
 }
+
 .post-content h1,
 .post-content h2,
 .post-content h3,
@@ -739,28 +848,35 @@ p {
   font-weight: 600;
   line-height: 1.3;
 }
+
 .post-content h1 { font-size: var(--fluid-4); }
 .post-content h2 { font-size: var(--fluid-3); }
 .post-content h3 { font-size: var(--fluid-2); }
 .post-content h4 { font-size: var(--fluid-1); }
+
 .post-content p {
   margin: var(--spacing) 0;
 }
+
 .post-content a {
   color: var(--link-color);
   text-decoration: underline;
   transition: color 0.2s;
 }
+
 .post-content a:hover {
   color: var(--link-hover-color);
 }
+
 .post-content ul,
 .post-content ol {
   margin: var(--spacing) 0 var(--spacing) 1.5em;
 }
+
 .post-content li {
   margin-bottom: calc(var(--spacing) / 2);
 }
+
 .post-content blockquote {
   margin: var(--spacing) 0;
   padding-left: var(--spacing);
@@ -768,32 +884,34 @@ p {
   color: var(--desc-color);
   font-style: italic;
 }
+
 .post-content pre {
   background: var(--secondary-bg);
   border: 1px solid var(--card-border);
   border-radius: 4px;
   padding: var(--spacing);
   overflow-x: auto;
-  font-family: 'Courier New', Courier, monospace;
-  margin: var(--spacing) 0;
 }
+
 .post-content code {
+  font-family: 'Courier New', Courier, monospace;
   background: rgba(0, 0, 0, 0.05);
   padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
 }
+
 .post-content table {
-  width: 100%;
-  border-collapse: collapse;
   margin: var(--spacing) 0;
+  border-collapse: collapse;
+  width: 100%;
 }
+
 .post-content th,
 .post-content td {
-  border: 1px solid var(--card-border);
   padding: 0.5em 1em;
+  border: 1px solid var(--card-border);
 }
+
 .post-content th {
-  background: var(--secondary-bg);
   font-weight: 600;
+  background: var(--secondary-bg);
 }

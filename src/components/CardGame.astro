@@ -20,16 +20,31 @@ const formatDate = (date: Date | string | undefined) => {
     ? date.toLocaleDateString()
     : new Date(date).toLocaleDateString();
 };
+
+// Generate a random call-to-action based on the content type
+const generateCTA = () => {
+  const ctas = [
+    "EXPERIENCE",
+    "EXPLORE",
+    "INTERACT",
+    "PLAY NOW",
+    "DISCOVER",
+    "ENGAGE",
+    "TRY IT",
+    "DIVE IN",
+    "LAUNCH",
+    "IMMERSE",
+  ];
+  return ctas[Math.floor(Math.random() * ctas.length)];
+};
+
+const cta = generateCTA();
 ---
 
 <div class="card game-card">
   <div class="card-content">
     <h2 class="title">
-      <a
-        href={`/games/${slug}/index.html`}
-        target="_blank"
-        rel="noopener noreferrer">{title}</a
-      >
+      <a href="#" class="card-open-hero" data-post-slug={slug}>{title}</a>
     </h2>
     {description && <p class="description">{description}</p>}
     {
@@ -37,5 +52,145 @@ const formatDate = (date: Date | string | undefined) => {
         <p class="date-updated">Updated: {formatDate(dateUpdated)}</p>
       )
     }
+    <div class="card-cta-spacer"></div>
   </div>
+  <a
+    href={`/games/${slug}/index.html`}
+    class="card-cta-banner"
+    rel="noopener noreferrer"
+    aria-label={`${cta} ${title}`}
+  >
+    {cta}
+  </a>
 </div>
+
+<style>
+  .card.game-card {
+    position: relative;
+    padding-bottom: 0; /* Remove bottom padding to accommodate banner */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Ensure content doesn't overflow */
+  }
+
+  .card.game-card .card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-bottom: var(--space-xs);
+  }
+
+  .card-cta-spacer {
+    flex-grow: 1;
+    min-height: var(--space-xs);
+  }
+
+  /* Trapezoid styling with better integration for dark backgrounds */
+  .card-cta-banner {
+    display: block;
+    width: 100%;
+    background-color: var(--primary-color);
+    color: #000 !important; /* Always black text to ensure contrast */
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.8px;
+    padding: 0.6rem 0 0.8rem;
+    text-decoration: none !important;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    /* Trapezoid styling - wider at bottom */
+    clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+    margin-bottom: 0; /* Ensure completely flush bottom edge */
+    margin-top: 0; /* Remove any top margin */
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2); /* Subtle text shadow for legibility */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); /* Top inner glow */
+    border-bottom: none; /* Remove any bottom border */
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Subtle top border */
+  }
+
+  /* Dark mode specific styles */
+  body[data-theme="dark"] .card-cta-banner {
+    box-shadow:
+      0 -1px 0 rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .card-cta-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .card-cta-banner:hover,
+  .card-cta-banner:focus {
+    background-color: var(--link-hover-color);
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+
+  .card-cta-banner:active {
+    transform: translateY(1px);
+  }
+
+  .card-cta-banner::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  /* Remove outline from links */
+  .card.game-card a.card-open-hero {
+    outline: none;
+    background-image: none;
+  }
+</style>
+
+<script>
+  // Function to generate a random CTA
+  const generateCTA = () => {
+    const ctas = [
+      "EXPERIENCE",
+      "EXPLORE",
+      "INTERACT",
+      "PLAY NOW",
+      "DISCOVER",
+      "ENGAGE",
+      "TRY IT",
+      "DIVE IN",
+      "LAUNCH",
+      "IMMERSE",
+    ];
+    return ctas[Math.floor(Math.random() * ctas.length)];
+  };
+
+  // Function to randomize CTAs on all banners
+  const randomizeAllCTAs = () => {
+    document.querySelectorAll(".card-cta-banner").forEach((banner) => {
+      const randomCTA = generateCTA();
+      banner.textContent = randomCTA;
+      // Update aria-label as well if needed, assuming title is accessible
+      // const title = banner.closest('.card')?.querySelector('.title a')?.textContent || '';
+      // banner.setAttribute('aria-label', `${randomCTA} ${title}`);
+    });
+  };
+
+  // Run on initial load
+  document.addEventListener("DOMContentLoaded", randomizeAllCTAs);
+
+  // Run when modal is closed
+  document.addEventListener("modalClosed", randomizeAllCTAs);
+</script>

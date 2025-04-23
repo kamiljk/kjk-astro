@@ -1,26 +1,28 @@
 ---
-import "../assets/global.css";
-
 const { allTypes = [], activeType = "" } = Astro.props;
 ---
 
 <nav class="navbar">
-  <div class="logo">
+  <div class="nav-left logo">
     <a href="/">
-      <img src="/k_blk_svg.svg" alt="Logo" />
+      <img src="/k_blk_svg.svg" alt="Logo" id="navbar-logo-img" />
     </a>
   </div>
-  <ul class="navbar-menu">
-    <li class="navbar-item navbar-media">
+
+  <button class="hamburger-menu" aria-label="Toggle menu" aria-expanded="false">
+    <span class="hamburger-icon"></span>
+  </button>
+
+  <ul class="nav-center">
+    <li>
       <a href="/media/all" class={activeType === "all" ? "active" : ""}
-        >All Media</a
-      >
+        >All Media</a>
     </li>
     {
       allTypes
-        .filter((type: string) => type !== "about")
-        .map((type: string) => (
-          <li class="navbar-item">
+        .filter((type) => type != "about")
+        .map((type) => (
+          <li>
             <a
               href={`/media/${type}`}
               class={activeType === type ? "active" : ""}
@@ -30,28 +32,16 @@ const { allTypes = [], activeType = "" } = Astro.props;
           </li>
         ))
     }
-    <li class="navbar-item">
+    <li>
       <a href="/media/about" class={activeType === "about" ? "active" : ""}
-        >About</a
-      >
+        >About</a>
     </li>
   </ul>
-  <div class="navbar-right">
+
+  <div class="nav-right">
     <div class="theme-toggle">
-      <a id="theme-toggle" href="#" aria-label="Toggle light/dark theme"></a>
+      <a id="navbar-theme-toggle" href="#" aria-label="Toggle light/dark theme"
+      ></a>
     </div>
   </div>
 </nav>
-
-<style>
-  /* Logo link with better centering */
-  .navbar .logo a {
-    width: 64px;
-    height: 64px;
-  }
-
-  /* Logo image - enlarged for header with proper centering */
-  .navbar .logo img {
-    height: 64px;
-  }
-</style>

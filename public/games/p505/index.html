@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>808 Sound Box - Synthesized</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/addons/p5.sound.min.js"></script>
+  <style>
+    /* Basic theme variables (mimicking light mode) */
+    :root {
+      --bg-color: #f5f0e1;      /* Off-white beige */
+      --text-color: #000000;    /* Black */
+      --primary-color: #FF1493; /* Neon Magenta/DeepPink */
+      --secondary-bg: #ffffff;  /* White */
+      --desc-color: #333333;    /* Dark gray */
+      --card-border: #dddddd;  /* Lighter gray */
+    }
+    body { 
+      margin: 0; 
+      padding: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-start; 
+      min-height: 100vh; 
+      padding-top: 20px; /* Add padding to avoid overlap */ 
+      background-color: var(--bg-color); /* Apply bg color */
+      color: var(--text-color); /* Apply text color */
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    main > canvas { /* Target the canvas created by p5.js */
+      display: block !important; /* Override p5 default inline */
+      margin: 0 auto; /* Center horizontally */
+    }
+    /* Add button hover effect styles */
+    button, .button {
+      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    button:hover, .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    button:active, .button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+<script>
+let sequence = [
+  [0, 0, 0, 0, 0, 0, 0, 0], // 0: Kick
+  [0, 0, 0, 0, 0, 0, 0, 0], // 1: Snare
+  [0, 0, 0, 0, 0, 0, 0, 0], // 2: Hi-hat (Closed)
+  [0, 0, 0, 0, 0, 0, 0, 0], // 3: Clap
+  [0, 0, 0, 0, 0, 0, 0, 0], // 4: Open Hi-hat
+  [0, 0, 0, 0, 0, 0, 0, 0], // 5: Rimshot
+  [0, 0, 0, 0, 0, 0, 0, 0], // 6: Low Tom
+  [0, 0, 0, 0, 0, 0, 0, 0], // 7: Mid Tom
+  [0, 0, 0, 0, 0, 0, 0, 0], // 8: High Tom
+  [0, 0, 0, 0, 0, 0, 0, 0], // 9: Cowbell
+  [0, 0, 0, 0, 0, 0, 0, 0]  // 10: Clave
+];
+let numRows = 11; // Store number of rows
+let step = 0;
+let lastStepTime = 0;
+let bpm = 120;
+let playing = false;
+let audioStarted = false; // Flag to track if audio context is started
+let currentOctave = 4; // Starting octave for synth
+let activeSynths = {}; // Object to track currently playing synth notes
+let masterFilter; // Global low-pass filter
+
+// Variables to store theme colors (use CSS variables now)
+let bgColor, textColor, primaryColor, secondaryBgColor, descColor, cardBorderColor;
+
+function updateThemeColors() {
+  const styles = getComputedStyle(document.documentElement);
+  bgColor = styles.getPropertyValue('--bg-color').trim();
+  textColor = styles.getPropertyValue('--text-color').trim();
+  primaryColor = styles.getPropertyValue('--primary-color').trim();
+  secondaryBgColor = styles.getPropertyValue('--secondary-bg').trim();
+  descColor = styles.getPropertyValue('--desc-color').trim();
+  cardBorderColor = styles.getPropertyValue('--card-border').trim();
+}
+
+function setup() {
+  let gridY = 120, cellSize = 55, cellSpacing = 8;
+  let canvasHeight = gridY + numRows * (cellSize + cellSpacing) + 20; // Add some padding
+  createCanvas(640, canvasHeight);
+  textAlign(CENTER, CENTER);
+  textSize(14); // Base size, can adjust
+  textFont("system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"); 
+  frameRate(60);
+
+  // Initial theme color fetch
+  updateThemeColors(); 
+
+  // Create master low-pass filter
+  masterFilter = new p5.LowPass();
+  masterFilter.freq(10000); // Start wide open
+  masterFilter.res(5); // A bit of resonance
+}
+
+function draw() {
+  updateThemeColors(); 
+
+  background(bgColor); // Use theme background color
+  
+  // Draw grid
+  let gridX = 80, gridY = 120, cellSize = 55, cellSpacing = 8;
+  
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < 8; j++) {
+      let x = gridX + j * (cellSize + cellSpacing);
+      let y = gridY + i * (cellSize + cellSpacing);
+      
+      // Base cell style
+      stroke(cardBorderColor); // Use theme card border color
+      strokeWeight(1); // Thinner border to match site style
+      
+      // Fill based on state
+      if (playing && j === step) {
+        fill(sequence[i][j] ? color(primaryColor) : color(secondaryBgColor)); 
+      } else {
+        fill(sequence[i][j] ? color(primaryColor) : color(descColor)); 
+      }
+      
+      rect(x, y, cellSize, cellSize, 5); // Keep rounded corners for now
+    }
+  }
+  
+  // Labels
+  noStroke(); 
+  fill(textColor); // Use theme text color
+  textSize(14); // Adjust size as needed
+  textAlign(RIGHT, CENTER);
+  text('Kick', gridX - 15, gridY + cellSize * 0.5 + 0 * (cellSize + cellSpacing));
+  text('Snare', gridX - 15, gridY + cellSize * 0.5 + 1 * (cellSize + cellSpacing));
+  text('Hi-hat', gridX - 15, gridY + cellSize * 0.5 + 2 * (cellSize + cellSpacing));
+  text('Clap', gridX - 15, gridY + cellSize * 0.5 + 3 * (cellSize + cellSpacing));
+  text('Open HH', gridX - 15, gridY + cellSize * 0.5 + 4 * (cellSize + cellSpacing));
+  text('Rimshot', gridX - 15, gridY + cellSize * 0.5 + 5 * (cellSize + cellSpacing));
+  text('Low Tom', gridX - 15, gridY + cellSize * 0.5 + 6 * (cellSize + cellSpacing));
+  text('Mid Tom', gridX - 15, gridY + cellSize * 0.5 + 7 * (cellSize + cellSpacing));
+  text('High Tom', gridX - 15, gridY + cellSize * 0.5 + 8 * (cellSize + cellSpacing));
+  text('Cowbell', gridX - 15, gridY + cellSize * 0.5 + 9 * (cellSize + cellSpacing));
+  text('Clave', gridX - 15, gridY + cellSize * 0.5 + 10 * (cellSize + cellSpacing));
+
+  // Play/Stop button
+  let buttonX = gridX;
+  let buttonY = gridY - 60;
+  let buttonW = 120;
+  let buttonH = 40;
+  
+  // Button shadow (if playing, use stronger shadow)
+  noStroke();
+  fill(0, 0, 0, 20); // Subtle shadow
+  rect(buttonX + 2, buttonY + 2, buttonW, buttonH, 4);
+  
+  // Button body
+  textAlign(CENTER, CENTER);
+  textSize(16); 
+  stroke(playing ? descColor : cardBorderColor);
+  strokeWeight(1);
+  fill(playing ? primaryColor : secondaryBgColor);
+  
+  // Detect hover to apply effects
+  if (mouseX > buttonX && mouseX < buttonX + buttonW && mouseY > buttonY && mouseY < buttonY + buttonH) {
+    // Hover effect
+    fill(playing ? primaryColor : color(245, 245, 245)); // Slightly different shade on hover
+    if (mouseIsPressed) {
+      // Active press effect
+      rect(buttonX, buttonY + 1, buttonW, buttonH, 4); // Shift down slightly
+    } else {
+      rect(buttonX, buttonY - 2, buttonW, buttonH, 4); // Lift up slightly
+    }
+  } else {
+    rect(buttonX, buttonY, buttonW, buttonH, 4);
+  }
+  
+  // Button text
+  noStroke();
+  fill(playing ? '#ffffff' : textColor); // White text when playing
+  textStyle(BOLD);
+  text(playing ? 'STOP' : 'PLAY', buttonX + buttonW / 2, buttonY + buttonH / 2);
+  textStyle(NORMAL);
+  
+  // BPM control
+  let bpmControlX = buttonX + buttonW + 50;
+  let bpmControlY = buttonY;
+  let bpmButtonSize = 35;
+  
+  noStroke();
+  fill(textColor);
+  textSize(14);
+  textAlign(CENTER, CENTER);
+  text('BPM: ' + bpm, bpmControlX + bpmButtonSize + 40, bpmControlY + buttonH / 2);
+  
+  // Minus Button with improved styling
+  let minusHover = mouseX > bpmControlX && mouseX < bpmControlX + bpmButtonSize && 
+                  mouseY > bpmControlY && mouseY < bpmControlY + buttonH;
+  
+  // Subtle shadow for minus button
+  noStroke();
+  fill(0, 0, 0, 20);
+  rect(bpmControlX + 2, bpmControlY + 2, bpmButtonSize, buttonH, 4);
+  
+  // Minus button body
+  stroke(cardBorderColor);
+  strokeWeight(1);
+  fill(minusHover ? color(245, 245, 245) : secondaryBgColor);
+  
+  if (minusHover && mouseIsPressed) {
+    rect(bpmControlX, bpmControlY + 1, bpmButtonSize, buttonH, 4); // Pressed effect
+  } else if (minusHover) {
+    rect(bpmControlX, bpmControlY - 2, bpmButtonSize, buttonH, 4); // Hover effect
+  } else {
+    rect(bpmControlX, bpmControlY, bpmButtonSize, buttonH, 4);
+  }
+  
+  noStroke();
+  fill(textColor);
+  textSize(20);
+  text('-', bpmControlX + bpmButtonSize / 2, bpmControlY + buttonH / 2 - 1);
+  
+  // Plus Button with improved styling
+  let plusHover = mouseX > bpmControlX + bpmButtonSize + 80 && 
+                 mouseX < bpmControlX + bpmButtonSize + 80 + bpmButtonSize && 
+                 mouseY > bpmControlY && mouseY < bpmControlY + buttonH;
+  
+  // Subtle shadow for plus button
+  noStroke();
+  fill(0, 0, 0, 20);
+  rect(bpmControlX + bpmButtonSize + 82, bpmControlY + 2, bpmButtonSize, buttonH, 4);
+  
+  // Plus button body
+  stroke(cardBorderColor);
+  strokeWeight(1);
+  fill(plusHover ? color(245, 245, 245) : secondaryBgColor);
+  
+  if (plusHover && mouseIsPressed) {
+    rect(bpmControlX + bpmButtonSize + 80, bpmControlY + 1, bpmButtonSize, buttonH, 4); // Pressed effect
+  } else if (plusHover) {
+    rect(bpmControlX + bpmButtonSize + 80, bpmControlY - 2, bpmButtonSize, buttonH, 4); // Hover effect
+  } else {
+    rect(bpmControlX + bpmButtonSize + 80, bpmControlY, bpmButtonSize, buttonH, 4);
+  }
+  
+  noStroke();
+  fill(textColor);
+  textSize(20);
+  text('+', bpmControlX + bpmButtonSize + 80 + bpmButtonSize / 2, bpmControlY + buttonH / 2 - 1);
+
+  // Sequence playback logic
+  if (playing) {
+    let interval = 60000 / bpm / 4; // 16th notes
+    if (millis() - lastStepTime > interval) {
+      step = (step + 1) % 8;
+      playStep();
+      lastStepTime = millis();
+    }
+  }
+}
+
+// --- Sound Synthesis Functions ---
+function playKick() {
+  let osc = new p5.Oscillator('sine');
+  let env = new p5.Envelope();
+  env.setADSR(0.001, 0.1, 0.1, 0.1);
+  env.setRange(0.8, 0);
+  osc.amp(env);
+  osc.freq(150);
+  osc.disconnect(); // Disconnect from default output
+  osc.connect(masterFilter); // Connect to the filter
+  osc.start();
+  env.play();
+  osc.freq(50, 0.1);
+  setTimeout(() => osc.stop(), 200);
+}
+
+function playSnare() {
+  let noise = new p5.Noise('white');
+  let filter = new p5.HighPass();
+  let env = new p5.Envelope();
+  env.setADSR(0.001, 0.1, 0, 0.1);
+  env.setRange(0.5, 0);
+  noise.disconnect();
+  noise.connect(filter);
+  filter.freq(1500);
+  noise.amp(env);
+  noise.start();
+  env.play();
+  setTimeout(() => noise.stop(), 150);
+}
+
+function playHihat() {
+  let noise = new p5.Noise('white');
+  let filter = new p5.HighPass();
+  let env = new p5.Envelope();
+  env.setADSR(0.001, 0.05, 0, 0.05);
+  env.setRange(0.4, 0);
+  noise.disconnect();
+  noise.connect(filter);
+  filter.freq(8000);
+  noise.amp(env);
+  noise.start();
+  env.play();
+  setTimeout(() => noise.stop(), 100);
+}
+
+function playOpenHihat() {
+  let noise = new p5.Noise('white');
+  let filter = new p5.HighPass();
+  let env = new p5.Envelope();
+  env.setADSR(0.001, 0.3, 0.1, 0.4); 
+  env.setRange(0.4, 0);
+  noise.disconnect();
+  noise.connect(filter);
+  filter.freq(7000);
+  noise.amp(env);
+  noise.start();
+  env.play();
+}
+
+function playRimshot() {
+  let noise = new p5.Noise('white');
+  let noiseEnv = new p5.Envelope();
+  noiseEnv.setADSR(0.001, 0.05, 0.01, 0.01); 
+  noiseEnv.setRange(0.4, 0);
+  let filter = new p5.BandPass();
+  filter.freq(3000);
+  filter.res(5);
+  noise.disconnect(); 
+  noise.connect(filter);
+  filter.amp(noiseEnv);
+  noise.start();
+  noiseEnv.play();
+  setTimeout(() => noise.stop(), 60);
+
+  let osc = new p5.Oscillator('triangle');
+  let oscEnv = new p5.Envelope();
+  oscEnv.setADSR(0.001, 0.03, 0, 0.01);
+  oscEnv.setRange(0.2, 0);
+  osc.freq(800);
+  osc.amp(oscEnv);
+  osc.start();
+  oscEnv.play();
+  setTimeout(() => osc.stop(), 40);
+}
+
+function playTom(baseFreq = 100, decay = 0.2) {
+  let osc = new p5.Oscillator('sine');
+  let env = new p5.Envelope();
+  env.setADSR(0.001, decay, 0.1, 0.1);
+  env.setRange(0.7, 0);
+  osc.amp(env);
+  osc.freq(baseFreq * 1.5);
+  osc.start();
+  env.play();
+  osc.freq(baseFreq, 0.05);
+  setTimeout(() => osc.stop(), (decay + 0.1 + 0.1) * 1000);
+}
+
+function playLowTom() {
+  playTom(100, 0.3);
+}
+
+function playMidTom() {
+  playTom(180, 0.2);
+}
+
+function playHighTom() {
+  playTom(300, 0.15);
+}
+
+function playCowbell() {
+  let osc1 = new p5.Oscillator('square');
+  let osc2 = new p5.Oscillator('square');
+  let env = new p5.Envelope();
+  env.setADSR(0.002, 0.1, 0.05, 0.1);
+  env.setRange(0.3, 0);
+
+  osc1.amp(env);
+  osc1.freq(560);
+  osc1.start();
+
+  osc2.amp(env);
+  osc2.freq(840);
+  osc2.start();
+
+  env.play();
+
+  setTimeout(() => {
+    osc1.stop();
+    osc2.stop();
+  }, 250);
+}
+
+function playClave() {
+  let osc = new p5.Oscillator('square');
+  let env = new p5.Envelope();
+  env.setADSR(0.001, 0.03, 0, 0.02);
+  env.setRange(0.6, 0);
+  osc.amp(env);
+  osc.freq(1200);
+  osc.start();
+  env.play();
+  setTimeout(() => osc.stop(), 50);
+}
+
+function playClap() {
+  let noise = new p5.Noise('white');
+  let filter = new p5.BandPass();
+  let env = new p5.Envelope();
+  env.setADSR(0.001, 0.1, 0, 0.05);
+  env.setRange(0.7, 0);
+  noise.disconnect();
+  noise.connect(filter);
+  filter.freq(1200);
+  filter.res(3);
+  noise.amp(env);
+  noise.start();
+  env.play();
+  setTimeout(() => env.play(), 20);
+  setTimeout(() => env.play(), 40);
+  setTimeout(() => noise.stop(), 150);
+}
+
+function playStep() {
+  if (sequence[0][step]) playKick();
+  if (sequence[1][step]) playSnare();
+  if (sequence[2][step]) playHihat();
+  if (sequence[3][step]) playClap();
+  if (sequence[4][step]) playOpenHihat();
+  if (sequence[5][step]) playRimshot();
+  if (sequence[6][step]) playLowTom();
+  if (sequence[7][step]) playMidTom();
+  if (sequence[8][step]) playHighTom();
+  if (sequence[9][step]) playCowbell();
+  if (sequence[10][step]) playClave();
+}
+
+function mousePressed() {
+  if (!audioStarted) {
+    userStartAudio();
+    audioStarted = true;
+  }
+
+  let gridX = 80, gridY = 120, cellSize = 55, cellSpacing = 8;
+  let buttonX = gridX;
+  let buttonY = gridY - 60;
+  let buttonW = 120;
+  let buttonH = 40;
+  let bpmControlX = buttonX + buttonW + 50;
+  let bpmControlY = buttonY;
+  let bpmButtonSize = 35;
+
+  for (let i = 0; i < numRows; i++) {
+    for (let j = 0; j < 8; j++) {
+      let x = gridX + j * (cellSize + cellSpacing);
+      let y = gridY + i * (cellSize + cellSpacing);
+      if (mouseX > x && mouseX < x + cellSize && mouseY > y && mouseY < y + cellSize) {
+        sequence[i][j] = 1 - sequence[i][j];
+        if (sequence[i][j]) {
+          if (i === 0) playKick();
+          if (i === 1) playSnare();
+          if (i === 2) playHihat();
+          if (i === 3) playClap();
+          if (i === 4) playOpenHihat();
+          if (i === 5) playRimshot();
+          if (i === 6) playLowTom();
+          if (i === 7) playMidTom();
+          if (i === 8) playHighTom();
+          if (i === 9) playCowbell();
+          if (i === 10) playClave();
+        }
+      }
+    }
+  }
+  
+  if (mouseX > buttonX && mouseX < buttonX + buttonW && mouseY > buttonY && mouseY < buttonY + buttonH) {
+    playing = !playing;
+    if (playing) {
+        step = 0;
+        lastStepTime = millis();
+    }
+  }
+  
+  if (mouseX > bpmControlX && mouseX < bpmControlX + bpmButtonSize && mouseY > bpmControlY && mouseY < bpmControlY + buttonH) {
+    bpm = max(60, bpm - 5);
+  }
+  if (mouseX > bpmControlX + bpmButtonSize + 80 && mouseX < bpmControlX + bpmButtonSize + 80 + bpmButtonSize && mouseY > bpmControlY && mouseY < bpmControlY + buttonH) {
+    bpm = min(240, bpm + 5);
+  }
+}
+
+const baseMidiNotes = {
+  'a': 60,
+  's': 62,
+  'd': 64,
+  'f': 65,
+  'g': 67,
+  'h': 69,
+  'j': 71,
+  'k': 72
+};
+
+function keyPressed() {
+  if (!audioStarted) {
+    userStartAudio();
+    audioStarted = true;
+  }
+
+  if (keyCode === ESCAPE) {
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < 8; j++) {
+        sequence[i][j] = 0;
+      }
+    }
+    console.log("Sequencer Reset");
+    return false;
+  }
+
+  let keyChar = key.toLowerCase();
+
+  if (key === ' ') {
+    playing = !playing;
+    if (playing) {
+        step = 0;
+        lastStepTime = millis();
+    }
+    return false; 
+  }
+
+  if (keyChar === 'z') {
+    currentOctave = max(2, currentOctave - 1);
+    console.log("Octave:", currentOctave);
+    return false;
+  }
+  if (keyChar === 'c') {
+    currentOctave = min(6, currentOctave + 1);
+    console.log("Octave:", currentOctave);
+    return false;
+  }
+
+  if (baseMidiNotes[keyChar] && !activeSynths[keyChar]) {
+    let baseMidi = baseMidiNotes[keyChar];
+    let midiNote = baseMidi + (currentOctave - 4) * 12;
+    let freq = midiToFreq(midiNote);
+    
+    let osc = new p5.Oscillator('triangle');
+    let env = new p5.Envelope();
+    env.setADSR(0.02, 0.1, 0.7, 0.3);
+    env.setRange(0.3, 0);
+    
+    osc.amp(env);
+    osc.freq(freq);
+    osc.disconnect();
+    osc.connect(masterFilter);
+    osc.start();
+    env.play();
+
+    activeSynths[keyChar] = { osc: osc, env: env };
+    return false;
+  }
+}
+
+function keyReleased() {
+  let keyChar = key.toLowerCase();
+
+  if (activeSynths[keyChar]) {
+    let synth = activeSynths[keyChar];
+    synth.env.triggerRelease();
+    setTimeout(() => {
+        if (synth.osc) {
+             synth.osc.stop();
+        }
+    }, 350);
+
+    delete activeSynths[keyChar];
+    return false;
+  }
+}
+
+function mouseWheel(event) {
+  if (!audioStarted) return;
+
+  let currentFreq = masterFilter.freq();
+  let newFreq;
+
+  if (event.deltaY > 0) {
+    newFreq = currentFreq / 1.1; 
+  } else {
+    newFreq = currentFreq * 1.1;
+  }
+
+  newFreq = constrain(newFreq, 40, 15000);
+  
+  masterFilter.freq(newFreq);
+
+  return false;
+}
+</script>
+</body>
+</html>

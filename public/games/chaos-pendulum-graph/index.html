@@ -1,518 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chaos Pendulum</title>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <style>
-    body { margin: 0; overflow: hidden; background-color: #e0e0e0; } /* Default light bg */
-    @media (prefers-color-scheme: dark) {
-      body { background-color: #202020; } /* Dark bg */
-    }
-    /* Style for the fullscreen button */
-    #fullscreen-button {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      padding: 8px 12px;
-      background-color: rgba(0, 0, 0, 0.5);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      z-index: 1000;
-    }
-    #fullscreen-button:hover {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <!-- Make the app fullscreen capable on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Set status bar style (black-translucent allows content underneath) -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Set title for Home Screen icon -->
+    <meta name="apple-mobile-web-app-title" content="Chaos Pendulum">
+    <!-- Ensure content uses full screen width, including notch areas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Harmonious Pendulum Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.js"></script>
+    <script src="sketch.js"></script>
+    <style>
+        :root {
+            --space-3xs: clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem);
+            --space-2xs: clamp(0.5625rem, 0.5408rem + 0.1087vw, 0.625rem);
+            --space-xs: clamp(0.875rem, 0.8533rem + 0.1087vw, 0.9375rem);
+            --space-s: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+            --space-m: clamp(1.6875rem, 1.6223rem + 0.3261vw, 1.875rem);
+            --space-l: clamp(2.25rem, 2.163rem + 0.4348vw, 2.5rem);
+            --space-xl: clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem);
+            --space-2xl: clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem);
+            --space-3xl: clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem);
+            --space-3xs-2xs: clamp(0.3125rem, 0.2038rem + 0.5435vw, 0.625rem);
+            --space-2xs-xs: clamp(0.5625rem, 0.4321rem + 0.6522vw, 0.9375rem);
+            --space-xs-s: clamp(0.875rem, 0.7446rem + 0.6522vw, 1.25rem);
+            --space-s-m: clamp(1.125rem, 0.8641rem + 1.3043vw, 1.875rem);
+            --space-m-l: clamp(1.6875rem, 1.4049rem + 1.413vw, 2.5rem);
+            --space-l-xl: clamp(2.25rem, 1.7283rem + 2.6087vw, 3.75rem);
+            --space-xl-2xl: clamp(3.375rem, 2.8098rem + 2.8261vw, 5rem);
+            --space-2xl-3xl: clamp(4.5rem, 3.4565rem + 5.2174vw, 7.5rem);
+            --space-s-l: clamp(1.125rem, 0.6467rem + 2.3913vw, 2.5rem);
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+
+        button {
+            position: fixed;
+            top: var(--space-2xs);
+            left: var(--space-2xs);
+            z-index: 10;
+            padding: var(--space-3xs) var(--space-xs);
+            font-size: var(--space-xs);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: var(--space-2xs);
+            box-shadow: 0 var(--space-3xs) var(--space-xs) rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        button:hover {
+            background: rgba(230, 230, 230, 0.95);
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a1a;
+            }
+            button {
+                color: #eee;
+                background: rgba(50, 50, 50, 0.95);
+                box-shadow: 0 var(--space-3xs) var(--space-xs) rgba(0, 0, 0, 0.3);
+            }
+            button:hover {
+                background: rgba(70, 70, 70, 0.95);
+            }
+        }
+
+        canvas {
+            display: block;
+            /* Ensure canvas is behind potential status bar overlays */
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
-  <button id="fullscreen-button">Fullscreen</button>
-  <script>
-  /*
-   * Chaos Pendulum – p5.js
-   * A self-contained demo of a perpetual chaotic double pendulum.
-   * Paste this into an .html file and open in your browser.
-   */
-  let r1 = 125; // length of first arm
-  let r2 = 125; // length of second arm
-  let r3 = 100; // length of third arm
-  let m1 = 10;  // mass of first pendulum
-  let m2 = 10;  // mass of second pendulum
-  let m3 = 8;   // mass of third pendulum
-  let a1, a2, a3;   // angles
-  let a1_v = 0; // angular velocity
-  let a2_v = 0;
-  let a3_v = 0;
-
-  let g = 1; // gravity
-  let trail;
-  let mycelium;
-  let scrollMomentum = 0; // Track accumulated scroll momentum
-  let lastScrollY = 0; // Track last scroll position for touch devices
-  let scrollPowerFactor = 0.0003; // Reduced scaling factor for scroll power (was 0.0005)
-
-  // Color variables
-  let bgColor, pendulumColor, trailColor, trailBgColor, circleBgColor;
-  let useSpecialColors = false; // Renamed from useTriharmonicColors for clarity
-  let colorRelationMode = 0; // 0=triharmonic, 1=monochromatic, 2=analogous, 3=complementary, 4=split complementary
-  let specialColor1, specialColor2, specialColor3; // Renamed from triColor for clarity
-
-  // Theme detection
-  const darkMatcher = window.matchMedia('(prefers-color-scheme: dark)');
-
-  function updateColors(isDark) {
-    // Set color mode to HSB for color generation
-    colorMode(HSB, 360, 100, 100, 255); // Hue (0-360), Sat (0-100), Bri (0-100), Alpha (0-255)
-
-    let baseHue = random(360);
-    let sat = 90;
-    let bri = isDark ? 90 : 70;
-    let alpha = 150;
-    
-    // Generate colors based on the current color mode
-    switch(colorRelationMode) {
-      case 0: // Triharmonic - colors equally spaced around the color wheel (120° apart)
-        specialColor1 = color(baseHue, sat, bri, alpha);
-        specialColor2 = color((baseHue + 120) % 360, sat, bri, alpha);
-        specialColor3 = color((baseHue + 240) % 360, sat, bri, alpha);
-        break;
-        
-      case 1: // Monochromatic - same hue, varied brightness
-        specialColor1 = color(baseHue, sat, bri, alpha);
-        specialColor2 = color(baseHue, sat, bri * 0.7, alpha); // Darker
-        specialColor3 = color(baseHue, sat, bri * 0.4, alpha); // Darkest
-        break;
-        
-      case 2: // Analogous - adjacent colors on the wheel (30° apart)
-        specialColor1 = color(baseHue, sat, bri, alpha);
-        specialColor2 = color((baseHue + 30) % 360, sat, bri, alpha);
-        specialColor3 = color((baseHue + 60) % 360, sat, bri, alpha);
-        break;
-        
-      case 3: // Complementary - opposite colors (180° apart)
-        specialColor1 = color(baseHue, sat, bri, alpha);
-        specialColor2 = color((baseHue + 180) % 360, sat, bri, alpha);
-        specialColor3 = color((baseHue + 180) % 360, sat, bri * 0.7, alpha); // Darker complement
-        break;
-        
-      case 4: // Split complementary - one color and two colors adjacent to its complement
-        specialColor1 = color(baseHue, sat, bri, alpha);
-        specialColor2 = color((baseHue + 150) % 360, sat, bri, alpha);
-        specialColor3 = color((baseHue + 210) % 360, sat, bri, alpha);
-        break;
-    }
-
-    // Switch back to RGB for other color definitions and default operations
-    colorMode(RGB, 255);
-
-    if (isDark) {
-      bgColor = color(32); // Dark grey body bg matches CSS
-      trailBgColor = color(255, 255, 255, 0); // Transparent background for trail
-      circleBgColor = color(255); // White circle bg for both themes
-      pendulumColor = color(0); // Black pendulum for contrast with white background
-      trailColor = color(0, 30); // Black trail with alpha
-    } else {
-      bgColor = color(220); // Light grey body bg matches CSS
-      trailBgColor = color(255, 255, 255, 0); // Transparent background for trail
-      circleBgColor = color(255); // White circle bg for both themes
-      pendulumColor = color(0); // Black pendulum for contrast with white background
-      trailColor = color(0, 30); // Black trail with alpha
-    }
-    
-    // Update background colors immediately if graphics exist
-    if (trail) {
-        trail.clear(); // Use clear instead of background to make trail transparent
-    }
-    if (mycelium) {
-        mycelium.clear(); // Clear maintains transparency
-    }
-    document.body.style.backgroundColor = isDark ? '#202020' : '#e0e0e0'; // Sync body CSS
-
-    // Ensure mode is RGB before exiting
-    colorMode(RGB, 255);
-  }
-
-  function setup() {
-    createCanvas(windowWidth, windowHeight);
-    pixelDensity(1);
-    colorMode(RGB, 255); // Ensure default mode is RGB at start
-    a1 = PI / 2;
-    a2 = PI / 2;
-    a3 = PI / 2;
-
-    // Initial color setup based on theme
-    updateColors(darkMatcher.matches);
-    darkMatcher.addListener((e) => updateColors(e.matches)); // Listen for theme changes
-
-    trail = createGraphics(windowWidth, windowHeight);
-    trail.clear(); // Use clear instead of background
-    trail.strokeWeight(1.5);
-    mycelium = createGraphics(windowWidth, windowHeight);
-    mycelium.clear();
-    background(bgColor); // Use theme color
-    frameRate(60);
-
-    // Setup scroll event listener for desktop
-    window.addEventListener('wheel', (event) => {
-      // Normalize scroll delta across browsers
-      const delta = event.deltaY || -event.wheelDelta || event.detail;
-      scrollMomentum += delta * scrollPowerFactor;
-      
-      // Prevent page scrolling
-      event.preventDefault();
-    }, { passive: false });
-    
-    // Setup touch events for mobile devices (iOS)
-    document.addEventListener('touchstart', (event) => {
-      if (event.touches.length === 1) {
-        lastScrollY = event.touches[0].clientY;
-      }
-    }, { passive: false });
-    
-    document.addEventListener('touchmove', (event) => {
-      if (event.touches.length === 1) {
-        const currentY = event.touches[0].clientY;
-        const deltaY = lastScrollY - currentY;
-        lastScrollY = currentY;
-        
-        // Only apply momentum if the touch is moving significantly
-        if (Math.abs(deltaY) > 2) {
-          scrollMomentum += deltaY * scrollPowerFactor;
-        }
-        
-        // Prevent page scrolling while interacting with the pendulum
-        event.preventDefault();
-      }
-    }, { passive: false });
-
-    // Prevent default right-click menu
-    document.addEventListener('contextmenu', event => {
-        event.preventDefault();
-        
-        if (useSpecialColors) {
-            // Already in special color mode, cycle to next color relationship
-            colorRelationMode = (colorRelationMode + 1) % 5; // Cycle through 5 color modes
-        } else {
-            // First enable special colors
-            useSpecialColors = true;
-        }
-        
-        updateColors(darkMatcher.matches); // Regenerate colors based on new mode
-        
-        // Force redraw of background elements
-        if (trail) trail.clear();
-        if (mycelium) mycelium.clear();
-        background(bgColor);
-    });
-
-    // Fullscreen button logic
-    const fsButton = document.getElementById('fullscreen-button');
-    fsButton.addEventListener('click', () => {
-      const elem = document.documentElement; // Target the whole page
-      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) { /* Safari */
-          elem.webkitRequestFullscreen();
-        } else if (elem.mozRequestFullScreen) { /* Firefox */
-          elem.mozRequestFullScreen();
-        } else if (elem.msRequestFullscreen) { /* IE/Edge */
-          elem.msRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { /* Safari */
-          document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) { /* Firefox */
-          document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) { /* IE/Edge */
-          document.msExitFullscreen();
-        }
-      }
-    });
-
-    // Update button text based on fullscreen state
-    document.addEventListener('fullscreenchange', () => {
-        fsButton.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
-    });
-    document.addEventListener('webkitfullscreenchange', () => { // Safari
-        fsButton.textContent = document.webkitFullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
-    });
-     document.addEventListener('mozfullscreenchange', () => { // Firefox
-        fsButton.textContent = document.mozFullScreenElement ? 'Exit Fullscreen' : 'Fullscreen';
-    });
-     document.addEventListener('MSFullscreenChange', () => { // IE/Edge
-        fsButton.textContent = document.msFullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
-    });
-  }
-
-  function draw() {
-    background(bgColor); // Use theme color for outer background
-    
-    // Calculate maximum reach of the pendulum (sum of all arm lengths)
-    const pendulumMaxRadius = r1 + r2 + r3;
-    
-    // Calculate frame dimensions with 10% padding around each side of the pendulum
-    const padding = pendulumMaxRadius * 0.1; // 10% padding
-    const frameRadius = pendulumMaxRadius + padding;
-    const frameSize = Math.floor(frameRadius * 2); // Diameter as integer
-    
-    // Define clipping region for the pendulum (clip to circle)
-    drawingContext.save();
-    drawingContext.beginPath();
-    drawingContext.arc(width / 2, height / 2, frameRadius, 0, TWO_PI);
-    drawingContext.clip();
-    
-    // Draw white background inside the clipping region
-    noStroke();
-    fill(255); 
-    rect(0, 0, width, height);
-    
-    // Draw visualization elements on top of the white background (still clipped to circle)
-    image(mycelium, 0, 0);
-    image(trail, 0, 0);
-    
-    // Restore context to remove clipping
-    drawingContext.restore();
-    
-    // Draw just one clean white border - using integer values for crisp rendering
-    noFill();
-    strokeWeight(10); // Single thick border
-    stroke(255); // Pure white border
-    ellipse(Math.floor(width / 2) + 0.5, Math.floor(height / 2) + 0.5, frameSize);
-    
-    // Translate origin to center after drawing the frame
-    translate(width / 2, height / 2);
-
-    // Physics from Lagrange equations
-    let num1 = -g * (2 * m1 + m2) * sin(a1);
-    let num2 = -m2 * g * sin(a1 - 2 * a2);
-    let num3 = -2 * sin(a1 - a2) * m2;
-    let num4 = a2_v * a2_v * r2 + a1_v * a1_v * r1 * cos(a1 - a2);
-    let den = r1 * (2 * m1 + m2 - m2 * cos(2 * a1 - 2 * a2));
-    let a1_a = (num1 + num2 + num3 * num4) / den;
-
-    num1 = 2 * sin(a1 - a2);
-    num2 = (a1_v * a1_v * r1 * (m1 + m2));
-    num3 = g * (m1 + m2) * cos(a1);
-    num4 = a2_v * a2_v * r2 * m2 * cos(a1 - a2);
-    den = r2 * (2 * m1 + m2 - m2 * cos(2 * a1 - 2 * a2));
-    let a2_a = (num1 * (num2 + num3 + num4)) / den;
-
-    // Update velocities and angles (BEFORE applying cursor forces)
-    a1_v += a1_a;
-    a2_v += a2_a;
-
-    // Convert to cartesian
-    let x1 = r1 * sin(a1);
-    let y1 = r1 * cos(a1);
-    let x2 = x1 + r2 * sin(a2);
-    let y2 = y1 + r2 * cos(a2);
-
-    // Third arm dynamics (BEFORE applying cursor forces)
-    // Implement stricter coupling between arms to prevent isolated spinning
-    let a3_a = -0.02 * sin(a3 - a2) + 0.005 * a2_v;  // Increased sin component for stronger angular correction
-    // Add stronger bidirectional coupling so third arm properly affects second arm
-    a2_a += 0.008 * sin(a3 - a2);  // Increased coupling strength
-    
-    // Add friction that increases with angular velocity
-    let friction3 = 0.03 * Math.abs(a3_v) * a3_v; // Non-linear friction that increases with velocity
-    a3_a -= Math.sign(a3_v) * friction3; // Apply in opposite direction of velocity
-    
-    a3_v += a3_a;
-
-    let x3 = x2 + r3 * sin(a3);
-    let y3 = y2 + r3 * cos(a3);
-
-    // --- Magnetic Cursor Repulsion (Inverse Square Law with Cumulative Mass) ---
-    let mousePos = createVector(mouseX, mouseY);
-    let forceScale = 15000; // Increased scale factor significantly due to cumulative mass
-    let forceLimit = 0.08;
-    let repulsionMinDist = 15;
-    let repulsionMaxDist = 300;
-
-    // Function to calculate and apply force effect (returns force.x)
-    const calculateRepulsionEffect = (junctionPos) => {
-      let diff = p5.Vector.sub(junctionPos, mousePos);
-      let dist = constrain(diff.mag(), repulsionMinDist, repulsionMaxDist);
-      // Inverse square law: force proportional to 1/dist^2
-      let magnitude = forceScale / (dist * dist);
-      let force = diff.normalize().mult(magnitude);
-      force.limit(forceLimit);
-      return force.x; // Return only the x-component
-    };
-
-    // Apply repulsion effect, scaled by inverse CUMULATIVE mass, to angular velocities
-    let max_v = 0.5; // Maximum angular velocity allowed
-
-    // Junction 1
-    let j1Pos = createVector(x1 + width / 2, y1 + height / 2);
-    let totalMass = m1 + m2 + m3;
-    let mass23 = m2 + m3;
-    
-    // Apply scroll momentum to the system
-    if (scrollMomentum !== 0) {
-      // Concentrate momentum on the center (first joint) and reduce impact on outer joints
-      a1_v += scrollMomentum / (totalMass * 0.8);  // Increase force on first joint (center)
-      a2_v += scrollMomentum / (mass23 * 2.5);     // Significantly reduce force on second joint
-      a3_v += scrollMomentum / (m3 * 4.0);         // Minimal force on outermost joint
-      
-      // More aggressive damping of scroll momentum for better control
-      scrollMomentum *= 0.90;
-      
-      // Reset momentum if it becomes negligible
-      if (Math.abs(scrollMomentum) < 0.0001) {
-        scrollMomentum = 0;
-      }
-    }
-
-    if (totalMass > 0) { // Avoid division by zero if masses are somehow zero
-        a1_v += calculateRepulsionEffect(j1Pos) / totalMass;
-    }
-    a1_v = constrain(a1_v, -max_v, max_v); // Clamp velocity
-
-    // Junction 2
-    let j2Pos = createVector(x2 + width / 2, y2 + height / 2);
-    if (mass23 > 0) {
-        a2_v += calculateRepulsionEffect(j2Pos) / mass23;
-    }
-    a2_v = constrain(a2_v, -max_v, max_v); // Clamp velocity
-
-    // Junction 3
-    let j3Pos = createVector(x3 + width / 2, y3 + height / 2);
-    if (m3 > 0) {
-        a3_v += calculateRepulsionEffect(j3Pos) / m3;
-    }
-    a3_v = constrain(a3_v, -max_v, max_v); // Clamp velocity
-
-    // Update angles AFTER all velocity changes (physics + cursor)
-    a1 += a1_v;
-    a2 += a2_v;
-    a3 += a3_v;
-
-    // --- Drawing Logic ---
-    strokeWeight(3);
-
-    // Draw the main pendulum (index 0)
-    let currentPendulumColor = useSpecialColors ? specialColor1 : pendulumColor;
-    let currentTrailColor = useSpecialColors ? specialColor1 : trailColor;
-
-    stroke(currentPendulumColor); // Use the p5.Color object
-    fill(currentPendulumColor);
-    line(0, 0, x1, y1);
-    ellipse(x1, y1, m1, m1);
-    line(x1, y1, x2, y2);
-    ellipse(x2, y2, m2, m2);
-    line(x2, y2, x3, y3);
-    ellipse(x3, y3, m3, m3);
-
-    // Update trail for the main path
-    trail.stroke(currentTrailColor); // Use the p5.Color object
-    trail.line(x1 + width/2, y1 + height/2, x2 + width/2, y2 + height/2);
-    trail.line(x2 + width/2, y2 + height/2, x3 + width/2, y3 + height/2);
-
-    // Draw rotated copies (indices 1 and 2)
-    for (let i = 1; i < 3; i++) {
-      let angleOffset = TWO_PI / 3 * i;
-      let cosA = cos(angleOffset);
-      let sinA = sin(angleOffset);
-
-      // Determine colors for this rotated copy
-      currentPendulumColor = pendulumColor; // Default
-      currentTrailColor = trailColor; // Default
-      if (useSpecialColors) {
-          currentPendulumColor = (i === 1) ? specialColor2 : specialColor3;
-          currentTrailColor = (i === 1) ? specialColor2 : specialColor3;
-      }
-
-      // Rotate and draw pendulum arms to main canvas
-      push();
-      rotate(angleOffset);
-      stroke(currentPendulumColor); // Use the p5.Color object
-      fill(currentPendulumColor);
-      line(0, 0, x1, y1);
-      ellipse(x1, y1, m1, m1);
-      line(x1, y1, x2, y2);
-      ellipse(x2, y2, m2, m2);
-      line(x2, y2, x3, y3);
-      ellipse(x3, y3, m3, m3);
-      pop();
-
-      // Manually rotate coordinates and draw trail
-      let rx1 = x1 * cosA - y1 * sinA;
-      let ry1 = x1 * sinA + y1 * cosA;
-      let rx2 = x2 * cosA - y2 * sinA;
-      let ry2 = x2 * sinA + y2 * cosA;
-      let rx3 = x3 * cosA - y3 * sinA;
-      let ry3 = x3 * sinA + y3 * cosA;
-
-      trail.stroke(currentTrailColor); // Use the p5.Color object
-      trail.line(rx1 + width/2, ry1 + height/2, rx2 + width/2, ry2 + height/2);
-      trail.line(rx2 + width/2, ry2 + height/2, rx3 + width/2, ry3 + height/2);
-    }
-
-    // Random drip effect
-    if (frameCount % 2 === 0) {
-      let dripX = x3 + width / 2 + random(-2, 2);
-      let dripY = y3 + height / 2 + random(-2, 2);
-      if (random() < 0.2) {
-        // Adjust drip color based on theme, keep alpha low
-        let dripBaseColor = (darkMatcher.matches) ? color(230) : color(0);
-        trail.set(dripX, dripY + 1, color(red(dripBaseColor), green(dripBaseColor), blue(dripBaseColor), 20));
-        trail.set(dripX, dripY + 2, color(red(dripBaseColor), green(dripBaseColor), blue(dripBaseColor), 15));
-      }
-    }
-
-    // Occasionally seed and grow a mycelium node
-    if (random() < 0.05) {
-      let sx = floor(x3 + width / 2);
-      let sy = floor(y3 + height / 2);
-      // Check brightness against the trail background color
-      if (brightness(trail.get(sx, sy)) < brightness(trailBgColor) * 0.8) { // Check if darker than bg
-         let myceliumBaseColor = (darkMatcher.matches) ? color(150) : color(100); // Greyish
-         mycelium.stroke(red(myceliumBaseColor), green(myceliumBaseColor), blue(myceliumBaseColor), 10); // Low alpha
-         mycelium.point(sx + floor(random(-1, 2)), sy + floor(random(1, 3)));
-      }
-    }
-
-    // Damping (applied AFTER cursor forces and velocity clamping)
-    // Use progressive damping - more damping at higher velocities
-    const velocityScale1 = Math.abs(a1_v) * 5; // Scale factor for velocity-dependent damping
-    const velocityScale2 = Math.abs(a2_v) * 5;
-    const velocityScale3 = Math.abs(a3_v) * 5;
-    
-    // Base damping (0.998) plus additional damping based on velocity
-    const damping1 = 0.998 - constrain(velocityScale1, 0, 0.02);
-    const damping2 = 0.998 - constrain(velocityScale2, 0, 0.03); // More damping on outer joints
-    const damping3 = 0.998 - constrain(velocityScale3, 0, 0.04); // Most damping on outermost
-    
-    a1_v *= damping1;
-    a2_v *= damping2;
-    a3_v *= damping3;
-  }
-
-  function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
-    // Recreate graphics buffers with new size and correct background
-    updateColors(darkMatcher.matches); // Ensure colors are correct for resize
-    trail = createGraphics(windowWidth, windowHeight);
-    trail.clear(); // Use clear instead of background to maintain transparency
-    trail.strokeWeight(1.5);
-    mycelium = createGraphics(windowWidth, windowHeight);
-    mycelium.clear();
-    background(bgColor); // Redraw main background
-    // Ensure the canvas takes up the full screen in fullscreen mode
-    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-        resizeCanvas(displayWidth, displayHeight); // Use display dimensions in fullscreen
-    } else {
-        resizeCanvas(windowWidth, windowHeight); // Use window dimensions otherwise
-    }
-  }
-  </script>
 </body>
 </html>

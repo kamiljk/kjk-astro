@@ -1,6 +1,8 @@
 ---
 import "../assets/global.css";
 import Navbar from "../components/Navbar.astro";
+import HeroCard from "../components/HeroCard.astro"; // Import HeroCard
+
 // Props: title required, allTypes and activeType optional
 interface Props {
   title: string;
@@ -17,7 +19,14 @@ const { title, allTypes = [], activeType = "" } = Astro.props as Props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline type="module" src="../scripts/navbar-theme-toggle.js"
+    ></script>
+    <script is:inline type="module" src="../scripts/mobile-menu-toggle.js"
+    ></script>
+    <script is:inline type="module" src="../scripts/sidebar-theme-toggle.js"
+    ></script>
   </head>
   <body>
     <div class="layout">
@@ -25,9 +34,10 @@ const { title, allTypes = [], activeType = "" } = Astro.props as Props;
       <main class="main-container">
         <slot />
       </main>
+      <HeroCard title="" />
     </div>
-    <!-- Client-side scripts -->
-    <script is:inline src="/scripts/card-nav.js"></script>
-    <script type="module" src="/scripts/sidebar-theme-toggle.js"></script>
+
+    <!-- Load card-nav.js externally at end of body -->
+    <script src="/scripts/card-nav.js" defer type="module"></script>
   </body>
 </html>

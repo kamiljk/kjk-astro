@@ -4,29 +4,41 @@
     <meta charset="UTF-8">
     <title>Bad Ghost Don't Die Again</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Ensure full-screen immersive display on iOS -->
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-      body { 
+      html, body { 
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
         margin: 0; 
         overflow: hidden; 
+        height: 100%;
         font-family: 'Press Start 2P', monospace;
         touch-action: none; /* Prevent default touch gestures */
         -webkit-user-select: none; /* Disable text selection */
+        user-select: none; /* Standard property */
         -webkit-touch-callout: none; /* Disable callout menu */
+      }
+
+      canvas {
+        display: block;
+        width: 100vw;
+        height: calc(var(--vh, 1vh) * 100);
       }
     </style>
     <script>
-      document.fonts.load('20px "Press Start 2P"').then(() => {
-        const script = document.createElement('script');
-        script.src = 'script.js';
-        document.body.appendChild(script);
-      });
+      // set --vh for iOS dynamic viewport support
+      function setViewportHeight() {
+        document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+      }
+      setViewportHeight();
+      window.addEventListener('resize', setViewportHeight);
     </script>
   </head>
   <body>
     <canvas id="gameCanvas"></canvas>
-        <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </body>
 </html>

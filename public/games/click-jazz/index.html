@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Click Jazz</title>
+  <style>
+    :root {
+      /* Utopia fluid spacing */
+      --space-3xs: clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem);
+      --space-2xs: clamp(0.5625rem, 0.5408rem + 0.1087vw, 0.625rem);
+      --space-xs: clamp(0.875rem, 0.8533rem + 0.1087vw, 0.9375rem);
+      --space-s: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+      --space-m: clamp(1.6875rem, 1.6223rem + 0.3261vw, 1.875rem);
+      --space-l: clamp(2.25rem, 2.163rem + 0.4348vw, 2.5rem);
+      --space-xl: clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem);
+      --space-2xl: clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem);
+      --space-3xl: clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem);
+
+      /* One-up pairs */
+      --space-3xs-2xs: clamp(0.3125rem, 0.2038rem + 0.5435vw, 0.625rem);
+      --space-2xs-xs: clamp(0.5625rem, 0.4321rem + 0.6522vw, 0.9375rem);
+      --space-xs-s: clamp(0.875rem, 0.7446rem + 0.6522vw, 1.25rem);
+      --space-s-m: clamp(1.125rem, 0.8641rem + 1.3043vw, 1.875rem);
+      --space-m-l: clamp(1.6875rem, 1.4049rem + 1.413vw, 2.5rem);
+      --space-l-xl: clamp(2.25rem, 1.7283rem + 2.6087vw, 3.75rem);
+      --space-xl-2xl: clamp(3.375rem, 2.8098rem + 2.8261vw, 5rem);
+      --space-2xl-3xl: clamp(4.5rem, 3.4565rem + 5.2174vw, 7.5rem);
+
+      /* Custom pairs */
+      --space-s-l: clamp(1.125rem, 0.6467rem + 2.3913vw, 2.5rem);
+    }
+    body {
+      background-color: #fff;
+      color: #000;
+      font-family: 'Comic Neue', cursive;
+      text-align: center;
+      overflow: hidden;
+      margin: 0;
+      user-select: none;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+    #gameArea {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: linear-gradient(135deg, turquoise, hotpink);
+      background-size: 200%;
+      animation: gradientShift 10s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    #squiggleLayer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0.3;
+    }
+    #playArea {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 70%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px dashed #000;
+      border-radius: var(--space-s);
+      overflow: hidden;
+      /* Subtle grid background for focus */
+      background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    #borderCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #target {
+      position: absolute;
+      width: var(--space-m);
+      height: var(--space-m);
+      border-radius: var(--space-s);
+      border: var(--space-xs) solid #000;
+      cursor: pointer;
+      background: hotpink;
+      box-shadow: 0 0 var(--space-l) turquoise;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      transform: rotate(45deg);
+    }
+    #target:hover {
+      transform: scale(1.15) rotate(45deg);
+      background: turquoise;
+      border-color: hotpink;
+      box-shadow: 0 0 25px hotpink;
+    }
+    #score {
+      position: fixed;
+      top: var(--space-m);
+      left: var(--space-m);
+      font-size: var(--space-xl);
+      font-weight: 700;
+      color: #000;
+      text-shadow: 0 0 var(--space-xs) turquoise, 0 0 var(--space-s) hotpink;
+    }
+    #timer {
+      position: fixed;
+      top: var(--space-m);
+      right: var(--space-m);
+      font-size: var(--space-xl);
+      font-weight: 700;
+      color: #000;
+      text-shadow: 0 0 var(--space-xs) hotpink, 0 0 var(--space-s) turquoise;
+    }
+    #progressBar {
+      position: fixed;
+      bottom: var(--space-m);
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--space-2xl);
+      height: var(--space-xs);
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: var(--space-2xs);
+      border: var(--space-2xs) solid #000;
+      overflow: hidden;
+    }
+    #progress {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, hotpink, turquoise);
+      transition: width 0.1s linear;
+      border-right: 3px solid #000;
+    }
+    #startScreen, #gameOverScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease;
+    }
+    h1 {
+      font-size: var(--space-2xl);
+      font-weight: 700;
+      color: #000;
+      text-shadow: 0 0 var(--space-xs) turquoise, 0 0 var(--space-s) hotpink;
+      margin-bottom: var(--space-m);
+      transform: rotate(-5deg);
+    }
+    button {
+      padding: var(--space-xs) var(--space-m);
+      font-size: var(--space-xl);
+      font-weight: 700;
+      background: linear-gradient(45deg, hotpink, turquoise);
+      color: #000;
+      border: var(--space-xs) solid #000;
+      border-radius: var(--space-s);
+      cursor: pointer;
+      text-shadow: 0 0 var(--space-xs) #fff;
+      box-shadow: 0 0 var(--space-l) turquoise;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transform: rotate(5deg);
+    }
+    button:hover {
+      transform: scale(1.05) rotate(5deg);
+      box-shadow: 0 0 var(--space-xl) hotpink;
+    }
+    button:active {
+      transform: scale(0.95) rotate(5deg);
+    }
+  </style>
+</head>
+<body>
+  <div id="startScreen">
+    <h1>Click Jazz</h1>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+  <div id="gameArea" style="display: none;">
+    <canvas id="borderCanvas"></canvas>
+    <div id="squiggleLayer"></div>
+    <div id="playArea">
+      <div id="target"></div>
+    </div>
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 30</div>
+    <div id="progressBar"><div id="progress"></div></div>
+  </div>
+  <div id="gameOverScreen" style="display: none;">
+    <h1>Game Over</h1>
+    <p id="finalScore" style="font-size: var(--space-l); margin-bottom: var(--space-m); text-shadow: 0 0 var(--space-xs) turquoise;"></p>
+    <button onclick="startGame()">Play Again</button>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const startScreen = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const playArea = document.getElementById('playArea');
+    const target = document.getElementById('target');
+    const scoreDisplay = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+    const finalScoreDisplay = document.getElementById('finalScore');
+    const progress = document.getElementById('progress');
+    const squiggleLayer = document.getElementById('squiggleLayer');
+    const borderCanvas = document.getElementById('borderCanvas');
+    const ctx = borderCanvas.getContext('2d');
+    
+    let score = 0;
+    let timeLeft = 30;
+    let gameActive = false;
+    let timerInterval;
+    
+    // Set canvas size
+    borderCanvas.width = window.innerWidth;
+    borderCanvas.height = window.innerHeight;
+
+    // Particle system for border
+    const particles = [];
+    const particleCount = 50;
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * borderCanvas.width;
+        this.y = Math.random() * borderCanvas.height;
+        this.speed = Math.random() * 2 + 1;
+        this.size = Math.random() * 5 + 2;
+        this.angle = Math.random() * Math.PI * 2;
+      }
+      update(playAreaBounds) {
+        // Keep particles outside the play area
+        if (
+          this.x > playAreaBounds.left &&
+          this.x < playAreaBounds.right &&
+          this.y > playAreaBounds.top &&
+          this.y < playAreaBounds.bottom
+        ) {
+          this.reset();
+        }
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.angle += 0.02;
+        if (
+          this.x < 0 || this.x > borderCanvas.width ||
+          this.y < 0 || this.y > borderCanvas.height
+        ) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.fillStyle = `hsl(${Math.sin(Date.now() * 0.002) * 30 + 180}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    // Animate border
+    function animateBorder() {
+      ctx.clearRect(0, 0, borderCanvas.width, borderCanvas.height);
+      
+      // Get play area bounds
+      const playAreaBounds = playArea.getBoundingClientRect();
+      const bounds = {
+        left: playAreaBounds.left,
+        right: playAreaBounds.right,
+        top: playAreaBounds.top,
+        bottom: playAreaBounds.bottom
+      };
+
+      // Draw pulsating border
+      const pulse = Math.sin(Date.now() * 0.002) * 10 + 20;
+      ctx.strokeStyle = `hsl(${Math.sin(Date.now() * 0.002) * 30 + 180}, 100%, 50%)`;
+      ctx.lineWidth = pulse;
+      ctx.strokeRect(0, 0, borderCanvas.width, borderCanvas.height);
+
+      // Update and draw particles
+      particles.forEach(particle => {
+        particle.update(bounds);
+        particle.draw();
+      });
+
+      requestAnimationFrame(animateBorder);
+    }
+    animateBorder();
+
+    function generateRandomSquiggles() {
+      const svgWidth = 200;
+      const svgHeight = 200;
+      const paths = [];
+      for (let i = 0; i < 3; i++) {
+        const startX = Math.random() * svgWidth;
+        const startY = Math.random() * svgHeight;
+        const controlX1 = startX + (Math.random() * 40 - 20);
+        const controlY1 = startY + (Math.random() * 40 - 20);
+        const endX = startX + (Math.random() * 40 - 20);
+        const endY = startY + (Math.random() * 40 - 20);
+        paths.push(`<path d="M${startX} ${startY} Q ${controlX1} ${controlY1} ${endX} ${endY}" stroke="black" stroke-width="3" fill="none"/>`);
+      }
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">${paths.join('')}</svg>`;
+      squiggleLayer.style.background = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') repeat`;
+    }
+
+    // Sound effects (playful, retro tones)
+    const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(freq = 440, duration = 0.1, volume = 0.25) {
+      const oscillator = ctxAudio.createOscillator();
+      const gainNode = ctxAudio.createGain();
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(freq, ctxAudio.currentTime);
+      gainNode.gain.setValueAtTime(volume, ctxAudio.currentTime);
+      oscillator.connect(gainNode);
+      gainNode.connect(ctxAudio.destination);
+      oscillator.start();
+      oscillator.stop(ctxAudio.currentTime + duration);
+    }
+
+    function moveTarget() {
+      const playAreaBounds = playArea.getBoundingClientRect();
+      const maxX = playAreaBounds.width - target.clientWidth;
+      const maxY = playAreaBounds.height - target.clientHeight;
+      const newX = Math.random() * maxX;
+      const newY = Math.random() * maxY;
+      target.style.left = `${newX}px`;
+      target.style.top = `${newY}px`;
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreDisplay.textContent = `Score: ${score}`;
+      timerDisplay.textContent = `Time: ${timeLeft}`;
+      progress.style.width = '100%';
+      gameArea.style.display = 'block';
+      startScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
+      gameActive = true;
+      moveTarget();
+      generateRandomSquiggles();
+      playSound(880, 0.15, 0.3); // Start sound
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time: ${timeLeft}`;
+        progress.style.width = `${(timeLeft / 30) * 100}%`;
+        if (timeLeft <= 10) {
+          progress.style.background = 'linear-gradient(90deg, turquoise, hotpink)';
+        }
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      gameActive = false;
+      clearInterval(timerInterval);
+      gameArea.style.display = 'none';
+      gameOverScreen.style.display = 'flex';
+      finalScoreDisplay.textContent = `Final Score: ${score}`;
+      playSound(220, 0.4, 0.3); // End sound
+    }
+
+    target.addEventListener('click', () => {
+      if (gameActive) {
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+        moveTarget();
+        generateRandomSquiggles(); // Randomize squiggles on click
+        playSound(660, 0.08, 0.3); // Click reward sound
+        // Subtle background pulse
+        gameArea.style.filter = 'brightness(1.1)';
+        setTimeout(() => {
+          gameArea.style.filter = 'brightness(1)';
+        }, 150);
+      }
+    });
+
+    // Prevent context menu to keep players focused
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Resize canvas on window resize
+    window.addEventListener('resize', () => {
+      borderCanvas.width = window.innerWidth;
+      borderCanvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>

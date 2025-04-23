@@ -13,7 +13,7 @@ const games = fs.readdirSync(gamesDir).filter((game) => {
 <div class="game-cards">
   {
     games.map((game) => (
-      <a href={`/games/${game}/index.html`} class="game-card" target="_blank">
+      <a href={`/games/${game}/index.html`} class="game-card">
         <div class="game-card-content">
           <h3>{game.replace(/-/g, " ")}</h3>
         </div>

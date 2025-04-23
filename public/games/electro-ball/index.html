@@ -6,15 +6,49 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <style>
+    :root {
+      /* @link https://utopia.fyi/type/calculator?c=320,18,1.2,1240,20,1.25,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=3xs,xl,3xl,3 */
+      /* Step -2: 12.5px → 12.8px */
+      --step--2: clamp(0.7813rem, 0.7747rem + 0.0326vw, 0.8rem);
+      /* Step -1: 15px → 16px */
+      --step--1: clamp(0.9375rem, 0.9158rem + 0.1087vw, 1rem);
+      /* Step 0: 18px → 20px */
+      --step-0: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+      /* Step 1: 21.6px → 25px */
+      --step-1: clamp(1.35rem, 1.2761rem + 0.3696vw, 1.5625rem);
+      /* Step 2: 25.92px → 31.25px */
+      --step-2: clamp(1.62rem, 1.5041rem + 0.5793vw, 1.9531rem);
+      /* Step 3: 31.104px → 39.0625px */
+      --step-3: clamp(1.944rem, 1.771rem + 0.8651vw, 2.4414rem);
+      /* Step 4: 37.3248px → 48.8281px */
+      --step-4: clamp(2.3328rem, 2.0827rem + 1.2504vw, 3.0518rem);
+      /* Step 5: 44.7898px → 61.0352px */
+      --step-5: clamp(2.7994rem, 2.4462rem + 1.7658vw, 3.8147rem);
+      /* Fluid ball radius: min 80px, prefers 25vw, max 200px */
+      --ball-radius: clamp(80px, 25vw, 200px);
+    }
     body { margin: 0; overflow: hidden; background: black; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-    canvas { display: block; width: 100vw; height: 100vh; }
-    /* Hide all diagnostic and messaging elements */
-    #error-message, #p5-loading-status, #debug-info { display: none; position: absolute; color: rgba(255,255,255,0.7); font-family: monospace; z-index: 100; }
+    canvas { display: block; }
+    /* MODIFIED: Hide diagnostic elements */
+    #error-message, #p5-loading-status, #debug-info {
+      display: none; /* Hide these elements */
+      position: absolute;
+      color: rgba(255, 255, 0, 0.9); /* Yellow for visibility */
+      font-family: monospace;
+      z-index: 100;
+      background-color: rgba(0, 0, 0, 0.5); /* Slight background */
+      padding: 5px;
+      font-size: var(--step--1);
+    }
+    #error-message { top: 10px; left: 10px; color: rgba(255, 50, 50, 0.9); } /* Red for errors */
+    #p5-loading-status { bottom: 10px; left: 10px; }
+    #debug-info { top: 40px; left: 10px; }
     #interaction-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 97; }
     #fallback-canvas { width: 100%; height: 100vh; background-color: #222; display: none; }
   </style>
   <!-- Load p5.js from multiple CDNs for reliability -->
   <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/addons/p5.sound.js"></script>
   <script>
     // In case the primary CDN fails, try a fallback
     if (!window.p5) {
@@ -44,18 +78,6 @@ const PI = Math.PI;
 const TWO_PI = Math.PI * 2;
 const WEBGL = 'webgl';
 
-// Debug function to show events are being captured
-function updateDebugInfo(text) {
-  const debugEl = document.getElementById('debug-info');
-  debugEl.textContent = text;
-  // Auto-clear after 2 seconds
-  setTimeout(() => {
-    if (debugEl.textContent === text) {
-      debugEl.textContent = '';
-    }
-  }, 2000);
-}
-
 // Define constants for wireframe appearance
 const WIREFRAME_MIN_BRIGHTNESS = 40;    // Darker start (was 200-255)
 const WIREFRAME_MAX_BRIGHTNESS = 200;   // Max brightness with momentum
@@ -78,6 +100,15 @@ let pixelSize = 5;              // Size of "pixels" for pixelated effect
 let glitchIntensity = 0.3;      // How glitchy the effect appears
 let glitchIntervals = [];       // Intervals for glitch effects
 let pixelGrid = [];             // For pixelated dithered effect
+
+// --- Hold on ball to kill momentum settings ---
+const STOP_HOLD_DURATION = 2000; // ms holding before stop
+let stopHoldTimeoutID = null;
+let hasMovedSinceDown = false;
+
+// --- Tap/hold blowing interaction settings ---
+const TAP_BLOW_STRENGTH = 0.02;       // Impulse strength per tap/hold
+let pointerDownTime = 0, pointerDownX = 0, pointerDownY = 0, holdIntervalID = null;
 
 // ADDED: Generate noise points for the dithered effect
 function generateNoisePoints() {
@@ -156,8 +187,10 @@ let criticalDischargeTimer = 0;         // How long the critical discharge lasts
 let criticalDischargeColor = [60, 220, 255]; // Color during critical discharge
 let criticalPulseRate = 0;              // Pulsing rate during critical discharge
 
+let osc, env; // p5 sound oscillator and envelope
 let sphere = [];
 let discharges = [];
+let ballRadius = 0; // current radius in px for hit testing and spark distance
 let rotX = 0, rotY = 0;
 let isDragging = false;
 let prevMouseX, prevMouseY;
@@ -171,6 +204,12 @@ let gravity = 0.004; // Stronger gravity for heavier feel
 // MODIFIED: Removed autoRotate flag and reduced auto-rotation to near zero
 let autoRotateSpeedX = 0.00001; // Almost no auto-rotation
 let autoRotateSpeedY = 0.00001; // Almost no auto-rotation
+
+// ADDED: Ticking distortion state and settings
+let tickAccumulator = 0;
+let tickFrames = 0;
+const TICK_THRESHOLD = 0.03;    // Amount of angular velocity accumulation before a tick
+const TICK_STRENGTH = 0.005;    // How much jitter to apply on a tick
 
 // MODIFIED: Removed socketing effect and adjusted momentum values
 const MOMENTUM_DAMPING = 0.985; // Slightly slower decay for smoother motion
@@ -264,7 +303,6 @@ function setupEventListeners() {
   window.removeEventListener('wheel', onWheel);
   
   // Add event listeners to both the canvas and the interaction area for redundancy
-  updateDebugInfo('Setting up event listeners');
   
   // Attach to canvas
   const canvasEl = document.querySelector('canvas');
@@ -296,20 +334,30 @@ function setup() {
   p5Canvas = createCanvas(windowWidth, windowHeight, WEBGL);
   noFill();
   stroke(200, 220, 255);
-  strokeWeight(1);
-  createSphere(200, 16);
-  
+  // Responsive radius: 25% of width, clamped between 80 and 200px
+  let radius = constrain(windowWidth * 0.25, 80, 200);
+  ballRadius = radius; // store globally for hit test and spark distance
+  createSphere(radius, 16);
+  // Initialize oscillator for sound effects
+  osc = new p5.Oscillator('triangle');
+  osc.start();
+  osc.amp(0);
+  // Create amplitude envelope for discharge sounds
+  env = new p5.Envelope();
+  env.setADSR(0.005, 0.1, 0.2, 0.5);
+  env.setRange(0.6, 0);
+   
   // Generate noise points for dithered background effect
   generateNoisePoints();
   
   // Update status
   document.getElementById('p5-loading-status').textContent = "Electro-ball ready! Click or touch to interact";
-  setTimeout(() => {
-    document.getElementById('p5-loading-status').style.opacity = 0.5;
-  }, 4000);
+  setTimeout(() => {}, 4000);
   
   // Setup Event Listeners - moved to a separate function for reliability
   setupEventListeners();
+  // Shrink/rebuild sphere on orientation change for mobile
+  window.addEventListener('orientationchange', windowResized);
   
   // Force a manual test interaction
   setTimeout(() => {
@@ -333,16 +381,44 @@ function draw() {
 
   // Get angular velocity for visual effects
   let angularV = getAngularVelocity();
+
+  // Sound: map rotation speed to oscillator frequency and amplitude
+  let pitch = map(angularV, 0, 0.05, 200, 1200, true);
+  osc.freq(pitch);
+  // subtle ambient tone based on momentum factor
+  let momentumFactor = Math.min(1, angularV / MOMENTUM_THRESHOLD_HIGH);
+  let ambientAmp = momentumFactor * 0.08;
+  osc.amp(ambientAmp, 0.1);
   
   // Map angular velocity to visual effects in a natural-looking way
   // These follow an exponential curve for more natural appearance
-  let momentumFactor = Math.min(1, angularV / MOMENTUM_THRESHOLD_HIGH);
+  momentumFactor = Math.min(1, angularV / MOMENTUM_THRESHOLD_HIGH);
   
   // MODIFIED: Calculate target values but don't apply them directly
   let targetBrightness = WIREFRAME_MIN_BRIGHTNESS + 
                      Math.pow(momentumFactor, 1.5) * (WIREFRAME_MAX_BRIGHTNESS - WIREFRAME_MIN_BRIGHTNESS);
   let targetGlowSpread = Math.pow(momentumFactor, 1.8) * GLOW_SPREAD_MAX;
   
+  // --- Ticking distortion based on spin speed ---
+  tickAccumulator += angularV;
+  if (tickAccumulator > TICK_THRESHOLD) {
+    // Apply a small jitter to rotation to simulate tick
+    rotX += random(-1, 1) * TICK_STRENGTH;
+    rotY += random(-1, 1) * TICK_STRENGTH;
+    // Optional haptic feedback on devices
+    if (window.navigator.vibrate) navigator.vibrate(20);
+    // Reset accumulator, carry over excess
+    tickAccumulator %= TICK_THRESHOLD;
+    tickFrames = 5;
+  }
+  // While tickFrames active, boost visual glitch intensity briefly
+  if (tickFrames > 0) {
+    glitchIntensity = 1.0;
+    tickFrames--;
+  } else {
+    glitchIntensity = 0.3; // default level
+  }
+
   // ADDED: Critical discharge logic
   // Only build up critical charge if spinning above threshold
   if (angularV > CRITICAL_MOMENTUM_THRESHOLD) {
@@ -376,9 +452,6 @@ function draw() {
         
         // Stronger vibration for critical event
         if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 50, 30, 100]);
-        
-        // Show visual indicator
-        updateDebugInfo("⚡ CRITICAL DISCHARGE ⚡");
       }
     }
   } else {
@@ -455,26 +528,6 @@ function draw() {
     }
     
     // --- Glow Effect ---
-    if (drawingContext) {
-      // Apply appropriate glow based on state
-      if (inCriticalDischarge) {
-        // Stronger, more colorful glow during critical discharge
-        let criticalPulse = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
-        drawingContext.shadowBlur = 25 + criticalPulse * 20;
-        drawingContext.shadowColor = `rgba(${CRITICAL_DISCHARGE_COLOR[0]}, 
-                                           ${CRITICAL_DISCHARGE_COLOR[1]}, 
-                                           ${CRITICAL_DISCHARGE_COLOR[2]}, 
-                                           ${0.5 + criticalPulse * 0.4})`;
-      } else {
-        // Normal smoothed glow effect
-        drawingContext.shadowBlur = currentGlow;
-        
-        // Smooth transition for glow alpha as well
-        let glowAlpha = Math.min(0.7, (currentGlow/GLOW_SPREAD_MAX) * 0.7);
-        drawingContext.shadowColor = `rgba(${colorR + 50}, ${colorG + 50}, 255, ${glowAlpha})`;
-      }
-    }
-    
     // --- Rotation & Drawing ---
     let timeSinceInteraction = frameCount - lastInteractionTime;
     if (!isDragging) {
@@ -545,132 +598,47 @@ function draw() {
     // Background ambient effects
     if (inCriticalDischarge) {
       // SIMPLIFIED: Create a quick static noise burst effect instead of complex glitchy distortions
-      drawingContext.globalCompositeOperation = 'lighter';
       noStroke();
       
-      // Get pulse intensity for fading effect
-      let pulseIntensity = Math.sin((frameCount - criticalPulseRate) * 0.2) * 0.5 + 0.5;
-      
-      push();
-      translate(0, 0, -50); // Behind the ball
-      
-      // Simple static noise effect - just draw random pixels
-      const staticDensity = 200; // Number of static pixels to draw
-      const staticSize = 3; // Size of static pixels
-      
-      for (let i = 0; i < staticDensity; i++) {
-        // Random position within a circle
-        const angle = random(TWO_PI);
-        const distance = random(350);
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
-        
-        // More static near the center, less at the edges
-        const distanceFactor = 1 - (distance / 350);
-        
-        // Only draw if random chance passes (creates flickering effect)
-        if (random() < 0.7 * distanceFactor * pulseIntensity) {
-          // Random brightness for the static
-          const brightness = random(0.5, 1.0);
-          
-          // Use the critical discharge cyan color
-          fill(
-            60 + random(-20, 40), 
-            220 + random(-30, 35), 
-            255, 
-            (100 + 155 * pulseIntensity * distanceFactor) * brightness
-          );
-          
-          // Draw the static pixel with slight random size variation
-          const pixelSize = staticSize * (0.8 + random(0.4));
-          rect(x, y, pixelSize, pixelSize);
-        }
-      }
-      
-      // Add improved horizontal scan lines with nicer visual appearance
-      const scanLineCount = 8;
-      
-      for (let i = 0; i < scanLineCount; i++) {
-        // Gradient scan lines that fade out at the edges
-        const yPos = -350 + i * (700 / scanLineCount) + random(-10, 10); // Slightly jittered positions
-        
-        // Create gradient scan lines with varying opacity and spread
-        drawingContext.save();
-        
-        // Create linear gradient for each scan line
-        const gradient = drawingContext.createLinearGradient(-350, yPos, 350, yPos);
-        
-        // Edges are transparent, middle is visible (creates better fade-out effect)
-        gradient.addColorStop(0, `rgba(60, 220, 255, 0)`);
-        gradient.addColorStop(0.1, `rgba(60, 220, 255, ${(20 + 30 * pulseIntensity) * random(0.7, 1.0)})`);
-        gradient.addColorStop(0.5, `rgba(60, 220, 255, ${(40 + 60 * pulseIntensity) * random(0.8, 1.0)})`);
-        gradient.addColorStop(0.9, `rgba(60, 220, 255, ${(20 + 30 * pulseIntensity) * random(0.7, 1.0)})`);
-        gradient.addColorStop(1, `rgba(60, 220, 255, 0)`);
-        
-        drawingContext.fillStyle = gradient;
-        
-        // Draw scan lines with slight height variation
-        const lineHeight = 1 + random(0, 1) * pulseIntensity;
-        drawingContext.fillRect(-350, yPos - lineHeight/2, 700, lineHeight);
-        
-        // Add a glow effect to the scan lines
-        if (random() < 0.7) {
-          drawingContext.shadowColor = `rgba(60, 220, 255, ${0.5 * pulseIntensity})`;
-          drawingContext.shadowBlur = 5 * pulseIntensity;
-          drawingContext.fillRect(-350, yPos - lineHeight/2, 700, lineHeight);
-          drawingContext.shadowBlur = 0;
-        }
-        
-        drawingContext.restore();
-      }
-      
-      pop();
-      
-      drawingContext.globalCompositeOperation = 'source-over';
+      // ... rest of critical discharge background effect ...
     } else {
       // Normal momentum-based ambient glow
       let normalizedGlow = currentGlow/GLOW_SPREAD_MAX;
       if (normalizedGlow > 0.4) {
-        drawingContext.globalCompositeOperation = 'lighter';
         noStroke();
-        fill(20, 40, 80, 20 * (normalizedGlow - 0.4) / 0.6);
+        // Use p5 fill for potential compatibility
+        fill(20, 40, 80, 20 * (normalizedGlow - 0.4) / 0.6); 
         
         // Create a subtle ambient glow around the ball
         push();
         translate(0, 0, -50);
-        ellipse(0, 0, 500, 500);
+        // Use p5 ellipse instead of direct context manipulation
+        ellipse(0, 0, 500, 500); 
         pop();
-        
-        drawingContext.globalCompositeOperation = 'source-over';
-      }
-    }
-    
-    // Show critical charge building in debug
-    if (criticalCharge > 0.2 && !inCriticalDischarge) {
-      let pct = Math.floor(criticalCharge * 100 / criticalChargeMax);
-      if (pct > 50) {
-        updateDebugInfo(`Critical: ${pct}%`);
       }
     }
     
   } catch (err) {
     console.error("Error in draw function:", err);
-    document.getElementById('error-message').innerText = `Drawing error: ${err.message}`;
+    // Ensure error message div is updated
+    const errorDiv = document.getElementById('error-message');
+    if (errorDiv) {
+        errorDiv.innerText = `Drawing error: ${err.message}`;
+        errorDiv.style.display = 'block'; // Force display
+    }
   }
 }
 
-function createVector(x, y, z) {
-  if (window.createVector) return window.createVector(x, y, z);
-  
-  // Fallback vector implementation if p5.js createVector is not available
-  return {
-    x: x || 0,
-    y: y || 0,
-    z: z || 0,
-    copy: function() {
-      return createVector(this.x, this.y, this.z);
-    }
-  };
+// Helper: apply blow impulse from point x,y (screen coords) relative to center
+function applyTapBlow(x, y) {
+  let dx = x - windowWidth/2;
+  let dy = y - windowHeight/2;
+  let dist = Math.hypot(dx, dy);
+  if (dist > ballRadius) return; // ignore outside
+  let ux = dx / dist, uy = dy / dist;
+  // Tangential spin: perpendicular to radial vector
+  momentumX += uy * TAP_BLOW_STRENGTH;
+  momentumY += -ux * TAP_BLOW_STRENGTH;
 }
 
 function createSphere(r, detail) {
@@ -716,7 +684,7 @@ function createDischarge(isMain = false) {
     }
     
     let discharge = {
-      start: p5.Vector.random3D().mult(200),
+      start: p5.Vector.random3D().mult(ballRadius),
       segments: [],
       life: isMain ? 18 + random(10) : 6 + random(6)
     };
@@ -739,6 +707,8 @@ function createDischarge(isMain = false) {
     }
     
     discharges.push(discharge);
+    // Trigger a short sound for each discharge
+    if (env && osc) env.play(osc);
   } catch (err) {
     console.error("Error creating discharge:", err);
     document.getElementById('error-message').innerText = `Discharge error: ${err.message}`;
@@ -755,7 +725,7 @@ function createCriticalDischarge() {
     
     // Critical discharges are more dramatic, longer, and brighter
     let discharge = {
-      start: p5.Vector.random3D().mult(200), // Start from surface
+      start: p5.Vector.random3D().mult(ballRadius), // Start from surface
       segments: [],
       life: 30 + random(20), // Longer life
       isCritical: true // Mark as critical for special rendering
@@ -802,6 +772,8 @@ function createCriticalDischarge() {
     }
     
     discharges.push(discharge);
+    // Play a more intense tone for critical discharge
+    if (env && osc) env.play(osc);
   } catch (err) {
     console.error("Error creating critical discharge:", err);
   }
@@ -849,8 +821,13 @@ function updateDischarges() {
 
 // --- Event handlers ---
 function onPointerDown(e) {
+  // only start interaction if pointer is within projected ball area
+  let px = e.touches ? e.touches[0].clientX : e.clientX;
+  let py = e.touches ? e.touches[0].clientY : e.clientY;
+  let dx = px - windowWidth/2;
+  let dy = py - windowHeight/2;
+  if (Math.hypot(dx, dy) > ballRadius) return; // outside ball, ignore
   e.preventDefault(); // Prevent default to ensure drag works
-  updateDebugInfo(`Pointer down at ${e.clientX || (e.touches && e.touches[0].clientX)}, ${e.clientY || (e.touches && e.touches[0].clientY)}`);
   
   lastInteractionTime = frameCount;
   
@@ -865,10 +842,20 @@ function onPointerDown(e) {
   isDragging = true;
   prevMouseX = e.touches ? e.touches[0].clientX : e.clientX;
   prevMouseY = e.touches ? e.touches[0].clientY : e.clientY;
-  
-  // Start with a small impulse to ensure movement is visible
-  momentumX = 0.005;
-  momentumY = 0.005;
+  // Reset move flag and start stop-hold timer to kill momentum if no movement
+  hasMovedSinceDown = false;
+  if (stopHoldTimeoutID) clearTimeout(stopHoldTimeoutID);
+  stopHoldTimeoutID = setTimeout(() => {
+    if (!hasMovedSinceDown) {
+      momentumX = 0;
+      momentumY = 0;
+    }
+  }, STOP_HOLD_DURATION);
+  // Blow impulse on tap and start hold interval
+  pointerDownX = px;
+  pointerDownY = py;
+  applyTapBlow(px, py);
+  holdIntervalID = setInterval(() => applyTapBlow(pointerDownX, pointerDownY), 150);
   
   window.addEventListener('mousemove', onPointerMove, { passive: false });
   window.addEventListener('mouseup', onPointerUp);
@@ -899,12 +886,12 @@ function onPointerMove(e) {
   
   // Only respond to significant movements (helps with jumpy touch events)
   if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+    // Apply drag but add to existing momentum instead of overriding
     rotX += dx * DRAG_SENSITIVITY;
     rotY += dy * DRAG_SENSITIVITY;
-    momentumX = dx * DRAG_SENSITIVITY * 0.7;
-    momentumY = dy * DRAG_SENSITIVITY * 0.7;
-    
-    updateDebugInfo(`Drag delta: ${dx.toFixed(1)}, ${dy.toFixed(1)}`);
+    momentumX += dx * DRAG_SENSITIVITY * 0.7;
+    momentumY += dy * DRAG_SENSITIVITY * 0.7;
+    hasMovedSinceDown = true; // Mark as moved
   }
   
   prevMouseX = x;
@@ -914,12 +901,15 @@ function onPointerMove(e) {
 function onPointerUp(e) {
   isDragging = false;
   multitouch = false;
+  // Clear hold-blow interval
+  if (holdIntervalID) {
+    clearInterval(holdIntervalID);
+    holdIntervalID = null;
+  }
   window.removeEventListener('mousemove', onPointerMove);
   window.removeEventListener('mouseup', onPointerUp);
   window.removeEventListener('touchmove', onPointerMove);
   window.removeEventListener('touchend', onPointerUp);
-  
-  updateDebugInfo('Pointer up');
 }
 
 // MODIFIED: Update onWheel to record interaction
@@ -930,8 +920,6 @@ function onWheel(e) {
   // Scrollwheel rotates the ball with increased sensitivity
   momentumX += e.deltaX * SCROLL_SENSITIVITY;
   momentumY += e.deltaY * SCROLL_SENSITIVITY;
-  
-  updateDebugInfo(`Wheel delta: ${e.deltaX.toFixed(1)}, ${e.deltaY.toFixed(1)}`);
 }
 
 function getTouchDistance(touches) {
@@ -944,6 +932,12 @@ function getTouchDistance(touches) {
 function windowResized() {
   if (typeof resizeCanvas === 'function') {
     resizeCanvas(windowWidth, windowHeight);
+    // Rebuild sphere with new responsive radius
+    sphere = [];
+    // Recalculate radius proportionally, clamped
+    let newRadius = constrain(windowWidth * 0.25, 80, 200);
+    ballRadius = newRadius;
+    createSphere(newRadius, 16);
   }
 }
 

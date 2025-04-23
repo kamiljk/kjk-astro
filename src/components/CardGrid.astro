@@ -1,7 +1,6 @@
 ---
 import Card from "./Card.astro";
 import CardGame from "./CardGame.astro";
-import "../assets/global.css";
 
 // Eagerly import all markdown posts as components
 const modules = import.meta.glob("../content/posts/*.md", { eager: true });
@@ -60,6 +59,18 @@ const filteredPosts =
     }
   </div>
 
+  <!-- Gradient Blur Overlay -->
+  <!--
+  <div class="gradient-blur">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  -->
+
   <!-- Hero card container -->
   <div class="hero-card" id="hero-card" style="display: none;">
     <div class="hero-card-header">
@@ -115,54 +126,124 @@ const filteredPosts =
 
 <script>
   // @ts-nocheck
-  function showHeroCard(slug) {
-    // Hide grid, show hero card
-    document.getElementById("card-grid").style.display = "none";
+  async function showHeroCard(slug) {
     const heroCard = document.getElementById("hero-card");
+    const cardGrid = document.getElementById("card-grid");
+    const titleEl = document.getElementById("hero-title");
+    const markdownEl = document.getElementById("hero-markdown");
+    const dateCreatedEl = document.getElementById("hero-date-created");
+    const dateUpdatedEl = document.getElementById("hero-date-updated");
+
+    // Hide card grid, show hero card
+    cardGrid.style.display = "none";
     heroCard.style.display = "block";
-    const container = document.getElementById("hero-markdown");
 
-    // Find the pre-rendered content template
-    const template = document.getElementById(`content-${slug}`);
-    if (template) {
-      // Inject the pre-rendered HTML
-      container.innerHTML = template.innerHTML;
+    // Clear content initially
+    markdownEl.innerHTML = "<p>Loading content…</p>";
+    titleEl.textContent = "";
+    dateCreatedEl.style.display = "none";
+    dateUpdatedEl.style.display = "none";
 
-      // Update title and dates from template data attributes
-      const title = template.dataset.title || slug;
-      const dateCreatedStr = template.dataset.dateCreated;
-      const dateUpdatedStr = template.dataset.dateUpdated;
+    try {
+      // Fetch content
+      const response = await fetch(`/api/post/?slug=${slug}`);
+      if (!response.ok)
+        throw new Error(`Failed to load post: ${response.statusText}`);
 
-      document.getElementById("hero-title").textContent = title;
+      const container = document.createElement("div");
+      container.innerHTML = await response.text();
 
-      const dateCreatedEl = document.getElementById("hero-date-created");
-      const dateUpdatedEl = document.getElementById("hero-date-updated");
-      dateCreatedEl.style.display = "none"; // Reset display
-      dateUpdatedEl.style.display = "none"; // Reset display
+      if (container.querySelector("[data-astro-template]")) {
+        const contentTemplate = container.querySelector(
+          "[data-astro-template]"
+        );
+        titleEl.textContent =
+          contentTemplate.querySelector(".title")?.textContent || slug;
+        markdownEl.innerHTML = "";
 
-      const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
+        // Add content to markdown container
+        const contentBody = contentTemplate.querySelector(".content");
+        if (contentBody) markdownEl.appendChild(contentBody);
 
-      if (dateUpdatedStr) {
-        dateUpdatedEl.textContent = `Updated: ${formatDate(dateUpdatedStr)}`;
-        dateUpdatedEl.style.display = "block";
-        if (dateCreatedStr) {
-          const createdDate = new Date(dateCreatedStr);
-          const updatedDate = new Date(dateUpdatedStr);
-          const diffDays = Math.floor(
-            (updatedDate - createdDate) / (1000 * 60 * 60 * 24)
-          );
-          if (diffDays >= 7) {
+        // Extract metadata
+        const dateCreatedStr =
+          contentTemplate.getAttribute("data-date-created");
+        const dateUpdatedStr =
+          contentTemplate.getAttribute("data-date-updated");
+        const type = contentTemplate.getAttribute("data-type");
+
+        // Handle date display
+        if (dateCreatedStr && dateUpdatedStr) {
+          const dateCreated = new Date(dateCreatedStr);
+          const dateUpdated = new Date(dateUpdatedStr);
+
+          if (dateCreated.getTime() !== dateUpdated.getTime()) {
+            dateCreatedEl.textContent = `Created: ${formatDate(dateCreatedStr)}`;
+            dateUpdatedEl.textContent = `Updated: ${formatDate(dateUpdatedStr)}`;
+            dateCreatedEl.style.display = "block";
+            dateUpdatedEl.style.display = "block";
+          } else {
             dateCreatedEl.textContent = `Created: ${formatDate(dateCreatedStr)}`;
             dateCreatedEl.style.display = "block";
           }
+        } else if (dateCreatedStr) {
+          dateCreatedEl.textContent = `Created: ${formatDate(dateCreatedStr)}`;
+          dateCreatedEl.style.display = "block";
         }
-      } else if (dateCreatedStr) {
-        dateCreatedEl.textContent = `Created: ${formatDate(dateCreatedStr)}`;
-        dateCreatedEl.style.display = "block";
+
+        // Special handling for game content
+        if (type === "game") {
+          // Generate a random CTA for the hero banner
+          const ctas = [
+            "EXPERIENCE",
+            "EXPLORE",
+            "INTERACT",
+            "PLAY NOW",
+            "DISCOVER",
+            "ENGAGE",
+            "TRY IT",
+            "DIVE IN",
+            "LAUNCH",
+            "IMMERSE",
+          ];
+          const randomCTA = ctas[Math.floor(Math.random() * ctas.length)];
+
+          // Add iframe or screenshot if available
+          const gameContainer = document.createElement("div");
+          gameContainer.className = "hero-game-container";
+
+          // Add description from the content
+          if (contentBody) {
+            const descriptionContainer = document.createElement("div");
+            descriptionContainer.className = "hero-game-description";
+            descriptionContainer.appendChild(contentBody.cloneNode(true));
+            gameContainer.appendChild(descriptionContainer);
+          }
+
+          // Add CTA banner for games
+          const ctaBanner = document.createElement("a");
+          ctaBanner.href = `/games/${slug}/index.html`;
+          ctaBanner.className = "hero-game-cta-banner";
+          ctaBanner.textContent = randomCTA;
+          ctaBanner.rel = "noopener noreferrer";
+          ctaBanner.setAttribute(
+            "aria-label",
+            `${randomCTA} ${titleEl.textContent}`
+          );
+
+          gameContainer.appendChild(ctaBanner);
+
+          // Replace existing content with game container
+          markdownEl.innerHTML = "";
+          markdownEl.appendChild(gameContainer);
+        }
+      } else {
+        console.error(`Content template not found for slug: ${slug}`);
+        container.innerHTML = `<p>Error: Content not found for ${slug}.</p>`;
       }
-    } else {
-      console.error(`Content template not found for slug: ${slug}`);
-      container.innerHTML = `<p>Error: Content not found for ${slug}.</p>`;
+    } catch (error) {
+      console.error(`Error loading post: ${error}`);
+      markdownEl.innerHTML = `<p>Error loading content: ${error.message}</p>`;
     }
   }
 
@@ -228,48 +309,36 @@ const filteredPosts =
 </script>
 
 <style>
-  /* Card Grid Styles */
-  .card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 280px));
-    gap: var(--fluid-1);
-    justify-content: center;
-    align-items: start;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
   /* Hero Card Styles */
   .hero-card {
     width: 90%; /* Use percentage instead of 100% */
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 900px; /* Set a max-width like kamiljk.com */
+    margin: 0 auto; /* Center the hero card */
     background-color: var(--secondary-bg);
     border: 1px solid rgba(0, 0, 0, 0.8);
     box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
     border-radius: 0;
   }
 
-  /* Additional left/right spacing on smaller screens */
+  /* Remove specific width adjustments for smaller screens, rely on percentage and max-width */
   @media (max-width: 1024px) {
     .hero-card {
-      width: 85%;
-      margin: 0 auto;
+      /* width: 85%; */ /* Removed */
+      /* margin: 0 auto; */ /* Already set above */
     }
   }
 
   @media (max-width: 768px) {
     .hero-card {
-      width: 80%;
-      margin: 0 auto;
+      /* width: 80%; */ /* Removed */
+      /* margin: 0 auto; */ /* Already set above */
     }
   }
 
   @media (max-width: 480px) {
     .hero-card {
-      width: 90%;
-      margin: 0 auto;
+      /* width: 90%; */ /* Already set above */
+      /* margin: 0 auto; */ /* Already set above */
     }
   }
 
@@ -361,4 +430,55 @@ const filteredPosts =
     color: #000;
     text-decoration: none;
   }
+
+  /* Game CTA Banner styling */
+  .hero-game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensure container takes height */
+  }
+
+  .hero-game-description {
+    flex-grow: 1; /* Allow description to take available space */
+  }
+
+  .hero-game-cta-banner {
+    display: block;
+    width: calc(100% + 3rem); /* Compensate for the negative margins */
+    background-color: #f8b500; /* You can adjust this color */
+    color: #000;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    padding: 1rem 0 1.4rem;
+    text-decoration: none;
+    margin: 0; /* Reset margin */
+    margin-top: auto; /* Push to bottom */
+    margin-left: -1.5rem; /* Negative margin to offset container padding */
+    margin-right: -1.5rem;
+    margin-bottom: -1.5rem; /* Ensure it extends beyond the container */
+    transition: background-color 0.2s ease-in-out;
+    /* Trapezoid styling - wider at bottom */
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    position: relative; /* Keep relative positioning */
+    bottom: 0; /* Ensure it's at the bottom */
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2); /* Subtle text shadow */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); /* Top inner glow */
+    border-bottom: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Dark mode specific styles */
+  body[data-theme="dark"] .hero-game-cta-banner {
+    box-shadow:
+      0 -1px 0 rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* Blur effect commented out
+  .gradient-blur { display: none; }
+  .gradient-blur::before { implemented blur background opacity: 0; placeholder }
+  .gradient-blur > div { blur slices }
+  .gradient-blur::after { finish blur }
+  */
 </style>

@@ -1,19 +1,24 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
 
-import vercel from '@astrojs/vercel';
+// import vercel from '@astrojs/vercel';
 
-import react from '@astrojs/react';
+import react from "@astrojs/react";
 
-import remarkGfm from 'remark-gfm';
+import vercel from "@astrojs/vercel";
+
+// import remarkGfm from 'remark-gfm';
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: vercel(),
+  // adapter: vercel(),
   integrations: [react()],
+
   markdown: {
-    remarkPlugins: [
-      remarkGfm
-    ]
-  }
+    // remarkPlugins: [
+    //   remarkGfm
+    // ]
+  },
+
+  adapter: vercel(),
 });

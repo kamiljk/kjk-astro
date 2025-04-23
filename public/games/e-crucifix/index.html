@@ -23,7 +23,7 @@
   <div class="blurry-top"></div>
   <script>
     let triangles = [];
-    let numTriangles = 5;
+    let numTriangles = 7; // Increased from 5 to 7
     let maxDepth;
     let baseSize;
     let scrollSpeed = 0;
@@ -126,7 +126,6 @@
         let scale = pow(map(tri.depth, 0, maxDepth, 1.5, 0.02), 2.2);
         let alpha = 255;
         let weight = 2;
-        let spin = -PI / 2;
 
         let r = 200 + 55 * sin(frameCount * 0.05 + tri.depth * 0.01);
         let g = 180 + 75 * sin(frameCount * 0.07 + tri.depth * 0.02);
@@ -137,16 +136,59 @@
           r = g = b = gray;
         }
 
+        // Dissolve shapes into noise at edges
+        const edgeThreshold = maxDepth * 0.7;
+        if (tri.depth > edgeThreshold) {
+          alpha = map(tri.depth, edgeThreshold, maxDepth, 255, 0);
+        }
+        let noiseFactor = 1;
+        if (tri.depth > edgeThreshold) {
+          noiseFactor = map(tri.depth, edgeThreshold, maxDepth, 1, 5);
+        }
+
         stroke(r, g, b, alpha);
         strokeWeight(weight);
+
+        // Decide whether to draw a crucifix or a pentagram
+        let drawPentagram = random() < 0.0001; // Made pentagrams rarer (0.01% chance)
+
         beginShape();
-        for (let j = 0; j < 3; j++) {
-          let angle = j * TWO_PI / 3 + spin;
-          let rarePulse = random() > 0.9995;
-          let distortion = rarePulse ? 10 * sin(frameCount * 0.1 + j) : 0;
-          let noiseOffset = rarePulse ? map(noise(j, frameCount * 0.01, tri.depth * 0.01), 0, 1, -5, 5) : 0;
-          let x = cos(angle) * baseSize * scale + distortion + noiseOffset;
-          let y = sin(angle) * baseSize * scale + distortion + noiseOffset;
+
+        let shapeVertices;
+        if (drawPentagram) {
+          // Define pentagram vertices pointing downwards
+          const pentagramPoints = [
+            { x: 0,     y:  1.500 }, // Bottom point
+            { x: 0.882, y: -1.214 }, // Top right
+            { x: -1.426,y:  0.464 }, // Bottom left skew
+            { x: 1.426, y:  0.464 }, // Bottom right skew
+            { x: -0.882,y: -1.214 }  // Top left
+          ];
+          shapeVertices = pentagramPoints;
+        } else {
+          // Define crucifix vertices (relative coordinates)
+          const crucifixVertices = [
+            { x: -0.5, y: -1.5 }, { x:  0.5, y: -1.5 }, { x:  0.5, y: -0.5 },
+            { x:  1.5, y: -0.5 }, { x:  1.5, y:  0.5 }, { x:  0.5, y:  0.5 },
+            { x:  0.5, y:  2.5 }, { x: -0.5, y:  2.5 }, { x: -0.5, y:  0.5 },
+            { x: -1.5, y:  0.5 }, { x: -1.5, y: -0.5 }, { x: -0.5, y: -0.5 }
+          ];
+          shapeVertices = crucifixVertices;
+        }
+
+        // Draw the selected shape
+        for (let i = 0; i < shapeVertices.length; i++) {
+          let v = shapeVertices[i];
+          let rarePulse = random() > 0.9995; // Keep the pulse effect
+          let distortion = rarePulse ? 10 * sin(frameCount * 0.1 + i) : 0;
+          
+          // Consistent Perlin noise for all vertices
+          let noiseX = map(noise(i * 0.1, frameCount * 0.005, tri.depth * 0.001), 0, 1, -noiseFactor, noiseFactor);
+          let noiseY = map(noise(i * 0.1 + 100, frameCount * 0.005, tri.depth * 0.001), 0, 1, -noiseFactor, noiseFactor);
+
+          // Apply scaling, distortion, and noise
+          let x = v.x * baseSize * scale * 0.5 + distortion + noiseX;
+          let y = v.y * baseSize * scale * 0.5 + distortion + noiseY;
           vertex(x, y);
         }
         endShape(CLOSE);

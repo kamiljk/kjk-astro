@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>p5 Triangle Tunnel</title>
+  <!-- Load p5.js library from CDN before inline script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#000000" />
+  <style>
+    body { 
+      margin: 0; 
+      overflow: hidden; 
+      background: black; 
+      touch-action: none; /* Prevent default touch gestures */
+      user-select: none; /* Disable text selection on all browsers */
+      -webkit-user-select: none; /* Disable text selection */
+      -webkit-touch-callout: none; /* Disable callout menu */
+      /* Safe area for notch devices */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div class="blurry-top"></div>
+  <script>
+    // Removed chromatic aberration for performance
+
+    // Auto-enter fullscreen on first touch for immersive iOS experience - REMOVED for better iOS compatibility
+    let firstInteraction = true;
+    /* // REMOVED Fullscreen logic
+    const enterFullscreen = () => {
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    };
+    */
+    window.addEventListener('touchstart', () => {
+      if (firstInteraction) {
+        // enterFullscreen(); // REMOVED
+        enableNativeIOSInputs(); // Keep permission request on first interaction
+        firstInteraction = false;
+      }
+    }, { once: true });
+
+    // iOS/ Safari motion permissions and native input handlers
+    async function enableNativeIOSInputs() {
+      // request orientation permission
+      if (DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
+        try {
+          const resp = await DeviceOrientationEvent.requestPermission();
+          if (resp === 'granted') window.addEventListener('deviceorientation', handleOrientation);
+        } catch(e){ console.error("Orientation permission request failed:", e); } // Added logging
+      } else {
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+      // request motion permission
+      if (DeviceMotionEvent && DeviceMotionEvent.requestPermission) {
+        try {
+          const resp = await DeviceMotionEvent.requestPermission();
+          if (resp === 'granted') window.addEventListener('devicemotion', handleShake);
+        } catch(e){ console.error("Motion permission request failed:", e); } // Added logging
+      } else {
+        window.addEventListener('devicemotion', handleShake);
+      }
+    }
+
+    // Orientation maps tilt to speeds
+    function handleOrientation(e) {
+      const gamma = e.gamma || 0; // left/right tilt
+      const beta = e.beta || 0;   // front/back tilt
+      // map from [-45,45] to speed caps
+      rotationSpeed = map(constrain(gamma, -45, 45), -45, 45, -maxRotationSpeed, maxRotationSpeed);
+      scrollSpeed = map(constrain(beta, -45, 45), -45, 45, -maxScrollSpeed, maxScrollSpeed);
+    }
+
+    // Shake detection for palette randomness
+    let lastShake = 0;
+    function handleShake(e) {
+      const ag = e.accelerationIncludingGravity;
+      const mag = sqrt(ag.x*ag.x + ag.y*ag.y + ag.z*ag.z);
+      const now = Date.now();
+      if (mag > 15 && now - lastShake > 1000) {
+        // randomize colors
+        window.dispatchEvent(new Event('contextmenu'));
+        lastShake = now;
+      }
+    }
+
+    // Pinch & two-finger rotate gesture
+    let pinchStartDist = 0, rotateStartAngle = 0;
+    const pinchMultiplier = 0.1, rotGestureMultiplier = 0.02;
+    window.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        const [a, b] = e.touches;
+        pinchStartDist = dist(a.clientX, a.clientY, b.clientX, b.clientY);
+        rotateStartAngle = atan2(b.clientY - a.clientY, b.clientX - a.clientX);
+      }
+    });
+    window.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const [a, b] = e.touches;
+        const newDist = dist(a.clientX, a.clientY, b.clientX, b.clientY);
+        scrollSpeed = (newDist - pinchStartDist) * pinchMultiplier;
+        const newAngle = atan2(b.clientY - a.clientY, b.clientX - a.clientX);
+        rotationSpeed = (newAngle - rotateStartAngle) * rotGestureMultiplier;
+      }
+    }, { passive: false });
+
+    // Double-tap to toggle mono/color
+    let lastTap = 0;
+    window.addEventListener('touchend', e => {
+      if (e.touches.length === 0) {
+        const now = Date.now();
+        if (now - lastTap < 300) isMonochrome = !isMonochrome;
+        lastTap = now;
+      }
+    });
+
+    // Define complexity levels for triangle count
+    const complexityLevels = [5, 15, 30, 50];
+    let currentComplexityIndex = 0;
+
+    let triangles = [];
+    let numTriangles = 5;
+    let maxDepth;
+    let baseSize;
+    let scrollSpeed = 0;
+    let isMonochrome = false;
+    // Speed limits
+    let maxScrollSpeed;
+    let maxRotationSpeed;
+
+    // Rotation via side scroll
+    let rotationAngle = 0;
+    let rotationSpeed = 0;
+
+    // maximum glitch displacement (chaos) and bias exponent (favor harmony)
+    let maxGlitch = 20;
+    let glitchBiasPower = 2;
+
+    // Adjust scroll speed for mobile devices
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const scrollMultiplier = isMobile ? 0.02 : 0.005; // Increase scroll speed on mobile
+    const rotationMultiplier = isMobile ? 0.0005 : 0.0002; // Rotation speed factor
+
+    let currentScheme;
+    let currentPalette;
+    let baseHue;
+
+    function setup() {
+      console.log('p5 setup() running');
+      createCanvas(windowWidth, windowHeight);
+      noFill();
+      // Harmonized color scheme
+      colorMode(HSB, 360, 100, 100, 255);
+      stroke(255, 230, 150);
+      maxDepth = sqrt(sq(width) + sq(height)) * 2.0;
+      baseSize = maxDepth / 3;
+      // set speed caps relative to baseSize
+      maxScrollSpeed = baseSize * 0.05;    // caps scrollSpeed between ±1% of baseSize
+      maxRotationSpeed = 0.5;              // caps rotationSpeed
+
+      baseHue = random(360);
+      // Choose and store a harmonious color scheme
+      currentScheme = random(['complementary','triadic','analogous','random']);
+      currentPalette = [];
+      // build palette
+      if (currentScheme === 'complementary') {
+        currentPalette = [baseHue, (baseHue + 180) % 360];
+      } else if (currentScheme === 'triadic') {
+        currentPalette = [baseHue, (baseHue + 120) % 360, (baseHue + 240) % 360];
+      } else if (currentScheme === 'analogous') {
+        currentPalette = [(baseHue + 330) % 360, baseHue, (baseHue + 30) % 360];
+      } else { // random
+        for (let i = 0; i < numTriangles; i++) currentPalette.push(random(360));
+      }
+      for (let i = 0; i < numTriangles; i++) {
+        // assign hue from palette
+        const hue = currentScheme === 'random' ? currentPalette[i] : currentPalette[i % currentPalette.length];
+        // vary saturation/brightness for visual interest
+        const sat = random(60, 90);
+        const bri = random(70, 100);
+        triangles.push({
+          depth: map(i, 0, numTriangles - 1, maxDepth, 10),
+          index: i,
+          hue, saturation: sat, brightness: bri
+        });
+      }
+
+      // Add event listener for scroll
+      window.addEventListener('wheel', (event) => {
+        event.preventDefault(); // stop default scroll
+        // process both vertical (zoom) and horizontal (rotation) at once
+        scrollSpeed += event.deltaY * scrollMultiplier;
+        rotationSpeed += event.deltaX * rotationMultiplier;
+      }, { passive: false });
+
+      // Add touch event listeners for iOS scrolling
+      let touchStartPoints = [];
+      window.addEventListener('touchstart', (event) => {
+        touchStartPoints = Array.from(event.touches).map(touch => ({ x: touch.clientX, y: touch.clientY }));
+
+        // Three-finger tap cycles through complexity levels
+        if (event.touches.length === 3 && firstInteraction === false) { // Ensure permissions granted first
+          currentComplexityIndex = (currentComplexityIndex + 1) % complexityLevels.length;
+          numTriangles = complexityLevels[currentComplexityIndex];
+          rebuildTriangles();
+          // Optional: Vibrate feedback if supported
+          if (navigator.vibrate) {
+            navigator.vibrate(50);
+          }
+          event.preventDefault(); // Prevent other actions like pinch/zoom
+        }
+      });
+
+      window.addEventListener('touchmove', (event) => {
+        let touchEndPoints = Array.from(event.touches).map(touch => ({ x: touch.clientX, y: touch.clientY }));
+
+        // Adjust scroll speed based on vertical movement of the first touch point
+        if (touchStartPoints.length > 0 && touchEndPoints.length > 0) {
+          const deltaY = touchStartPoints[0].y - touchEndPoints[0].y;
+          scrollSpeed += deltaY * scrollMultiplier;
+          touchStartPoints = touchEndPoints; // Update start points for continuous movement
+        }
+
+        event.preventDefault(); // Prevent default scrolling behavior
+      });
+
+      window.addEventListener('touchend', () => {
+        touchStartPoints = []; // Reset touch points on touch end
+      });
+
+      // Right-click toggles monochrome/color with new harmonious hues
+      window.addEventListener('contextmenu', event => {
+        event.preventDefault();
+        isMonochrome = !isMonochrome;
+        if (!isMonochrome) {
+          // choose a new palette on each shift
+          const baseHue = random(360);
+          const scheme = random(['complementary','triadic','analogous','random']);
+          let palette = [];
+          if (scheme === 'complementary') {
+            palette = [baseHue, (baseHue + 180) % 360];
+          } else if (scheme === 'triadic') {
+            palette = [baseHue, (baseHue + 120) % 360, (baseHue + 240) % 360];
+          } else if (scheme === 'analogous') {
+            palette = [(baseHue + 330) % 360, baseHue, (baseHue + 30) % 360];
+          } else {
+            // fully random per triangle
+            for (let i = 0; i < numTriangles; i++) palette.push(random(360));
+          }
+          // reassign colors
+          triangles.forEach((tri, i) => {
+            const h = scheme === 'random' ? palette[i] : palette[i % palette.length];
+            tri.hue = h;
+            tri.saturation = random(60, 90);
+            tri.brightness = random(70, 100);
+          });
+        }
+      });
+
+      // WASD controls for rotation and scroll velocity
+      const keySpeedRotate = maxRotationSpeed;
+      const keySpeedScroll = maxScrollSpeed;
+      window.addEventListener('keydown', e => {
+        if (e.code === 'KeyA') rotationSpeed = -keySpeedRotate;
+        if (e.code === 'KeyD') rotationSpeed = keySpeedRotate;
+        if (e.code === 'KeyW') scrollSpeed = abs(scrollSpeed);
+        if (e.code === 'KeyS') scrollSpeed = -abs(scrollSpeed);
+        // [ and ] adjust triangle count
+        if (e.code === 'BracketLeft') {
+          numTriangles = max(3, numTriangles - 1);
+          rebuildTriangles();
+        }
+        if (e.code === 'BracketRight') {
+          numTriangles = min(100, numTriangles + 1);
+          rebuildTriangles();
+        }
+        // Z: bias toward order (less chaos, smoother)
+        if (e.code === 'KeyZ') {
+          maxGlitch = constrain(maxGlitch - 2, 0, 100);
+          glitchBiasPower = constrain(glitchBiasPower + 0.2, 0, 5);
+        }
+        // C: dial up chaos (more distortion, randomness)
+        if (e.code === 'KeyC') {
+          maxGlitch = constrain(maxGlitch + 2, 0, 100);
+          glitchBiasPower = constrain(glitchBiasPower - 0.2, 0, 5);
+        }
+      });
+    }
+
+    // rebuild triangle array on count or palette change
+    function rebuildTriangles() {
+      triangles = [];
+      for (let i = 0; i < numTriangles; i++) {
+        const hue = currentScheme === 'random'
+          ? random(360)
+          : currentPalette[i % currentPalette.length];
+        const sat = random(60, 90);
+        const bri = random(70, 100);
+        triangles.push({ depth: map(i, 0, numTriangles - 1, maxDepth, 10), index: i, hue, saturation: sat, brightness: bri });
+      }
+    }
+
+    // Draw the tunnel directly on the main canvas
+    function renderTunnel() {
+      background(0);
+      push();
+      translate(width / 2, height / 2);
+      rotate(rotationAngle);
+      for (let tri of triangles) {
+        tri.depth -= 3 + scrollSpeed;
+        if (tri.depth < 10) tri.depth += maxDepth;
+        else if (tri.depth > maxDepth) tri.depth -= maxDepth;
+        let scaleVal = pow(map(tri.depth, 0, maxDepth, 1.5, 0.02), 2.2);
+        let alpha = 255;
+        strokeWeight(2);
+        if (isMonochrome) stroke(0, 0, 100, alpha);
+        else stroke(tri.hue, tri.saturation, tri.brightness, alpha);
+        beginShape();
+        for (let j = 0; j < 3; j++) {
+          let angle = j * TWO_PI / 3 - PI / 2;
+          let distortion = random() > 0.9995 ? 10 * sin(frameCount * 0.1 + j) : 0;
+          let noiseOffset = random() > 0.9995 ? map(noise(j, frameCount * 0.01, tri.depth * 0.01), 0, 1, -5, 5) : 0;
+          let x = cos(angle) * baseSize * scaleVal + distortion + noiseOffset;
+          let y = sin(angle) * baseSize * scaleVal + distortion + noiseOffset;
+          let edgeFactor = 1 - (tri.depth / maxDepth);
+          // sample perlin noise in [-1,1]
+          const raw = noise(j, tri.depth * 0.01, frameCount * 0.02) * 2 - 1;
+          // bias toward zero (harmony) with exponent
+          const biased = raw * pow(abs(raw), glitchBiasPower);
+          // scale by maxGlitch and edgeFade
+          let glitch = biased * maxGlitch * edgeFactor;
+          vertex(x + glitch, y + glitch);
+        }
+        endShape(CLOSE);
+      }
+      pop();
+    }
+
+    function draw() {
+      // Draw the triangle tunnel
+      renderTunnel();
+      // clamp speeds to caps
+      scrollSpeed = constrain(scrollSpeed, -maxScrollSpeed, maxScrollSpeed);
+      rotationSpeed = constrain(rotationSpeed, -maxRotationSpeed, maxRotationSpeed);
+      // apply rotation
+      rotationAngle += rotationSpeed;
+      // maintain rotation momentum with slight decay
+      rotationSpeed *= 0.97;
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+  </script>
+</body>
+</html>
