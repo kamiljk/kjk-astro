@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, getEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("posts");
+  // Only generate pages for posts with show: true
+  const visiblePosts = allPosts.filter((post) => post.data.show === true);
+  return visiblePosts.map((post) => ({ params: { slug: post.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = await getEntry("posts", slug);
+
+// If post doesn't exist or has show: false, return 404
+if (!post || post.data.show !== true) {
+  return new Response("Post not found or not visible", { status: 404 });
+}
+
+const rendered = await post.render();
+
+// Convert dateCreated to a JS Date object at build time
+const dateCreated = new Date(post.data.dateCreated);
+---
+
+<BaseLayout>
+  <article>
+    <h1>{post.data.title}</h1>
+    <p>{post.data.description}</p>
+    <p>Created: {dateCreated.toLocaleDateString()}</p>
+    <div class="post-content">
+      <rendered.Content />
+    </div>
+  </article>
+</BaseLayout>

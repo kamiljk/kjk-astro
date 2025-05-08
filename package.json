@@ -1,0 +1,28 @@
+{
+  "name": "kjk-astro",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "vercel dev --listen 3000",
+    "astro": "astro",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.2.7",
+    "@astrojs/svelte": "^7.0.13",
+    "@astrojs/vercel": "^8.0.4",
+    "astro": "^5.7.10",
+    "astro-pagefind": "^1.8.3",
+    "gray-matter": "^4.0.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remark-wiki-link": "^2.0.1",
+    "vite": "^6.3.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.14.1"
+  }
+}

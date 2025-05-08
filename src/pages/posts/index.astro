@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPostsWithContent } from "../../utils/postUtils";
+
+// Fetch posts with full content for thumbnail generation
+const allPosts = await getPostsWithContent();
+// Filter only post type entries
+const posts = allPosts.filter((post) => post.type === "post");
+---
+
+<BaseLayout>
+  <!-- The posts feed and filtering is handled by BaseLayout -->
+</BaseLayout>

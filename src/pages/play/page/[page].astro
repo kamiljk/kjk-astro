@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const PAGE_SIZE = 9;
+const { page } = Astro.params;
+const currentPage = parseInt(page) || 1;
+const allPosts = await getCollection("posts");
+const filteredPosts = allPosts.filter(post => post.data.type === "play");
+const sortedPosts = filteredPosts.sort((a, b) =>
+  new Date(b.data.dateCreated || "").getTime() - new Date(a.data.dateCreated || "").getTime()
+);
+const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
+const paginatedPosts = sortedPosts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+if (currentPage === 1) {
+  return Astro.redirect("/play");
+}
+if (currentPage > totalPages) {
+  return Astro.redirect(`/play/page/${totalPages}`);
+}
+
+const taxonomy = ["all", "read", "play", "about"];
+
+export async function getStaticPaths() {
+  const PAGE_SIZE = 9;
+  const allPosts = await getCollection("posts");
+  const filteredPosts = allPosts.filter(post => post.data.type === "play");
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / PAGE_SIZE));
+  return Array.from({ length: totalPages - 1 }, (_, i) => ({
+    params: { page: String(i + 2) }
+  }));
+}
+---
+<BaseLayout posts={paginatedPosts} taxonomy={taxonomy} currentPage={currentPage} totalPages={totalPages} type="play" />

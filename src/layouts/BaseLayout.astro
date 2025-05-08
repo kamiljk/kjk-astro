@@ -1,0 +1,188 @@
+---
+const {
+  posts = [],
+  taxonomy = ["all", "read", "play", "about"],
+  currentPage = 1,
+  totalPages = 1,
+  type = "all",
+  sort = "newest",
+} = Astro.props;
+import Navbar from "../../components/Navbar.astro";
+import Search from "../components/Search.astro";
+import { normalizeType } from "../utils/normalizeType.js";
+---
+
+<html lang="en">
+  <head>
+    <title>Posts Feed</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/assets/global.css" />
+  </head>
+  <body>
+    <div class="site-container">
+      <Navbar
+        taxonomy={taxonomy}
+        type={type}
+        sort={sort}
+        currentPage={currentPage}
+      />
+      <div class="search-container">
+        <Search />
+      </div>
+      <main>
+        <ul id="posts-feed" class="single-column-feed">
+          {
+            posts.map((post, idx) => {
+              console.log('DEBUG BaseLayout post', idx, 'type:', post.data?.type, 'title:', post.data?.title);
+              const isGame = post.data?.type === "game" || post.data?.type === "play";
+              const gameSlug = post.slug || post.data?.slug || post.data?.name;
+              const gamePath = isGame ? `/games/${gameSlug}/index.html` : (post.slug ? `/posts/${post.slug}/` : post.url || "#");
+              const thumbPath = isGame ? `/games/${gameSlug}/thumbnail.png` : null;
+              return (
+                <li data-type={normalizeType(post.data?.type) ?? ""} class="post-card">
+                  <div style="display: flex; align-items: flex-start; gap: 1.25em; width: 100%; flex-direction: row-reverse;">
+                    {isGame && thumbPath && (
+                      <img src={thumbPath} alt={`Thumbnail for ${post.data?.title ?? post.title ?? gameSlug}`} class="post-thumb-large" style="width:96px;height:96px;object-fit:cover;border-radius:10px;flex-shrink:0;background:#fff;box-shadow:0 0 8px #39ff1444;" loading="lazy" onerror="this.style.display='none'" />
+                    )}
+                    <div style="flex:1;display:flex;flex-direction:column;gap:0.25em;min-width:0;">
+                      <a href={gamePath} target={isGame ? "_blank" : undefined} rel={isGame ? "noopener noreferrer" : undefined} style="font-size:1.15em;font-weight:600;color:#222;text-decoration:none;word-break:break-word;">
+                        {post.data?.title ?? post.title ?? post.slug ?? post.name}
+                      </a>
+                      {post.data?.description && (
+                        <div class="post-description" style="color:#888;font-size:1.05em;margin-top:0.25em;word-break:break-word;">
+                          {post.data.description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ul>
+        {Array.isArray(posts) && posts.length > 1 && (
+          <div id="feed-loader" style="text-align:center;margin:2em 0;color:#888;"></div>
+        )}
+        {Array.isArray(posts) && posts.length > 1 && (
+          <script type="module" is:inline>
+            let currentPage = 1;
+            let loading = false;
+            let done = false;
+            const PAGE_SIZE = 9;
+            const feed = document.getElementById("posts-feed");
+            const loader = document.getElementById("feed-loader");
+            // Use the type prop from Astro.props, not the URL
+            const type = "{type}";
+            const sort = (() => {
+              try {
+                return "{sort}";
+              } catch {
+                return "newest";
+              }
+            })();
+            async function loadMore() {
+              if (loading || done) return;
+              loading = true;
+              loader.textContent = "Loading...";
+              currentPage++;
+              const res = await fetch(
+                `/api/feed.json?type=${type}&sort=${sort}&page=${currentPage}`
+              );
+              const posts = await res.json();
+              if (!Array.isArray(posts) || posts.length === 0) {
+                done = true;
+                loader.textContent = "No more posts.";
+                return;
+              }
+              posts.forEach((post) => {
+                const li = document.createElement("li");
+                li.setAttribute("data-type", post.data?.type ?? "");
+                li.innerHTML =
+                  `<a href="/posts/${post.slug}/">${post.data?.title ?? post.title ?? post.slug ?? post.name}</a>` +
+                  (post.data?.description
+                    ? `<div class='post-description' style='color:#aaa;font-size:1.05em;margin-top:0.25em;'>${post.data.description}</div>`
+                    : "");
+                feed.appendChild(li);
+              });
+              loader.textContent = "";
+              loading = false;
+              maybeFillViewport();
+            }
+            function maybeFillViewport() {
+              if (
+                !done &&
+                !loading &&
+                document.body.scrollHeight <= window.innerHeight + 10
+              ) {
+                loadMore();
+              }
+            }
+            window.addEventListener("scroll", () => {
+              if (done) return;
+              if (
+                window.innerHeight + window.scrollY >=
+                document.body.offsetHeight - 200
+              ) {
+                loadMore();
+              }
+            });
+            window.addEventListener("DOMContentLoaded", maybeFillViewport);
+          </script>
+        )}
+        <slot />
+      </main>
+    </div>
+
+    <style>
+      .site-container {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .search-container {
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+      }
+      
+      main {
+        max-width: 900px;
+        margin: 1rem auto 0; /* Exactly 1rem top margin */
+        padding: 0;
+      }
+      
+      .single-column-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0; /* No additional margins from the list */
+      }
+      
+      .post-card {
+        background: #fff;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 1.25em 1.25em 1em 1.25em;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5em;
+        transition: box-shadow 0.18s;
+        min-width: 0;
+      }
+      
+      .post-thumb-large {
+        width: 96px;
+        height: 96px;
+        object-fit: cover;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 0 8px #39ff1444;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,832 @@
+/*
+  * MASTER CSS RESET & FOUNDATION (Roboto Only, Variable Weights)
+  * Uses only Roboto Variable for all text, leveraging font-variation-settings and font-weight for emphasis
+*/
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('/fonts/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+
+:root {
+  --font-family-base: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  /* Color tokens */
+  --color-bg: #f8f7f2;
+  --color-text: #181c17;
+  --color-accent: #39ff14;
+  --color-accent-dark: #1aff00;
+  --color-border: #d6d5c9;
+  --color-bg-alt: #ecebe3;
+  --color-desc: #888888;
+  --color-card-bg: #fff;
+  --color-card-border: #e0e0e0;
+  --color-card-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+  /* Spacing tokens */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2rem;
+  --space-xl: 3rem;
+
+  /* Border radius */
+  --radius-pill: 9999px;
+  --radius-card: 12px;
+  --radius-btn: 4px;
+
+  /* Navbar height */
+  --navbar-height: 80px;
+
+  /* Fluid typography tokens (example) */
+  --font-size-body: 1rem;
+  --font-size-header-1: 2.5rem;
+  --font-size-header-2: 2rem;
+  --font-size-header-3: 1.5rem;
+  --font-size-header-4: 1.25rem;
+  --font-size-header-5: 1.1rem;
+  --font-size-header-6: 1rem;
+  --font-size-menu: 1.1rem;
+}
+
+/* Dark theme (Warm neutral gray palette) */
+[data-theme="dark"] {
+  /* Base colors - warm neutral grays */
+  --color-bg: #121212; /* Dark but not pure black for background */
+  --color-text: #ffffff;
+  --color-accent: #39ff14; /* Neon green */
+  --color-accent-dark: #1aff00;
+  --color-border: #333333;
+  --color-bg-alt: #1e1e1e; /* Slightly lighter than background */
+  --color-desc: #b0b0b0; /* Warm light gray for descriptions */
+  --color-card-bg: #1a1a1a; /* Cards slightly lighter than background */
+  --color-card-border: #333333;
+  --color-card-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  --color-text-muted: #999999;
+  
+  /* Header and UI specific colors */
+  --header-bar-bg: #1a1a1a;
+  --header-bar-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  
+  /* HDR color support where available */
+  @supports (color: color(display-p3 0 0 0)) {
+    --color-accent: color(display-p3 0.224 1 0.078); /* Enhanced neon green for HDR */
+    --color-accent-dark: color(display-p3 0.1 1 0); /* Enhanced neon dark green for HDR */
+  }
+}
+
+/* Theme transition effect */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Apply properly filtered SVG icons for dark mode */
+[data-theme="dark"] .theme-toggle-btn img,
+.dark-theme .theme-toggle-btn img {
+  filter: brightness(1);
+}
+
+[data-theme="light"] .theme-toggle-btn img, 
+.light-theme .theme-toggle-btn img {
+  filter: brightness(0.2);
+}
+
+/* Theme toggle icon fixes */
+#theme-toggle-btn img {
+  filter: brightness(0.2); /* Default dark color for light mode */
+}
+
+[data-theme="dark"] #theme-toggle-btn img {
+  filter: brightness(1); /* White for dark mode */
+}
+
+/* Force proper icon visibility in dropdown menu */
+.menu-section.theme-toggle-section #theme-toggle-btn img {
+  filter: brightness(0.2); /* Dark in dropdown (light background) */
+}
+
+[data-theme="dark"] .menu-section.theme-toggle-section #theme-toggle-btn img {
+  filter: brightness(1); /* White in dark mode dropdown */
+}
+
+/* Logo filter for dark mode */
+[data-theme="dark"] .nav__logo-img,
+.dark-theme .nav__logo-img,
+[data-theme="dark"] .nav__logo img,
+.dark-theme .nav__logo img {
+  filter: brightness(0) invert(1); /* Make logo white in dark mode */
+}
+
+/*  Global CSS  */
+/*  --------------------
+  * 1. CSS RESET
+  * -------------------  */
+
+/* Elegant global CSS reset and foundation */
+
+/* 1. Box sizing and margin/padding reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. Remove default border, outline, and background for all elements */
+*:focus {
+  outline: none;
+}
+
+/* 3. Remove default list styles */
+ul, ol {
+  list-style: none;
+}
+
+/* 4. Remove default quotes from blockquotes and q */
+blockquote, q {
+  quotes: none;
+}
+blockquote::before, blockquote::after,
+q::before, q::after {
+  content: '';
+  content: none;
+}
+
+/* 5. Remove default table spacing */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* 6. Remove default button and input styles */
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  appearance: none;
+}
+button {
+  cursor: pointer;
+}
+
+/* 7. Remove anchor underline and inherit color */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 8. Remove image border and set display */
+img, picture, video, canvas, svg, iframe {
+  display: block;
+  max-width: 100%;
+  border: 0;
+}
+
+/* 9. Remove default fieldset and legend styles */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+legend {
+  padding: 0;
+}
+
+/* 10. Remove default hr styles */
+hr {
+  height: 0;
+  border: none;
+  border-top: 1px solid #444;
+  margin: 2rem 0;
+}
+
+/* 11. Remove default figure margin */
+figure {
+  margin: 0;
+}
+
+/* 12. Remove default form element spacing */
+form {
+  margin: 0;
+}
+
+/* 13. Remove default mark background */
+mark {
+  background: none;
+  color: inherit;
+}
+
+/* 14. Remove default strong/em font style */
+strong, b {
+  font-weight: var(--font-weight-bold);
+  font-variation-settings: 'wght' var(--font-weight-bold);
+}
+em, i {
+  font-style: italic;
+  font-variation-settings: 'wght' var(--font-weight-medium);
+}
+
+/* 15. Remove default sub/sup vertical alignment */
+sub, sup {
+  vertical-align: baseline;
+  font-size: 0.75em;
+}
+
+/* 16. Remove default code/kbd/samp font */
+code, kbd, samp, pre {
+  font-family: inherit;
+  font-size: 1em;
+}
+
+/* 17. Remove default details/summary styles */
+details, summary {
+  display: block;
+}
+
+/* 18. Remove default progress appearance */
+progress {
+  vertical-align: baseline;
+}
+
+/* 19. Remove default audio/video controls background */
+audio, video {
+  background: none;
+}
+
+/* 20. Remove default meter appearance */
+meter {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 21. Remove default input[type=search] styles */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+
+/* 22. Remove default input[type=number] spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* 23. Remove default input[type=date/time] calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}
+
+/* 24. Remove default input[type=checkbox/radio] appearance */
+input[type="checkbox"], input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+/* 25. Remove default select arrow */
+select::-ms-expand {
+  display: none;
+}
+
+/* 26. Remove default textarea resize */
+textarea {
+  resize: vertical;
+}
+
+/* 27. Remove default cursor for disabled elements */
+[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 28. Remove tap highlight on mobile */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 29. Remove outline for non-keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 30. Remove default selection color */
+::selection {
+  background: #4f8cff;
+  color: #fff;
+}
+
+html {
+  font-size: 100%;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+  tab-size: 4;
+  overflow-x: hidden;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+}
+
+/* Header font assignment */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+  margin-bottom: var(--space-xs);
+}
+h1 { 
+  font-size: var(--font-size-header-1); 
+  font-variation-settings: 'wght' var(--font-weight-black);
+}
+h2 { 
+  font-size: var(--font-size-header-2); 
+  font-variation-settings: 'wght' var(--font-weight-bold);
+}
+h3 { 
+  font-size: var(--font-size-header-3); 
+  font-variation-settings: 'wght' var(--font-weight-semibold);
+}
+h4 { 
+  font-size: var(--font-size-header-4); 
+  font-variation-settings: 'wght' var(--font-weight-medium);
+}
+h5 { 
+  font-size: var(--font-size-header-5); 
+  font-variation-settings: 'wght' var(--font-weight-regular);
+}
+h6 { 
+  font-size: var(--font-size-header-6); 
+  font-variation-settings: 'wght' var(--font-weight-light);
+}
+
+/* Menu font assignment */
+.navbar, .nav-center, .nav__logo, .nav__links, .nav__filter, .nav__sort, .theme-toggle, .hamburger-menu {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+/* Card and description color tokens */
+.card {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  box-shadow: var(--color-card-shadow);
+  border-radius: var(--radius-card);
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.card .description {
+  color: var(--color-desc);
+  font-weight: var(--font-weight-light);
+}
+
+/* Utility Classes */
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.flex { display: flex; }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.text-center { text-align: center; }
+
+/* Active filter button styling */
+.pill.active, 
+.pill[aria-current="page"] {
+  background: var(--color-accent);
+  color: var(--color-text) !important;
+  font-weight: var(--font-weight-bold);
+}
+
+.pill.active *, 
+.pill[aria-current="page"] * {
+  color: var(--color-text) !important;
+}
+
+.nav__logo {
+  flex: 0 0 auto;
+}
+
+.nav__search-stretch {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  box-shadow: none; /* Removed box-shadow */
+  margin: 0 1rem;
+  height: auto;
+  transition: background 0.18s; /* Removed box-shadow transition */
+  position: relative; /* Add this to contain the dropdown */
+  border: none; /* Explicitly set border to none */
+}
+
+/* Clear previous selectors that might be causing conflicts */
+.nav__search-stretch .pagefind-ui,
+.nav__search-stretch .pagefind-ui--reset,
+.nav__search-stretch div[class*="pagefind-ui"],
+.nav__search-stretch div[class*="svelte-e9gkc3"],
+.nav__search-stretch #search,
+.nav__search-stretch .search-container {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  min-width: 0;
+  border: none !important; /* Remove borders */
+  box-shadow: none !important; /* Remove shadows */
+  outline: none !important; /* Remove outlines */
+}
+
+/* Style the form element */
+.pagefind-ui__form {
+  width: 100% !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  position: relative !important;
+  border: none !important; /* Added to remove borders */
+  box-shadow: none !important; /* Added to remove shadows */
+}
+
+.pagefind-ui__form:before {
+  top: 50% !important;
+  left: 20px !important;
+  transform: translateY(-50%);
+}
+
+/* Style the input */
+.pagefind-ui__search-input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.75rem 1rem !important;
+  padding-left: 2.75rem !important; /* Make room for icon, adjust as needed */
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  display: flex !important;
+  align-items: center !important;
+  outline: none !important; /* Added to remove outlines */
+}
+
+.pagefind-ui__search-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Search results styling */
+.pagefind-ui__drawer {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important; /* Match the width of the search box */
+  top: 100% !important;
+  margin-top: 0.5rem !important;
+  background: var(--color-card-bg, #fff) !important;
+  border-radius: var(--radius-card, 12px) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  z-index: 1000 !important;
+  overflow: hidden !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  padding: 0.75rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Explicitly ensure hidden class works */
+.pagefind-ui__hidden.svelte-e9gkc3,
+.pagefind-ui__drawer.pagefind-ui__hidden {
+  display: none !important;
+}
+
+/* Ensure search results area is full width and single column */
+.pagefind-ui__results-area {
+  width: 100% !important;
+}
+
+/* Style search results */
+.pagefind-ui__results {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Style individual results in a clean, simple format */
+.pagefind-ui__result {
+  margin-bottom: 1rem !important;
+  padding: 0.5rem 0 !important;
+  border-bottom: 1px solid var(--color-border, #d6d5c9) !important;
+  width: 100% !important;
+  display: block !important;
+  flex-direction: unset !important;
+  align-items: unset !important;
+  gap: unset !important;
+}
+
+/* Style the term highlighting - make it yellow like in the reference image */
+.pagefind-ui__result mark {
+  background-color: #ffff00 !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-weight: inherit !important;
+  border-radius: 0 !important;
+}
+
+/* Style the "Load more results" button to match the screenshot */
+.pagefind-ui__button {
+  background-color: #f1f1f1 !important;
+  color: var(--color-text, #333) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 400 !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  width: 100% !important;
+  margin-top: 0.5rem !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.pagefind-ui__button:hover {
+  background-color: #e5e5e5 !important;
+}
+
+/* Message styling */
+.pagefind-ui__message {
+  padding: 1rem 0.5rem !important;
+  color: var(--color-desc, #666) !important;
+  font-size: 0.9rem !important;
+  text-align: center !important;
+}
+
+/* Result count styling */
+.pagefind-ui__results-count {
+  color: var(--color-desc, #666) !important;
+  font-size: 0.85rem !important;
+  margin-bottom: 1rem !important;
+  padding-left: 0.5rem !important;
+  font-weight: 500 !important;
+}
+
+/* Ensure no scrolling when search results are shown */
+body.search-active {
+  overflow: hidden;
+}
+
+/* Fix navbar display */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav__menu-btn {
+  flex: 0 0 auto;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--navbar-height);
+}
+
+.post-card {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  margin-bottom: 0rem; /* Add vertical spacing between cards */
+}
+
+/* Remove bottom margin from the last card to prevent extra space at the bottom */
+.post-card:last-child {
+  margin-bottom: 0;
+}
+
+/* Navbar dropdown layout */
+.menu-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: var(--color-bg, #fff);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--color-border, #eee);
+  border-bottom: 1px solid var(--color-border, #eee);
+  z-index: 40;
+  padding: 0.75rem 0;
+  display: none;
+}
+
+.menu-container.visible {
+  display: block;
+}
+
+.menu-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.menu-section {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4, 1.5rem);
+}
+
+.menu-section h2 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--color-text-muted, #666);
+  letter-spacing: 0.05em;
+}
+
+.menu-section .pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-section .pill-list button.pill {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 2rem;
+  background: var(--color-bg-alt, #f5f5f5);
+  border: 1px solid var(--color-border, #eee);
+  cursor: pointer;
+  color: var(--color-text, #333);
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+  white-space: nowrap;
+}
+
+.menu-section .pill-list button.pill:hover {
+  background: var(--color-accent, #0066cc);
+  color: white;
+  border-color: var(--color-accent, #0066cc);
+}
+
+.menu-section .pill-list button.pill.active {
+  background: var(--color-accent, #0066cc);
+  color: white;
+  border-color: var(--color-accent, #0066cc);
+}
+
+.sort-arrows {
+  display: inline-flex;
+  flex-direction: column;
+  margin-left: 4px;
+}
+
+.sort-arrow {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-muted, #888);
+  font-size: 1em;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.sort-arrow.active,
+.sort-arrow:focus {
+  color: var(--color-accent, #0066cc);
+}
+
+.menu-section.theme-toggle-section {
+  flex: 0;
+  margin-left: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3em;
+  padding: 0.3em 0.7em;
+  border-radius: 2em;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(125, 125, 125, 0.1);
+}
+
+@media (max-width: 768px) {
+  .menu-content {
+    flex-wrap: wrap;
+    gap: var(--space-2, 0.5rem);
+  }
+  .menu-section {
+    gap: var(--space-2, 0.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .menu-section {
+    width: 100%;
+    flex: 1 0 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .menu-section h2 {
+    margin-bottom: 0.3rem;
+  }
+  .menu-section .pill-list {
+    width: 100%;
+  }
+  .menu-section.theme-toggle-section {
+    justify-content: center;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+  .menu-section.theme-toggle-section {
+    justify-content: center;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+}

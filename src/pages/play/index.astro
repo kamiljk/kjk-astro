@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const PAGE_SIZE = 9;
+const { searchParams } = new URL(Astro.request.url);
+const sort = searchParams.get("sort") || "newest";
+
+const allPosts = await getCollection("posts");
+// First filter to only show posts with show: true
+const visiblePosts = allPosts.filter((post) => post.data.show === true);
+// Then filter by type
+const filteredPosts = visiblePosts.filter((post) => post.data.type === "play");
+
+let sortedPosts = filteredPosts;
+if (sort === "oldest") {
+  sortedPosts = filteredPosts.sort(
+    (a, b) =>
+      new Date(a.data.dateCreated || "").getTime() -
+      new Date(b.data.dateCreated || "").getTime()
+  );
+} else if (sort === "alpha") {
+  sortedPosts = filteredPosts.sort((a, b) =>
+    (a.data.title || "").localeCompare(b.data.title || "")
+  );
+} else {
+  // Default: newest first
+  sortedPosts = filteredPosts.sort(
+    (a, b) =>
+      new Date(b.data.dateCreated || "").getTime() -
+      new Date(a.data.dateCreated || "").getTime()
+  );
+}
+
+const paginatedPosts = sortedPosts.slice(0, PAGE_SIZE);
+const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
+const taxonomy = ["all", "read", "play", "about"];
+---
+
+<BaseLayout
+  posts={paginatedPosts}
+  taxonomy={taxonomy}
+  currentPage={1}
+  totalPages={totalPages}
+  type="play"
+  sort={sort}
+/>

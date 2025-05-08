@@ -1,0 +1,207 @@
+---
+
+---
+
+<!-- Ultra-simple search container -->
+<div id="search" class="search-container"></div>
+
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+<script src="/pagefind/pagefind-ui.js" is:inline></script>
+
+<!-- JavaScript to initialize search and enforce styling -->
+<script is:inline>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.__pagefind_ui_initialized) {
+      // Initialize PagefindUI with minimal options
+      new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showEmptyResults: true,
+        resetStyles: true, // Try resetting styles first
+        placeholderText: "Search",
+      });
+
+      window.__pagefind_ui_initialized = true;
+
+      // Add direct style manipulations after a slight delay to ensure elements exist
+      setTimeout(() => {
+        // Get all the search UI elements
+        const searchContainer = document.querySelector("#search");
+        const searchUI = document.querySelector(".pagefind-ui");
+        const searchForm = document.querySelector(".pagefind-ui__form");
+        const searchInput = document.querySelector(
+          ".pagefind-ui__search-input"
+        );
+        const searchIcon = document.querySelector(".pagefind-ui__search-icon");
+
+        // Apply direct styles to elements via JavaScript
+        if (searchContainer && searchUI && searchForm && searchInput) {
+          // Container styles
+          Object.assign(searchContainer.style, {
+            width: "100%",
+            maxWidth: "100%",
+            flex: "1",
+            minWidth: "0",
+            position: "relative",
+          });
+
+          // Search UI styles
+          Object.assign(searchUI.style, {
+            width: "100%",
+            maxWidth: "100%",
+            boxShadow: "none",
+            background: "transparent",
+            border: "none",
+            margin: "0",
+            padding: "0",
+          });
+
+          // Form styles - only bottom border
+          Object.assign(searchForm.style, {
+            width: "100%",
+            maxWidth: "100%",
+            display: "flex",
+            alignItems: "center",
+            margin: "0",
+            padding: "0",
+            background: "transparent",
+            border: "none",
+            borderBottom: "1px solid var(--color-border, #ddd)",
+            borderRadius: "0",
+            boxShadow: "none",
+          });
+
+          // Input styles - INCREASED padding to create more space between icon and text
+          Object.assign(searchInput.style, {
+            width: "100%",
+            maxWidth: "100%",
+            flex: "1",
+            margin: "0",
+            padding: "4px 0px 4px 30px", // Increased from 14px to 30px
+            backgroundColor: "transparent",
+            border: "none",
+            borderRadius: "0",
+            boxShadow: "none",
+            outline: "none",
+            height: "auto",
+          });
+
+          // Icon styles - precise positioning
+          if (searchIcon) {
+            Object.assign(searchIcon.style, {
+              left: "5px", // Moved slightly from the left edge
+              top: "50%",
+              transform: "translateY(-50%)",
+              padding: "0",
+              background: "transparent",
+              position: "absolute",
+              border: "none",
+              width: "16px", // Back to standard size
+              height: "16px",
+            });
+          }
+
+          // Handle focus events
+          searchInput.addEventListener("focus", () => {
+            searchForm.style.borderBottom =
+              "1px solid var(--color-accent, #0066cc)";
+          });
+
+          searchInput.addEventListener("blur", () => {
+            searchForm.style.borderBottom =
+              "1px solid var(--color-border, #ddd)";
+          });
+
+          // Track search state
+          let searchOpen = false;
+          const searchWrapper = document.querySelector(".nav__search-stretch");
+
+          // Open search results on focus
+          searchInput.addEventListener("focus", () => {
+            document.body.classList.add("search-active");
+            searchOpen = true;
+          });
+
+          // Close search when clicking outside
+          document.addEventListener("click", (e) => {
+            if (
+              searchOpen &&
+              searchWrapper &&
+              !searchWrapper.contains(e.target)
+            ) {
+              document.body.classList.remove("search-active");
+              searchOpen = false;
+            }
+          });
+
+          // Close search on escape key
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && searchOpen) {
+              document.body.classList.remove("search-active");
+              searchOpen = false;
+              searchInput.blur();
+            }
+          });
+        }
+      }, 100);
+    }
+  });
+</script>
+
+<style>
+  /* Minimal container styles */
+  .search-container {
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
+    min-width: 0;
+    position: relative;
+  }
+
+  /* Ultra specific CSS targeting with max specificity */
+  :global(html body div#search),
+  :global(html body div#search *) {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Only allow border on form */
+  :global(html body div#search .pagefind-ui__form) {
+    border: none !important;
+    border-bottom: 1px solid var(--color-border, #ddd) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Force input to be borderless and adjust padding */
+  :global(html body div#search .pagefind-ui__search-input) {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding-left: 30px !important; /* INCREASED from 14px to 30px */
+    width: 100% !important;
+    background: transparent !important;
+  }
+
+  /* Position icon with more space */
+  :global(html body div#search .pagefind-ui__search-icon) {
+    left: 5px !important; /* Moved slightly from edge */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 16px !important; /* Back to standard size */
+    height: 16px !important;
+  }
+
+  /* Make sure results container is properly styled */
+  :global(html body div#search .pagefind-ui__drawer) {
+    border: 1px solid var(--color-border, #eee) !important;
+    background: white !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    margin-top: 4px !important;
+  }
+</style>

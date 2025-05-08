@@ -1,0 +1,23 @@
+# ==== FILE: mapping.yaml ====
+# description: codepoint mappings, removal rules, and allowed contexts
+mappings:
+  "00A0": "0020" # NBSP → space
+  # … include all mappings from your master map
+remove:
+  - "0000-001F" # control codes
+  # … include all removal ranges
+allow:
+  # whitelisted contexts for fancy characters
+  markdownParagraph:
+    codepoints:
+      - "2013" # en-dash
+      - "2014" # em-dash
+      - "2018" # left single quote
+      - "2019" # right single quote
+      - "2026" # ellipsis
+      - "00A0" # NBSP
+  uiDocs:
+    codepoints:
+      - "2022" # bullet
+      - "2192" # arrow
+      - "00D7" # multiplication sign

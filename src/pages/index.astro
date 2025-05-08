@@ -1,0 +1,87 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { normalizeType } from "../utils/normalizeType.js";
+import PagefindSearch from "../components/PagefindSearch.jsx";
+
+const PAGE_SIZE = 9;
+const { searchParams } = new URL(Astro.request.url);
+const type = searchParams.get("type") || "all";
+const sort = searchParams.get("sort") || "newest";
+const order = searchParams.get("order") || "desc";
+
+const allPosts = await getCollection("posts");
+// Only show posts that explicitly have show: true in the frontmatter
+// By default, posts are assumed to be hidden unless show: true is set
+const visiblePosts = allPosts.filter((post) => post.data.show === true);
+
+const filteredPosts =
+  type === "all"
+    ? visiblePosts
+    : visiblePosts.filter((post) => normalizeType(post.data.type) === type);
+
+function getSortDate(post, field) {
+  if (field === "updated") {
+    return new Date(
+      post.data.dateUpdated || post.data.dateCreated || 0
+    ).getTime();
+  }
+  return new Date(post.data.dateCreated || 0).getTime();
+}
+
+let sortedPosts = filteredPosts;
+if (sort === "created" || sort === "newest") {
+  sortedPosts = [...filteredPosts].sort((a, b) =>
+    order === "asc" || sort === "oldest"
+      ? getSortDate(a, "created") - getSortDate(b, "created")
+      : getSortDate(b, "created") - getSortDate(a, "created")
+  );
+} else if (sort === "updated") {
+  sortedPosts = [...filteredPosts].sort((a, b) =>
+    order === "asc"
+      ? getSortDate(a, "updated") - getSortDate(b, "updated")
+      : getSortDate(b, "updated") - getSortDate(a, "updated")
+  );
+} else if (sort === "alpha") {
+  sortedPosts = [...filteredPosts].sort((a, b) => {
+    const cmp = (a.data.title || "").localeCompare(
+      b.data.title || "",
+      undefined,
+      {
+        sensitivity: "base",
+        ignorePunctuation: true,
+      }
+    );
+    return order === "asc" ? cmp : -cmp;
+  });
+} else {
+  // Default: newest/created desc
+  sortedPosts = [...filteredPosts].sort(
+    (a, b) => getSortDate(b, "created") - getSortDate(a, "created")
+  );
+}
+
+const paginatedPosts = sortedPosts.slice(0, PAGE_SIZE);
+console.log("DEBUG FILTER", {
+  type,
+  filteredTypes: filteredPosts.map((p) => p.data.type),
+  paginatedTypes: paginatedPosts.map((p) => p.data.type),
+  paginatedTitles: paginatedPosts.map((p) => p.data.title),
+});
+console.log(
+  "DEBUG paginatedPosts types:",
+  paginatedPosts.map((p) => p.data.type)
+);
+const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
+const taxonomy = ["all", "read", "play", "about"];
+---
+
+<BaseLayout
+  posts={paginatedPosts}
+  taxonomy={taxonomy}
+  currentPage={1}
+  totalPages={totalPages}
+  type={type}
+>
+  <PagefindSearch client:load />
+</BaseLayout>

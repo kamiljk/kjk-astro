@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Quasicrystal Chirp – gesture edition</title>
+  <style>
+    :root {
+      --bg:#111;
+    }
+    html,body{
+      margin:0;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);color:#eee;font-family:system-ui,sans-serif;}
+    canvas{border:1px solid #333;margin-bottom:1rem}
+    button{padding:.5rem 1rem;font-size:1rem;cursor:pointer}
+  </style>
+</head>
+<body>
+  <button id="startBtn">start sound</button>
+
+<!-- load p5 core -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+<script>
+    let ctx,pw,osc,filter,t0,started=false;
+    const PARTIALS=64,phi=(1+Math.sqrt(5))/2;
+
+    let wheelMod=0; // ‑1…1, from scroll‑wheel gestures
+
+    docStart();
+
+    function docStart(){
+      document.getElementById('startBtn').addEventListener('click',()=>{
+        if(!started){started=true;getAudioContext().resume();new p5(sketch);}document.getElementById('startBtn').style.display='none';});
+      window.addEventListener('wheel',e=>{wheelMod+=e.deltaY/600;wheelMod=Math.max(-1,Math.min(1,wheelMod));});
+    }
+
+    function sketch(p){
+      p.setup=()=>{
+        p.createCanvas(400,150);
+        p.colorMode(p.HSB,360,100,100);
+        ctx=p.getAudioContext();
+        buildWave();
+        osc=new p5.Oscillator();osc.setPeriodicWave(pw);osc.start();
+        filter=new p5.LowPass();osc.disconnect().connect(filter);filter.amp(.2);filter.freq(500);
+        t0=p.millis();
+      };
+
+      p.draw=()=>{
+        const t=(p.millis()-t0)/1000;
+        const f0=110*Math.pow(2,t/10);osc.freq(f0);
+        // cursor‑controlled filter & color
+        const cutoff=p.map(p.mouseX,0,p.width,200,6000);filter.freq(cutoff);
+        const hue=p.map(p.mouseX,0,p.width,0,360);
+        const vol=p.map(p.height-p.mouseY,0,p.height,0,.3);filter.amp(vol);
+        // scroll‑mod detune depth (±20→±100 cents)
+        const detDepth=20+80*Math.abs(wheelMod);osc.detune(Math.sin(t*.3)*detDepth);
+        // logistic freq wobble influenced by wheelMod
+        let c=filter.freq();c=(3.8+wheelMod)*c*(1-c/6000);filter.freq(p.constrain(c,200,6000));
+        // visuals
+        p.background(hue,80,15);
+        p.noStroke();p.fill((hue+180)%360,60,90);p.textAlign(p.CENTER,p.CENTER);
+        p.text('scroll + move mouse → sculpt timbre & color',p.width/2,p.height/2);
+      };
+    }
+
+    function buildWave(){
+      const real=new Float32Array(PARTIALS+1),imag=new Float32Array(PARTIALS+1);
+      for(let n=1;n<=PARTIALS;n++){const amp=1/Math.sqrt(n);real[n]=amp;imag[n]=0;}
+      pw=ctx.createPeriodicWave(real,imag,{disableNormalization:true});
+    }
+</script>
+  <!-- load p5.sound *after* p5 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+</body>
+</html>

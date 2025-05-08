@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minecraft Faces</title>
+    <link rel="preload" href="/fonts/PressStart2P-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    <style>
+        :root {
+            /* Design tokens */
+            /* Colors */
+            --color-bg: #f0f0f0;
+            --color-text: #333;
+            --color-text-muted: #888;
+            --color-text-light: #555;
+            --color-text-inverted: #fff;
+            
+            /* UI Colors */
+            --color-ui-primary: #2196F3;
+            --color-ui-primary-hover: #1976D2;
+            --color-ui-success: #4CAF50;
+            --color-ui-success-hover: #388E3C;
+            --color-ui-warning: #FF9800;
+            --color-ui-warning-hover: #F57C00;
+            --color-ui-dark: #222;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-s: 8px;
+            --space-m: 16px;
+            --space-l: 20px;
+            --space-xl: 24px;
+            
+            /* Layout */
+            --top-margin: 10vh;
+            --border-radius-s: 4px;
+            --border-radius-m: 8px;
+            --border-width: 4px;
+            
+            /* Shadows */
+            --shadow-dropdown: 0 6px 24px rgba(0,0,0,0.12);
+            
+            /* Transitions */
+            --transition-speed: 0.2s;
+            
+            /* Grid */
+            --grid-size: 16;
+        }
+
+        @font-face {
+            font-family: 'PressStart2P';
+            src: url('/fonts/PressStart2P-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        * {
+            font-family: 'PressStart2P', monospace !important;
+        }
+        body {
+            background-color: var(--color-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'PressStart2P', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: var(--top-margin);
+        }
+
+        #face-container {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-template-rows: repeat(var(--grid-size), 1fr);
+            border: var(--border-width) solid var(--color-ui-dark);
+            background-color: #C68E3E;
+            position: relative;
+            min-width: 300px;
+            min-height: 300px;
+            font-family: 'PressStart2P', monospace;
+            box-sizing: border-box;
+        }
+
+        #skull-overlay {
+            pointer-events: none;
+            position: absolute;
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            opacity: 0.18;
+            mix-blend-mode: multiply;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 0; right: 0;
+            text-align: center;
+            color: var(--color-text-light);
+            font-size: 14px;
+            font-family: 'PressStart2P', monospace;
+            opacity: 1;
+            transition: opacity 1.2s;
+            pointer-events: none;
+        }
+        .instructions.fade {
+            opacity: 0;
+        }
+
+        /* Button styles */
+        button {
+            font-family: 'PressStart2P', sans-serif;
+            font-size: 14px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2196F3;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1976D2;
+        }
+
+        button:active {
+            background-color: #0D47A1;
+        }
+    </style>
+</head>
+<body>
+    <div id="face-name" style="font-family: 'PressStart2P'; font-size: 16px; margin-bottom: 10px; text-align: center;">Random Name</div>
+    <div style="position:relative;display:inline-block;">
+        <div id="face-container"></div>
+        <div id="skull-overlay"></div>
+    </div>
+    <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
+        <button id="reroll-button">Reroll</button>
+        <button id="export-png-button">Export PNG</button>
+        <button id="export-svg-button">Export SVG</button>
+    </div>
+    <div class="instructions" id="instructions">
+        Press SPACE to generate a new random face
+    </div>
+    <script>
+        const faceContainer = document.getElementById('face-container');
+        const GRID_SIZE = 16;
+        let eyeInfo = [];
+        
+        const skinColors = ['#C68E3E', '#FFCC99', '#8D6E63', '#A0522D', '#6B4226', '#5B8731', '#F1A7B0', '#D5D5D5', '#7E68DF'];
+        const hairColors = ['#4C3D30', '#251F1B', '#6B327C', '#23238E', '#7E0E0E', '#165E16', '#D8AF7C', '#3A5C20'];
+        const scleraColors = ['#FFFFFF', '#EEEEFF', '#FFEEEE', '#00AA00', '#AA0000', '#0000AA', '#000000', '#FFCC99'];
+        const pupilColors = ['#000000', '#0000AA', '#AA0000', '#00AA00', '#FFFFFF', '#FFCC00', '#FF00FF'];
+        const mouthColors = ['#5C4033', '#7E0E0E', '#000000', '#FF6B6B'];
+        
+        const eyeConfigs = [
+            { type: 'normal', positions: [{x: 5, y: 6}, {x: 10, y: 6}], pupilColor: null },
+            { type: 'wide', positions: [{x: 4, y: 6}, {x: 11, y: 6}], pupilColor: null },
+            { type: 'small', positions: [{x: 6, y: 6}, {x: 9, y: 6}], pupilColor: null },
+            { type: 'spider', positions: [{x: 4, y: 5}, {x: 6, y: 5}, {x: 4, y: 7}, {x: 6, y: 7}, 
+                                        {x: 9, y: 5}, {x: 11, y: 5}, {x: 9, y: 7}, {x: 11, y: 7}], pupilColor: null },
+            { type: 'alien', positions: [{x: 8, y: 5}, {x: 6, y: 7}, {x: 10, y: 7}], pupilColor: null },
+            { type: 'cyclops', positions: [{x: 8, y: 6}], pupilColor: null },
+            { type: '1x2', positions: [{x: 7, y: 6}, {x: 8, y: 6}], pupilColor: null },
+            { type: '2x1', positions: [{x: 7, y: 6}, {x: 7, y: 7}], pupilColor: null },
+            { type: '2x3', positions: [{x: 6, y: 6}, {x: 6, y: 7}, {x: 6, y: 8}, {x: 7, y: 6}, {x: 7, y: 7}, {x: 7, y: 8}], pupilColor: null },
+            { type: '3x2', positions: [{x: 6, y: 6}, {x: 6, y: 7}, {x: 7, y: 6}, {x: 7, y: 7}, {x: 8, y: 6}, {x: 8, y: 7}], pupilColor: null },
+            { type: '4x4', positions: [{x: 5, y: 5}, {x: 5, y: 6}, {x: 5, y: 7}, {x: 5, y: 8}, {x: 6, y: 5}, {x: 6, y: 6}, {x: 6, y: 7}, {x: 6, y: 8}, {x: 7, y: 5}, {x: 7, y: 6}, {x: 7, y: 7}, {x: 7, y: 8}, {x: 8, y: 5}, {x: 8, y: 6}, {x: 8, y: 7}, {x: 8, y: 8}], pupilColor: null },
+            { type: '6x6', positions: [{x: 4, y: 4}, {x: 4, y: 5}, {x: 4, y: 6}, {x: 4, y: 7}, {x: 4, y: 8}, {x: 4, y: 9}, {x: 5, y: 4}, {x: 5, y: 5}, {x: 5, y: 6}, {x: 5, y: 7}, {x: 5, y: 8}, {x: 5, y: 9}, {x: 6, y: 4}, {x: 6, y: 5}, {x: 6, y: 6}, {x: 6, y: 7}, {x: 6, y: 8}, {x: 6, y: 9}, {x: 7, y: 4}, {x: 7, y: 5}, {x: 7, y: 6}, {x: 7, y: 7}, {x: 7, y: 8}, {x: 7, y: 9}, {x: 8, y: 4}, {x: 8, y: 5}, {x: 8, y: 6}, {x: 8, y: 7}, {x: 8, y: 8}, {x: 8, y: 9}, {x: 9, y: 4}, {x: 9, y: 5}, {x: 9, y: 6}, {x: 9, y: 7}, {x: 9, y: 8}, {x: 9, y: 9}], pupilColor: null }
+        ];
+
+        const mouthConfigs = [
+            { type: 'simple', startX: 6, startY: 11, width: 4, height: 1 },
+            { type: 'wide', startX: 5, startY: 11, width: 6, height: 1 },
+            { type: 'smile', startX: 5, startY: 11, width: 6, height: 2, pattern: [[1,1,1,1,1,1],[0,1,1,1,1,0]] },
+            { type: 'frown', startX: 5, startY: 10, width: 6, height: 2, pattern: [[0,1,1,1,1,0],[1,1,1,1,1,1]] },
+            { type: 'teeth', startX: 5, startY: 11, width: 6, height: 2, teeth: true },
+            { type: 'open', startX: 6, startY: 11, width: 4, height: 3, pattern: [[1,1,1,1],[1,0,0,1],[1,1,1,1]] }
+        ];
+
+        function generatePalette() {
+            const baseHue = Math.floor(Math.random() * 360);
+            const isQuad = Math.random() < 0.5;
+            const chaos = Math.random() < 0.08;
+
+            if (chaos) {
+                return [
+                    `hsl(${Math.floor(Math.random()*360)},90%,60%)`,
+                    `hsl(${Math.floor(Math.random()*360)},90%,60%)`,
+                    `hsl(${Math.floor(Math.random()*360)},90%,60%)`,
+                    `hsl(${Math.floor(Math.random()*360)},90%,60%)`
+                ];
+            }
+            if (isQuad) {
+                return [
+                    `hsl(${baseHue},80%,60%)`,
+                    `hsl(${(baseHue+90)%360},80%,60%)`,
+                    `hsl(${(baseHue+180)%360},80%,60%)`,
+                    `hsl(${(baseHue+270)%360},80%,60%)`
+                ];
+            } else {
+                return [
+                    `hsl(${baseHue},80%,60%)`,
+                    `hsl(${(baseHue+120)%360},80%,60%)`,
+                    `hsl(${(baseHue+240)%360},80%,60%)`,
+                    `hsl(${(baseHue+60)%360},80%,40%)`
+                ];
+            }
+        }
+
+        function setupContainer() {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const size = Math.min(viewportWidth, viewportHeight) * 0.6;
+            faceContainer.style.width = `${size}px`;
+            faceContainer.style.height = `${size}px`;
+            updateSkullOverlay();
+        }
+
+        function generateFace() {
+            faceContainer.innerHTML = '';
+            eyeInfo = [];
+            setupContainer();
+
+            let palette = generatePalette();
+            
+            // Use random values for all face elements
+            const skinColor = palette[0];
+            const hairColor = palette[1];
+            const scleraColor = palette[2];
+            const pupilColor = palette[3];
+            
+            // Choose random eye configuration
+            const eyeConfigIndex = Math.floor(Math.random() * eyeConfigs.length);
+            const eyeConfig = eyeConfigs[eyeConfigIndex];
+            
+            // Choose random mouth configuration
+            const mouthConfigIndex = Math.floor(Math.random() * mouthConfigs.length);
+            const mouthConfig = mouthConfigs[mouthConfigIndex];
+            const mouthColor = mouthColors[Math.floor(Math.random() * mouthColors.length)];
+            
+            faceContainer.style.backgroundColor = skinColor;
+
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const pixel = document.createElement('div');
+                    pixel.className = 'pixel';
+                    pixel.dataset.x = x;
+                    pixel.dataset.y = y;
+                    faceContainer.appendChild(pixel);
+                }
+            }
+            
+            const pixels = Array.from(document.querySelectorAll('.pixel'));
+            
+            drawHair(hairColor);
+            drawEyes(eyeConfig, scleraColor, pupilColor);
+            drawMouth(mouthConfig, mouthColor);
+            drawFaceTattoos();
+            document.addEventListener('mousemove', updatePupils);
+        }
+        
+        function getPixelAt(x, y) {
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) {
+                return null;
+            }
+            return document.querySelector(`.pixel[data-x="${x}"][data-y="${y}"]`);
+        }
+        
+        function drawEyes(config, scleraColor, pupilColor) {
+            let positions;
+            if (Array.isArray(config.positions)) {
+                positions = config.positions;
+            } else if (typeof config.type === 'string') {
+                positions = eyeConfigs.find(c => c.type === config.type)?.positions ||
+                            [{x: 5, y: 6}, {x: 10, y: 6}];
+            } else {
+                positions = [{x: 5, y: 6}, {x: 10, y: 6}];
+            }
+
+            eyeInfo = [];
+
+            positions.forEach(pos => {
+                const size = pos.size || 2;
+
+                for (let dy = 0; dy < size; dy++) {
+                    for (let dx = 0; dx < size; dx++) {
+                        const pixel = getPixelAt(pos.x + dx, pos.y + dy);
+                        if (pixel) {
+                            pixel.style.backgroundColor = scleraColor;
+                        }
+                    }
+                }
+
+                const pupilX = pos.x + Math.floor(size / 2);
+                const pupilY = pos.y + Math.floor(size / 2);
+                const pupilPixel = getPixelAt(pupilX, pupilY);
+                if (pupilPixel) {
+                    pupilPixel.style.backgroundColor = pupilColor;
+                }
+
+                eyeInfo.push({
+                    position: { x: pos.x, y: pos.y },
+                    size: { width: size, height: size },
+                    scleraColor: scleraColor,
+                    pupilColor: pupilColor,
+                    currentPupilPos: { x: pupilX, y: pupilY }
+                });
+            });
+        }
+        
+        function drawMouth(config, mouthColor) {
+            const { startX, startY, width, height, pattern, teeth } = config;
+            
+            if (!pattern) {
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const pixel = getPixelAt(startX + x, startY + y);
+                        if (pixel) pixel.style.backgroundColor = mouthColor;
+                    }
+                }
+            } else {
+                for (let y = 0; y < pattern.length; y++) {
+                    for (let x = 0; x < pattern[y].length; x++) {
+                        if (pattern[y][x] === 1) {
+                            const pixel = getPixelAt(startX + x, startY + y);
+                            if (pixel) pixel.style.backgroundColor = mouthColor;
+                        }
+                    }
+                }
+            }
+            
+            if (teeth) {
+                for (let x = 1; x < width; x += 2) {
+                    const pixel = getPixelAt(startX + x, startY);
+                    if (pixel) pixel.style.backgroundColor = '#FFFFFF';
+                }
+            }
+        }
+        
+        function drawHair(hairColor) {
+            // Add hair at the top
+            for (let x = 0; x < GRID_SIZE; x++) {
+                getPixelAt(x, 0).style.backgroundColor = hairColor;
+                getPixelAt(x, 1).style.backgroundColor = hairColor;
+            }
+
+            // Add random sideburns
+            if (Math.random() < 0.5) {
+                for (let y = 2; y < GRID_SIZE / 2; y++) {
+                    getPixelAt(0, y).style.backgroundColor = hairColor;
+                    getPixelAt(GRID_SIZE - 1, y).style.backgroundColor = hairColor;
+                }
+            }
+
+            // Add spiky hair
+            if (Math.random() < 0.3) {
+                for (let x = 2; x < GRID_SIZE - 2; x += 2) {
+                    getPixelAt(x, 0).style.backgroundColor = hairColor;
+                }
+            }
+
+            // Add curly hair
+            if (Math.random() < 0.3) {
+                for (let x = 1; x < GRID_SIZE - 1; x += 3) {
+                    getPixelAt(x, 1).style.backgroundColor = hairColor;
+                    getPixelAt(x + 1, 2).style.backgroundColor = hairColor;
+                }
+            }
+        }
+
+        function drawFaceTattoos() {
+            const tattooChance = Math.random();
+            if (tattooChance < 0.4) {
+                const tattooColor = '#B00000';
+                const tx = 3 + Math.floor(Math.random() * 10);
+                const ty = 2 + Math.floor(Math.random() * 8);
+
+                // Line or cross
+                if (Math.random() < 0.5) {
+                    for (let j = 0; j < 3; j++) {
+                        getPixelAt(tx + j, ty).style.backgroundColor = tattooColor;
+                    }
+                } else {
+                    getPixelAt(tx, ty).style.backgroundColor = tattooColor;
+                    getPixelAt(tx + 1, ty).style.backgroundColor = tattooColor;
+                    getPixelAt(tx - 1, ty).style.backgroundColor = tattooColor;
+                    getPixelAt(tx, ty + 1).style.backgroundColor = tattooColor;
+                    getPixelAt(tx, ty - 1).style.backgroundColor = tattooColor;
+                }
+            }
+        }
+
+        function updatePupils(event) {
+            const containerRect = faceContainer.getBoundingClientRect();
+            const mouseX = event.clientX - containerRect.left;
+            const mouseY = event.clientY - containerRect.top;
+
+            const cellWidth = containerRect.width / GRID_SIZE;
+            const cellHeight = containerRect.height / GRID_SIZE;
+            const gridMouseX = Math.floor(mouseX / cellWidth);
+            const gridMouseY = Math.floor(mouseY / cellHeight);
+
+            eyeInfo.forEach(eye => {
+                if (!eye.position) return;
+                
+                // Reset old pupil
+                const prev = getPixelAt(eye.currentPupilPos.x, eye.currentPupilPos.y);
+                if (prev) prev.style.backgroundColor = eye.scleraColor;
+
+                // Clamp target inside eye bounds
+                let tx = Math.max(eye.position.x,
+                                  Math.min(eye.position.x + eye.size.width - 1, gridMouseX));
+                let ty = Math.max(eye.position.y,
+                                  Math.min(eye.position.y + eye.size.height - 1, gridMouseY));
+
+                // For 1×1 eye keep center
+                if (eye.size.width === 1 && eye.size.height === 1) {
+                    tx = eye.position.x;
+                    ty = eye.position.y;
+                }
+
+                // Draw new pupil
+                const np = getPixelAt(tx, ty);
+                if (np) np.style.backgroundColor = eye.pupilColor;
+                eye.currentPupilPos = { x: tx, y: ty };
+            });
+        }
+        
+        function updateSkullOverlay() {
+            const overlayElement = document.getElementById('skull-overlay');
+            if (!overlayElement) return;
+            
+            // Random chance to show skull overlay
+            if (Math.random() < 0.1) {
+                overlayElement.style.backgroundImage = `url('/games/flow-face-2/skull.png')`;
+            } else {
+                overlayElement.style.backgroundImage = 'none';
+            }
+        }
+
+        function generateRandomName() {
+            const syllables = ["gl", "fr", "bl", "sn", "tr", "cl", "br", "pl", "dr", "kr", "gr", "pr", "sl", "tw", "fl", "ch", "sh", "th", "wh", "qu", "x", "z"];
+            const vowels = ["a", "e", "i", "o", "u", "y"];
+            const endings = ["rk", "le", "bb", "rd", "ne", "we", "b", "n", "m", "x", "r", "s", "t", "d", "k", "l", "g", "p", "j", "h", "z"];
+
+            const randomSyllable = () => syllables[Math.floor(Math.random() * syllables.length)];
+            const randomVowel = () => vowels[Math.floor(Math.random() * vowels.length)];
+            const randomEnding = () => endings[Math.floor(Math.random() * endings.length)];
+
+            const nameLength = Math.random() < 0.2 ? 1 : Math.floor(Math.random() * 3) + 2; // 1 to 4 parts
+            let name = "";
+
+            for (let i = 0; i < nameLength; i++) {
+                name += randomSyllable() + randomVowel();
+            }
+            name += randomEnding();
+
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        function updateFaceName() {
+            const faceNameElement = document.getElementById('face-name');
+            const randomName = generateRandomName();
+            faceNameElement.textContent = randomName;
+            return randomName;
+        }
+
+        function exportToSvgWithName(name) {
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute("width", "800");
+            svg.setAttribute("height", "800");
+            svg.setAttribute("viewBox", `0 0 ${GRID_SIZE} ${GRID_SIZE}`);
+
+            const pixels = faceContainer.querySelectorAll('.pixel');
+            pixels.forEach(pixel => {
+                const x = parseInt(pixel.dataset.x);
+                const y = parseInt(pixel.dataset.y);
+                const color = pixel.style.backgroundColor;
+
+                const rect = document.createElementNS(svgNS, "rect");
+                rect.setAttribute("x", x);
+                rect.setAttribute("y", y);
+                rect.setAttribute("width", "1");
+                rect.setAttribute("height", "1");
+                rect.setAttribute("fill", color || faceContainer.style.backgroundColor);
+                svg.appendChild(rect);
+            });
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svg);
+            const svgData = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+
+            const link = document.createElement('a');
+            link.href = svgData;
+            link.download = `${name}-${new Date().toISOString().split('T')[0]}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToPngWithName(name) {
+            const canvas = document.createElement('canvas');
+            const size = 800;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            const cellSize = size / GRID_SIZE;
+
+            // Fill background
+            ctx.fillStyle = faceContainer.style.backgroundColor;
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw pixels
+            const pixels = faceContainer.querySelectorAll('.pixel');
+            pixels.forEach(pixel => {
+                const x = parseInt(pixel.dataset.x);
+                const y = parseInt(pixel.dataset.y);
+                if (pixel.style.backgroundColor) {
+                    ctx.fillStyle = pixel.style.backgroundColor;
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            });
+
+            // Export
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `${name}-${new Date().toISOString().split('T')[0]}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.getElementById('reroll-button').addEventListener('click', () => {
+            const name = updateFaceName();
+            generateFace();
+        });
+
+        document.getElementById('export-png-button').addEventListener('click', () => {
+            const name = document.getElementById('face-name').textContent;
+            exportToPngWithName(name);
+        });
+
+        document.getElementById('export-svg-button').addEventListener('click', () => {
+            const name = document.getElementById('face-name').textContent;
+            exportToSvgWithName(name);
+        });
+
+        // Initialize
+        const initialName = updateFaceName();
+        generateFace();
+
+        // Fade instructions after a delay
+        setTimeout(() => {
+            document.getElementById('instructions').classList.add('fade');
+        }, 5000);
+
+        window.addEventListener('resize', setupContainer);
+        setupContainer();
+    </script>
+</body>
+</html>
+``` 

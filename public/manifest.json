@@ -1,0 +1,16 @@
+{
+  "name": "Kamil JK Ow it hurts what the heck",
+  "short_name": "Kamil JK",
+  "description": "My website, on the internet",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F0E1",
+  "theme_color": "#F5F0E1",
+  "icons": [
+    {
+      "src": "/k_blk_svg.svg",
+      "type": "image/svg",
+      "sizes": "192x192"
+    }
+  ]
+}
