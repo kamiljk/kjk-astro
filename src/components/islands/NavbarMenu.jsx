@@ -8,6 +8,11 @@ const SORT_OPTIONS = [
   { key: "alpha", label: "A-Z" },
 ];
 
+const ORDER_OPTIONS = [
+  { key: "asc", label: "↑" },
+  { key: "desc", label: "↓" },
+];
+
 export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"], type = "all", sort = "updated", order = "desc", children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeType, setActiveType] = useState(type);
@@ -80,6 +85,14 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
     }
   }, [menuOpen, isClient]);
 
+  const handleSort = (key) => {
+    setActiveSort(key);
+    // Default to desc for date sorts, asc for alpha
+    setActiveOrder(key === "alpha" ? "asc" : "desc");
+  };
+
+  const handleOrder = (order) => setActiveOrder(order);
+
   const dropdown = (
     <div
       id="filter-sort-menu"
@@ -108,16 +121,32 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
             </button>
           ))}
         </div>
-        <div className="menu-section sort-section">
+        <div className="menu-section sort-section" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {SORT_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              className={`pill${activeSort === opt.key ? " active" : ""}`}
-              onClick={() => setActiveSort(opt.key)}
-              aria-current={activeSort === opt.key ? "page" : undefined}
-            >
-              {opt.label}
-            </button>
+            <div key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+              <button
+                className={`pill${activeSort === opt.key ? " active" : ""}`}
+                onClick={() => handleSort(opt.key)}
+                aria-current={activeSort === opt.key ? "page" : undefined}
+              >
+                {opt.label}
+              </button>
+              {activeSort === opt.key && (
+                <div style={{ display: 'flex', gap: '0.1rem' }}>
+                  {ORDER_OPTIONS.map((orderOpt) => (
+                    <button
+                      key={orderOpt.key}
+                      className={`pill${activeOrder === orderOpt.key ? " active" : ""}`}
+                      onClick={() => handleOrder(orderOpt.key)}
+                      aria-current={activeOrder === orderOpt.key ? "true" : undefined}
+                      style={{ fontSize: '1.1em', padding: '0 0.5em' }}
+                    >
+                      {orderOpt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
         <div className="menu-section theme-toggle-section">

@@ -93,7 +93,7 @@
 	--radius-btn: 4px;
 
 	/* Navbar height */
-	--navbar-height: 80px;
+	--navbar-height: 80px; /* fallback for navbar height */
 
 	/* Fluid typography tokens (Utopia example) */
 	--font-size-body: clamp(1rem, 0.9rem + 0.5vw, 1.15rem);
@@ -197,7 +197,6 @@
 }
 
 #posts-feed {
-	margin-top: var(--navbar-height);
 	max-width: var(--feed-max-width);
 	margin-left: auto;
 	margin-right: auto;
@@ -207,6 +206,7 @@
 	flex-direction: column;
 	align-items: center; /* Center content horizontally */
 	justify-content: center; /* Center content vertically */
+	padding-top: 1rem;
 }
 
 body::before {
@@ -253,14 +253,14 @@ body::before {
 }
 
 .main-alignment-wrapper {
-	margin-top: var(--navbar-height) !important;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	width: 100%; /* Ensure it spans the viewport width */
-	position: relative; /* Ensure proper positioning */
-	height: 100vh; /* Ensure it spans the viewport height */
+	margin-top: var(--navbar-height);
+	display: block;
+	max-width: var(--feed-max-width);
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	box-sizing: border-box;
+	background: none;
 }
 
 .site-container {
@@ -270,8 +270,8 @@ body::before {
 	margin-top: 0;
 	margin-bottom: 0;
 	box-sizing: border-box;
-	position: relative; /* Revert to relative positioning */
-	padding-top: var(--navbar-height);
+	position: relative;
+	/* padding-top removed to prevent double offset */
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -315,10 +315,8 @@ body::before {
 }
 
 main {
-	/* Remove width: 100%; to allow parent (.site-container) to control width */
 	padding: 0;
 	min-height: calc(100vh - var(--navbar-height));
-	margin-top: var(--gap-navbar-feed);
 	box-sizing: border-box;
 }
 
@@ -328,7 +326,6 @@ main {
 	border-radius: 2px;
 	border: none;
 	box-shadow: none;
-	margin-top: var(--gap-navbar-feed);
 	padding-left: 1rem;
 	padding-right: 1rem;
 	/* background: yellow !important; */
@@ -413,15 +410,21 @@ main,
 .card,
 .post-card,
 .nav__search-stretch {
-	width: unset !important;
-	margin-left: unset !important;
-	margin-right: unset !important;
-	margin: unset !important;
-	padding-left: unset !important;
-	padding-right: unset !important;
-	padding: unset !important;
-	max-width: unset !important;
-	min-width: unset !important;
+	/* width: unset !important; */
+	/* margin: unset !important; */
+	/* Do not unset margin-top here! Let .main-alignment-wrapper control it. */
+}
+
+/* Remove conflicting resets for main-alignment-wrapper and main */
+main {
+	/* Remove margin-top here, let .main-alignment-wrapper handle spacing */
+	/* margin-top: var(--gap-navbar-feed); */
+}
+
+#posts-feed {
+	/* Remove margin-top here, let .main-alignment-wrapper handle spacing */
+	/* margin-top: var(--navbar-height); */
+	/* margin-top: var(--gap-navbar-feed); */
 }
 
 /* Remove horizontal padding and margin from all direct children of .site-container */
