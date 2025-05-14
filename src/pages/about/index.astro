@@ -1,31 +1,57 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { normalizeType } from "../../utils/normalizeType.js";
 
 const PAGE_SIZE = 9;
 const { searchParams } = new URL(Astro.request.url);
 const sort = searchParams.get("sort") || "newest";
+const order = searchParams.get("order") || "desc";
 
 const allPosts = await getCollection("posts");
-const filteredPosts = allPosts.filter((post) => post.data.type === "about");
+const visiblePosts = allPosts.filter((post) => post.data.show === true);
+const filteredPosts = visiblePosts.filter((post) => normalizeType(post.data.type) === "about");
+
+function getSortDate(post, field) {
+  if (field === "updated") {
+    return new Date(post.data.dateUpdated || post.data.dateCreated || 0).getTime();
+  }
+  return new Date(post.data.dateCreated || 0).getTime();
+}
 
 let sortedPosts = filteredPosts;
-if (sort === "oldest") {
-  sortedPosts = filteredPosts.sort(
-    (a, b) =>
-      new Date(a.data.dateCreated || "").getTime() -
-      new Date(b.data.dateCreated || "").getTime()
+if (sort === "created" || sort === "newest") {
+  sortedPosts = [...filteredPosts].sort((a, b) =>
+    order === "asc"
+      ? getSortDate(a, "created") - getSortDate(b, "created")
+      : getSortDate(b, "created") - getSortDate(a, "created")
+  );
+} else if (sort === "oldest") {
+  sortedPosts = [...filteredPosts].sort((a, b) =>
+    getSortDate(a, "created") - getSortDate(b, "created")
+  );
+} else if (sort === "updated") {
+  sortedPosts = [...filteredPosts].sort((a, b) =>
+    order === "asc"
+      ? getSortDate(a, "updated") - getSortDate(b, "updated")
+      : getSortDate(b, "updated") - getSortDate(a, "updated")
   );
 } else if (sort === "alpha") {
-  sortedPosts = filteredPosts.sort((a, b) =>
-    (a.data.title || "").localeCompare(b.data.title || "")
-  );
+  sortedPosts = [...filteredPosts].sort((a, b) => {
+    const cmp = (a.data.title || "").localeCompare(
+      b.data.title || "",
+      undefined,
+      {
+        sensitivity: "base",
+        ignorePunctuation: true,
+      }
+    );
+    return order === "asc" ? cmp : -cmp;
+  });
 } else {
-  // Default: newest first
-  sortedPosts = filteredPosts.sort(
-    (a, b) =>
-      new Date(b.data.dateCreated || "").getTime() -
-      new Date(a.data.dateCreated || "").getTime()
+  // Default: newest/created desc
+  sortedPosts = [...filteredPosts].sort(
+    (a, b) => getSortDate(b, "created") - getSortDate(a, "created")
   );
 }
 
@@ -41,4 +67,5 @@ const taxonomy = ["all", "read", "play", "about"];
   totalPages={totalPages}
   type="about"
   sort={sort}
+  order={order}
 />

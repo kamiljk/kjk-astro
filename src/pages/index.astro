@@ -2,13 +2,15 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { normalizeType } from "../utils/normalizeType.js";
-import PagefindSearch from "../components/PagefindSearch.jsx";
+// import PagefindSearch from "../components/features/PagefindSearch.jsx";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 3;
 const { searchParams } = new URL(Astro.request.url);
 const type = searchParams.get("type") || "all";
 const sort = searchParams.get("sort") || "newest";
 const order = searchParams.get("order") || "desc";
+
+const selectedType = searchParams.get("type") || "all";
 
 const allPosts = await getCollection("posts");
 // Only show posts that explicitly have show: true in the frontmatter
@@ -32,7 +34,7 @@ function getSortDate(post, field) {
 let sortedPosts = filteredPosts;
 if (sort === "created" || sort === "newest") {
   sortedPosts = [...filteredPosts].sort((a, b) =>
-    order === "asc" || sort === "oldest"
+    order === "asc"
       ? getSortDate(a, "created") - getSortDate(b, "created")
       : getSortDate(b, "created") - getSortDate(a, "created")
   );
@@ -81,7 +83,12 @@ const taxonomy = ["all", "read", "play", "about"];
   taxonomy={taxonomy}
   currentPage={1}
   totalPages={totalPages}
-  type={type}
+  type={selectedType}
 >
-  <PagefindSearch client:load />
 </BaseLayout>
+
+<script>
+  window.addEventListener("popstate", () => {
+    location.reload(); // Reload the page to reprocess updated URL parameters
+  });
+</script>

@@ -33,6 +33,8 @@ export const GET: APIRoute = async ({ url }) => {
   const paginated = sortedPosts.slice(start, end);
   const hasMore = end < sortedPosts.length;
 
+  console.log('[feed.json.ts] API called', { type, sort, page, returned: paginated.length, total: sortedPosts.length });
+
   return new Response(JSON.stringify({
     posts: paginated,
     hasMore

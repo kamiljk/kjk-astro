@@ -1,222 +1,311 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Toroid Wireframe Tunnel</title>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
-  </head>
-  <body style="margin:0; padding:0; overflow:hidden; touch-action:manipulation; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color: transparent; background:#000;">
-    <script>
-      let numRings = 80;
-      let ringSpacing = 0.18; // angle step along torus
-      let offset = 0;
-      let speed = 0.025; // angular speed
-      let majorRadius = 420; // torus major radius
-let minorRadius = 70; // tunnel radius, smaller for visibility
-      let camMinorPhase = 0;
-      let camMinorSpeed = 0.013;
-      let colorOffset = 0;
-      let glowLayers = 4;
-      let glowAlpha = 30;
-      let noiseStrength = 0.18;
+	<head>
+		<meta charset="UTF-8" />
+		<title>Toroid Wireframe Tunnel</title>
+		<script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+		<style>
+			body,
+			html {
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+		</style>
+	</head>
+	<body
+		style="
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			touch-action: manipulation;
+			-webkit-user-select: none;
+			user-select: none;
+			-webkit-tap-highlight-color: transparent;
+			background: #000;
+		"
+	>
+		<script>
+			let numRings = 80;
+			let ringSpacing = 0.18; // angle step along torus
+			let offset = 0;
+			let speed = 0.025; // angular speed
+			let majorRadius = 420; // torus major radius
+			let minorRadius = 70; // tunnel radius, smaller for visibility
+			let camMinorPhase = 0;
+			let camMinorSpeed = 0.013;
+			let colorOffset = 0;
+			let glowLayers = 4;
+			let glowAlpha = 30;
+			let noiseStrength = 0.18;
 
-      // Controls
-      let control = {
-        forward: false, backward: false, left: false, right: false,
-        up: false, down: false, rollLeft: false, rollRight: false,
-        speedUp: false, slowDown: false
-      };
-      let roll = 0;
-      let rollSpeed = 0;
-      let rollStep = 0.04;
-      let camMinorStep = 0.09;
-      let speedStep = 0.007;
-      let minSpeed = 0.005, maxSpeed = 0.12;
+			// Controls
+			let control = {
+				forward: false,
+				backward: false,
+				left: false,
+				right: false,
+				up: false,
+				down: false,
+				rollLeft: false,
+				rollRight: false,
+				speedUp: false,
+				slowDown: false,
+			};
+			let roll = 0;
+			let rollSpeed = 0;
+			let rollStep = 0.04;
+			let camMinorStep = 0.09;
+			let speedStep = 0.007;
+			let minSpeed = 0.005,
+				maxSpeed = 0.12;
 
+			function setup() {
+				let cnv = createCanvas(windowWidth, windowHeight, WEBGL);
+				cnv.style("display", "block");
+				cnv.style("position", "fixed");
+				cnv.style("top", "0");
+				cnv.style("left", "0");
+				cnv.style("width", "100vw");
+				cnv.style("height", "100vh");
+				cnv.elt.setAttribute("tabindex", "-1");
+				// Prevent scrolling on iOS
+				document.body.addEventListener(
+					"touchmove",
+					function (e) {
+						e.preventDefault();
+					},
+					{ passive: false }
+				);
 
-      function setup() {
-        let cnv = createCanvas(windowWidth, windowHeight, WEBGL);
-        cnv.style('display', 'block');
-        cnv.style('position', 'fixed');
-        cnv.style('top', '0');
-        cnv.style('left', '0');
-        cnv.style('width', '100vw');
-        cnv.style('height', '100vh');
-        cnv.elt.setAttribute('tabindex', '-1');
-        // Prevent scrolling on iOS
-        document.body.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+				// Keyboard controls
+				window.addEventListener("keydown", handleKeyDown);
+				window.addEventListener("keyup", handleKeyUp);
 
-        // Keyboard controls
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+				// Touch controls for iOS
+				setupTouchControls();
+			}
 
-        // Touch controls for iOS
-        setupTouchControls();
-      }
+			function draw() {
+				background(0, 0, 0, 255);
+				noFill();
 
-      function draw() {
-        background(0, 0, 0, 255);
-        noFill();
+				// Controls update
+				if (control.forward) offset += speed;
+				if (control.backward) offset -= speed;
+				if (control.left) camMinorPhase -= camMinorStep;
+				if (control.right) camMinorPhase += camMinorStep;
+				if (control.up) minorRadius += 2;
+				if (control.down) minorRadius = Math.max(40, minorRadius - 2);
+				if (control.rollLeft) rollSpeed -= rollStep;
+				if (control.rollRight) rollSpeed += rollStep;
+				if (control.speedUp) speed = Math.min(maxSpeed, speed + speedStep);
+				if (control.slowDown) speed = Math.max(minSpeed, speed - speedStep);
+				roll += rollSpeed;
+				rollSpeed *= 0.92;
 
-        // Controls update
-        if (control.forward) offset += speed;
-        if (control.backward) offset -= speed;
-        if (control.left) camMinorPhase -= camMinorStep;
-        if (control.right) camMinorPhase += camMinorStep;
-        if (control.up) minorRadius += 2;
-        if (control.down) minorRadius = Math.max(40, minorRadius - 2);
-        if (control.rollLeft) rollSpeed -= rollStep;
-        if (control.rollRight) rollSpeed += rollStep;
-        if (control.speedUp) speed = Math.min(maxSpeed, speed + speedStep);
-        if (control.slowDown) speed = Math.max(minSpeed, speed - speedStep);
-        roll += rollSpeed;
-        rollSpeed *= 0.92;
+				// Place camera in a straight, neverending tunnel
+				let camZ = offset * -ringSpacing * 2 + 400; // move camera further back
+				let camX = 0;
+				let camY = 0; // center camera in tunnel
+				let lookZ = camZ - 400;
+				let lookX = 0;
+				let lookY = 0;
+				camera(camX, camY, camZ, lookX, lookY, lookZ, 0, 1, 0);
 
-        // Place camera in a straight, neverending tunnel
-        let camZ = offset * -ringSpacing * 2 + 400; // move camera further back
-        let camX = 0;
-        let camY = 0; // center camera in tunnel
-        let lookZ = camZ - 400;
-        let lookX = 0;
-        let lookY = 0;
-        camera(camX, camY, camZ, lookX, lookY, lookZ, 0, 1, 0);
+				// Draw wireframe tunnel: rings and lines connecting them
+				let pointsPerRing = 48;
+				let ringPoints = [];
+				// Precompute all ring points
+				for (let i = 0; i < numRings; i++) {
+					let z = camZ - i * ringSpacing * 2;
+					let ring = [];
+					for (let j = 0; j < pointsPerRing; j++) {
+						let angle = (j / pointsPerRing) * Math.PI * 2;
+						let x = Math.cos(angle) * minorRadius;
+						let y = Math.sin(angle) * minorRadius;
+						ring.push([x, y, z]);
+					}
+					ringPoints.push(ring);
+				}
+				// Draw rings
+				for (let i = 0; i < numRings; i++) {
+					let hue = (colorOffset + i * 6) % 360;
+					stroke(`hsl(${hue}, 100%, 80%)`);
+					strokeWeight(1.2);
+					beginShape();
+					for (let j = 0; j < pointsPerRing; j++) {
+						let [x, y, z] = ringPoints[i][j];
+						vertex(x, y, z);
+					}
+					endShape(CLOSE);
+				}
+				// Draw lines connecting rings
+				stroke("rgba(255,255,255,0.25)");
+				strokeWeight(0.8);
+				for (let j = 0; j < pointsPerRing; j++) {
+					beginShape();
+					for (let i = 0; i < numRings; i++) {
+						let [x, y, z] = ringPoints[i][j];
+						vertex(x, y, z);
+					}
+					endShape();
+				}
 
-        // Draw wireframe tunnel: rings and lines connecting them
-        let pointsPerRing = 48;
-        let ringPoints = [];
-        // Precompute all ring points
-        for (let i = 0; i < numRings; i++) {
-          let z = camZ - i * ringSpacing * 2;
-          let ring = [];
-          for (let j = 0; j < pointsPerRing; j++) {
-            let angle = (j / pointsPerRing) * Math.PI * 2;
-            let x = Math.cos(angle) * minorRadius;
-            let y = Math.sin(angle) * minorRadius;
-            ring.push([x, y, z]);
-          }
-          ringPoints.push(ring);
-        }
-        // Draw rings
-        for (let i = 0; i < numRings; i++) {
-          let hue = (colorOffset + i * 6) % 360;
-          stroke(`hsl(${hue}, 100%, 80%)`);
-          strokeWeight(1.2);
-          beginShape();
-          for (let j = 0; j < pointsPerRing; j++) {
-            let [x, y, z] = ringPoints[i][j];
-            vertex(x, y, z);
-          }
-          endShape(CLOSE);
-        }
-        // Draw lines connecting rings
-        stroke('rgba(255,255,255,0.25)');
-        strokeWeight(0.8);
-        for (let j = 0; j < pointsPerRing; j++) {
-          beginShape();
-          for (let i = 0; i < numRings; i++) {
-            let [x, y, z] = ringPoints[i][j];
-            vertex(x, y, z);
-          }
-          endShape();
-        }
+				// Animate parameters
+				if (!control.forward && !control.backward) offset += speed;
+				if (!control.left && !control.right) camMinorPhase += camMinorSpeed;
+				colorOffset += 0.7;
+			}
 
-        // Animate parameters
-        if (!control.forward && !control.backward) offset += speed;
-        if (!control.left && !control.right) camMinorPhase += camMinorSpeed;
-        colorOffset += 0.7;
-      }
+			function handleKeyDown(e) {
+				switch (e.key.toLowerCase()) {
+					case "w":
+						control.forward = true;
+						break;
+					case "s":
+						control.backward = true;
+						break;
+					case "a":
+						control.left = true;
+						break;
+					case "d":
+						control.right = true;
+						break;
+					case "q":
+						control.rollLeft = true;
+						break;
+					case "e":
+						control.rollRight = true;
+						break;
+					case "z":
+						control.up = true;
+						break;
+					case "c":
+						control.down = true;
+						break;
+					case "[":
+						control.slowDown = true;
+						break;
+					case "]":
+						control.speedUp = true;
+						break;
+				}
+			}
 
-      function handleKeyDown(e) {
-        switch (e.key.toLowerCase()) {
-          case 'w': control.forward = true; break;
-          case 's': control.backward = true; break;
-          case 'a': control.left = true; break;
-          case 'd': control.right = true; break;
-          case 'q': control.rollLeft = true; break;
-          case 'e': control.rollRight = true; break;
-          case 'z': control.up = true; break;
-          case 'c': control.down = true; break;
-          case '[': control.slowDown = true; break;
-          case ']': control.speedUp = true; break;
-        }
-      }
+			function handleKeyUp(e) {
+				switch (e.key.toLowerCase()) {
+					case "w":
+						control.forward = false;
+						break;
+					case "s":
+						control.backward = false;
+						break;
+					case "a":
+						control.left = false;
+						break;
+					case "d":
+						control.right = false;
+						break;
+					case "q":
+						control.rollLeft = false;
+						break;
+					case "e":
+						control.rollRight = false;
+						break;
+					case "z":
+						control.up = false;
+						break;
+					case "c":
+						control.down = false;
+						break;
+					case "[":
+						control.slowDown = false;
+						break;
+					case "]":
+						control.speedUp = false;
+						break;
+				}
+			}
 
-      function handleKeyUp(e) {
-        switch (e.key.toLowerCase()) {
-          case 'w': control.forward = false; break;
-          case 's': control.backward = false; break;
-          case 'a': control.left = false; break;
-          case 'd': control.right = false; break;
-          case 'q': control.rollLeft = false; break;
-          case 'e': control.rollRight = false; break;
-          case 'z': control.up = false; break;
-          case 'c': control.down = false; break;
-          case '[': control.slowDown = false; break;
-          case ']': control.speedUp = false; break;
-        }
-      }
+			// Touch controls for iOS and mobile
+			function setupTouchControls() {
+				let lastTouch = null;
+				let active = false;
+				window.addEventListener("touchstart", function (e) {
+					if (e.touches.length === 1) {
+						lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+						active = true;
+					}
+				});
+				window.addEventListener("touchmove", function (e) {
+					if (!active || e.touches.length !== 1) return;
+					let dx = e.touches[0].clientX - lastTouch.x;
+					let dy = e.touches[0].clientY - lastTouch.y;
+					// Horizontal swipe: left/right (minor phase)
+					if (Math.abs(dx) > Math.abs(dy)) {
+						if (dx > 8) {
+							control.right = true;
+							control.left = false;
+						} else if (dx < -8) {
+							control.left = true;
+							control.right = false;
+						} else {
+							control.left = false;
+							control.right = false;
+						}
+					} else {
+						// Vertical swipe: up/down (minor radius)
+						if (dy < -8) {
+							control.up = true;
+							control.down = false;
+						} else if (dy > 8) {
+							control.down = true;
+							control.up = false;
+						} else {
+							control.up = false;
+							control.down = false;
+						}
+					}
+				});
+				window.addEventListener("touchend", function (e) {
+					control.left = control.right = control.up = control.down = false;
+					active = false;
+				});
+				// Two-finger tap: roll
+				window.addEventListener("touchstart", function (e) {
+					if (e.touches.length === 2) {
+						control.rollLeft = true;
+					}
+				});
+				window.addEventListener("touchend", function (e) {
+					if (e.touches.length < 2) {
+						control.rollLeft = false;
+					}
+				});
+				// Three-finger tap: speed up
+				window.addEventListener("touchstart", function (e) {
+					if (e.touches.length === 3) {
+						control.speedUp = true;
+					}
+				});
+				window.addEventListener("touchend", function (e) {
+					if (e.touches.length < 3) {
+						control.speedUp = false;
+					}
+				});
+			}
 
-      // Touch controls for iOS and mobile
-      function setupTouchControls() {
-        let lastTouch = null;
-        let active = false;
-        window.addEventListener('touchstart', function(e) {
-          if (e.touches.length === 1) {
-            lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            active = true;
-          }
-        });
-        window.addEventListener('touchmove', function(e) {
-          if (!active || e.touches.length !== 1) return;
-          let dx = e.touches[0].clientX - lastTouch.x;
-          let dy = e.touches[0].clientY - lastTouch.y;
-          // Horizontal swipe: left/right (minor phase)
-          if (Math.abs(dx) > Math.abs(dy)) {
-            if (dx > 8) { control.right = true; control.left = false; }
-            else if (dx < -8) { control.left = true; control.right = false; }
-            else { control.left = false; control.right = false; }
-          } else {
-            // Vertical swipe: up/down (minor radius)
-            if (dy < -8) { control.up = true; control.down = false; }
-            else if (dy > 8) { control.down = true; control.up = false; }
-            else { control.up = false; control.down = false; }
-          }
-        });
-        window.addEventListener('touchend', function(e) {
-          control.left = control.right = control.up = control.down = false;
-          active = false;
-        });
-        // Two-finger tap: roll
-        window.addEventListener('touchstart', function(e) {
-          if (e.touches.length === 2) {
-            control.rollLeft = true;
-          }
-        });
-        window.addEventListener('touchend', function(e) {
-          if (e.touches.length < 2) {
-            control.rollLeft = false;
-          }
-        });
-        // Three-finger tap: speed up
-        window.addEventListener('touchstart', function(e) {
-          if (e.touches.length === 3) {
-            control.speedUp = true;
-          }
-        });
-        window.addEventListener('touchend', function(e) {
-          if (e.touches.length < 3) {
-            control.speedUp = false;
-          }
-        });
-      }
+			function windowResized() {
+				resizeCanvas(windowWidth, windowHeight);
+			}
 
-      function windowResized() {
-        resizeCanvas(windowWidth, windowHeight);
-      }
-
-      // iOS: Prevent double-tap zoom and unwanted scrolling
-      document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
-      document.addEventListener('dblclick', function (e) { e.preventDefault(); });
-    </script>
-  </body>
+			// iOS: Prevent double-tap zoom and unwanted scrolling
+			document.addEventListener("gesturestart", function (e) {
+				e.preventDefault();
+			});
+			document.addEventListener("dblclick", function (e) {
+				e.preventDefault();
+			});
+		</script>
+	</body>
 </html>

@@ -48,29 +48,29 @@ export default function PagefindSearch() {
   }, [query, pagefind]);
 
   return (
-    <div className="pagefind-search-island" style={{ maxWidth: 500, margin: "2em auto" }}>
+    <div className="pagefind-search-island">
       <input
         ref={inputRef}
         type="search"
         placeholder="Search..."
         value={query}
         onChange={e => setQuery(e.target.value)}
-        style={{ width: "100%", padding: "0.5em", fontSize: "1.1em" }}
+        className="pagefind-search-input"
         aria-label="Search site content"
       />
-      {loading && <div style={{ color: "#888", marginTop: 8 }}>Searching...</div>}
-      <ul style={{ listStyle: "none", padding: 0, marginTop: 12 }}>
+      {loading && <div className="pagefind-search-loading">Searching...</div>}
+      <ul className="pagefind-search-results">
         {results.map((r, i) => (
-          <li key={r.url || i} style={{ marginBottom: 12 }}>
-            <a href={r.url} style={{ fontWeight: 600 }}>{r.meta?.title || r.url}</a>
+          <li key={r.url || i} className="pagefind-search-result-item">
+            <a href={r.url} className="pagefind-search-result-link">{r.meta?.title || r.url}</a>
             {r.excerpt && (
-              <div style={{ color: "#666", fontSize: "0.95em", marginTop: 2 }} dangerouslySetInnerHTML={{ __html: r.excerpt }} />
+              <div className="pagefind-search-result-excerpt" dangerouslySetInnerHTML={{ __html: r.excerpt }} />
             )}
           </li>
         ))}
       </ul>
       {query && !loading && results.length === 0 && (
-        <div style={{ color: "#888", marginTop: 8 }}>No results found.</div>
+        <div className="pagefind-search-no-results">No results found.</div>
       )}
     </div>
   );

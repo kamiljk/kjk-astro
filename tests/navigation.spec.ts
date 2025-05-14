@@ -96,3 +96,96 @@ test.describe('Navbar & Feed Functionality', () => {
     await expect(page.locator('#nav-secondary')).toBeVisible();
   });
 });
+
+test.describe('NavbarMenu UI interactions', () => {
+  test('Clicking filter pills updates feed and URL', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.nav__menu-btn').click();
+    // Click each filter pill and check feed and URL
+    for (const filter of ['read', 'play', 'about', 'all']) {
+      await page.locator('.filter-section .pill', { hasText: new RegExp('^' + filter.charAt(0).toUpperCase() + filter.slice(1)) }).click();
+      await page.waitForLoadState('networkidle');
+      // Check URL
+      const url = page.url();
+      if (filter === 'all') {
+        expect(url).not.toContain('type=');
+      } else {
+        expect(url).toContain(`type=${filter}`);
+      }
+      // Check feed
+      const posts = await page.locator('#posts-feed li').all();
+      expect(posts.length).toBeGreaterThan(0);
+      for (const post of posts) {
+        const typeAttr = await post.getAttribute('data-type');
+        if (filter !== 'all') expect(typeAttr).toBe(filter);
+      }
+      // Reopen menu for next click
+      await page.locator('.nav__menu-btn').click();
+    }
+  });
+
+  test('Clicking sort pills and arrows updates feed and URL', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.nav__menu-btn').click();
+    for (const sort of [
+      { key: 'updated', label: 'Updated' },
+      { key: 'created', label: 'Created' },
+      { key: 'alpha', label: 'A-Z' },
+    ]) {
+      // Click sort pill
+      await page.locator('.sort-section .pill', { hasText: sort.label }).click();
+      await page.waitForLoadState('networkidle');
+      expect(page.url()).toContain(`sort=${sort.key}`);
+      // Click asc arrow
+      await page.locator('.sort-section .sort-arrow', { hasText: '▲' }).first().click();
+      await page.waitForLoadState('networkidle');
+      expect(page.url()).toContain('order=asc');
+      // Click desc arrow
+      await page.locator('.sort-section .sort-arrow', { hasText: '▼' }).first().click();
+      await page.waitForLoadState('networkidle');
+      expect(page.url()).toContain('order=desc');
+      // Reopen menu for next sort
+      await page.locator('.nav__menu-btn').click();
+    }
+  });
+
+  test('Navbar dropdown toggles visibility', async ({ page }) => {
+    await page.goto('/');
+
+    // Locate the menu button and dropdown container
+    const menuButton = page.locator('.nav__menu-btn');
+    const menuContainer = page.locator('.menu-container');
+
+    // Ensure the dropdown is initially hidden
+    await expect(menuContainer).not.toBeVisible();
+
+    // Click the menu button to open the dropdown
+    await menuButton.click();
+    await expect(menuContainer).toBeVisible();
+
+    // Click the menu button again to close the dropdown
+    await menuButton.click();
+    await expect(menuContainer).not.toBeVisible();
+  });
+
+  test('Theme toggle switches themes', async ({ page }) => {
+    await page.goto('/');
+
+    // Locate the theme toggle button
+    const themeToggle = page.locator('.theme-toggle-btn');
+
+    // Check the initial theme (assume light mode by default)
+    const initialTheme = await page.evaluate(() => document.body.dataset.theme);
+    expect(initialTheme).toBe('light');
+
+    // Click the theme toggle button to switch to dark mode
+    await themeToggle.click();
+    const darkTheme = await page.evaluate(() => document.body.dataset.theme);
+    expect(darkTheme).toBe('dark');
+
+    // Click the theme toggle button again to switch back to light mode
+    await themeToggle.click();
+    const lightTheme = await page.evaluate(() => document.body.dataset.theme);
+    expect(lightTheme).toBe('light');
+  });
+});
