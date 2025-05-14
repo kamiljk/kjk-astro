@@ -85,76 +85,26 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
     }
   }, [menuOpen, isClient]);
 
-  const handleSort = (key) => {
-    setActiveSort(key);
-    // Default to desc for date sorts, asc for alpha
-    setActiveOrder(key === "alpha" ? "asc" : "desc");
+  // --- URL param update helpers ---
+  function updateUrlParam(param, value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set(param, value);
+    // Always reset page to 1 on filter/sort change
+    url.searchParams.set("page", "1");
+    window.history.pushState({}, "", url);
+    window.dispatchEvent(new Event("popstate")); // Astro reloads on popstate
+  }
+
+  const handleType = (item) => {
+    updateUrlParam("type", item);
   };
-
-  const handleOrder = (order) => setActiveOrder(order);
-
-  const dropdown = (
-    <div
-      id="filter-sort-menu"
-      className={`menu-container${menuOpen ? " visible" : ""}`}
-      ref={menuRef}
-      style={{
-        position: "fixed",
-        zIndex: 2000,
-        left: "50%",
-        transform: "translateX(-50%)",
-        maxWidth: "826px",
-        width: "100%",
-        top: dropdownTop
-      }}
-    >
-      <div className="menu-content">
-        <div className="menu-section filter-section">
-          {taxonomy.map((item) => (
-            <button
-              key={item}
-              className={`pill${activeType === item ? " active" : ""}`}
-              onClick={() => setActiveType(item)}
-              aria-current={activeType === item ? "page" : undefined}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-        <div className="menu-section sort-section" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {SORT_OPTIONS.map((opt) => (
-            <div key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-              <button
-                className={`pill${activeSort === opt.key ? " active" : ""}`}
-                onClick={() => handleSort(opt.key)}
-                aria-current={activeSort === opt.key ? "page" : undefined}
-              >
-                {opt.label}
-              </button>
-              {activeSort === opt.key && (
-                <div style={{ display: 'flex', gap: '0.1rem' }}>
-                  {ORDER_OPTIONS.map((orderOpt) => (
-                    <button
-                      key={orderOpt.key}
-                      className={`pill${activeOrder === orderOpt.key ? " active" : ""}`}
-                      onClick={() => handleOrder(orderOpt.key)}
-                      aria-current={activeOrder === orderOpt.key ? "true" : undefined}
-                      style={{ fontSize: '1.1em', padding: '0 0.5em' }}
-                    >
-                      {orderOpt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="menu-section theme-toggle-section">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+  const handleSort = (key) => {
+    updateUrlParam("sort", key);
+    updateUrlParam("order", key === "alpha" ? "asc" : "desc");
+  };
+  const handleOrder = (order) => {
+    updateUrlParam("order", order);
+  };
 
   return (
     <>
@@ -179,7 +129,71 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-      {isClient && menuOpen && createPortal(dropdown, document.body)}
+      {isClient && createPortal(
+        <div
+          id="filter-sort-menu"
+          className={`menu-container${menuOpen ? " visible" : ""}`}
+          ref={menuRef}
+          style={{
+            position: "fixed",
+            zIndex: 2000,
+            left: "50%",
+            transform: "translateX(-50%)",
+            maxWidth: "826px",
+            width: "100%",
+            top: dropdownTop
+          }}
+          aria-hidden={!menuOpen}
+          tabIndex={menuOpen ? 0 : -1}
+        >
+          <div className="menu-content">
+            <div className="menu-section filter-section">
+              {taxonomy.map((item) => (
+                <button
+                  key={item}
+                  className={`pill${activeType === item ? " active" : ""}`}
+                  onClick={() => handleType(item)}
+                  aria-current={activeType === item ? "page" : undefined}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+            <div className="menu-section sort-section" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {SORT_OPTIONS.map((opt) => (
+                <div key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  <button
+                    className={`pill${activeSort === opt.key ? " active" : ""}`}
+                    onClick={() => handleSort(opt.key)}
+                    aria-current={activeSort === opt.key ? "page" : undefined}
+                  >
+                    {opt.label}
+                  </button>
+                  {activeSort === opt.key && (
+                    <div style={{ display: 'flex', gap: '0.1rem' }}>
+                      {ORDER_OPTIONS.map((orderOpt) => (
+                        <button
+                          key={orderOpt.key}
+                          className={`pill${activeOrder === orderOpt.key ? " active" : ""}`}
+                          onClick={() => handleOrder(orderOpt.key)}
+                          aria-current={activeOrder === orderOpt.key ? "true" : undefined}
+                          style={{ fontSize: '1.1em', padding: '0 0.5em' }}
+                        >
+                          {orderOpt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="menu-section theme-toggle-section">
+              {children}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }

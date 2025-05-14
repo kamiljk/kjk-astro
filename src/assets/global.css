@@ -1149,26 +1149,40 @@ body.search-active {
 	will-change: transform, opacity;
 	overflow: hidden;
 	max-height: 0;
-	transform: translateY(-16px);
+	transform: translateY(-16px) scale(0.98); /* Slide up and fade out when closed */
 	opacity: 0;
 	pointer-events: none;
 	visibility: hidden;
-	transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+	transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
 		transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.38s;
+		max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.38s;
 	backdrop-filter: blur(32px) saturate(1.2) !important;
 	-webkit-backdrop-filter: blur(32px) saturate(1.2) !important;
 }
 
 .menu-container.visible {
-	max-height: 480px; /* or a value larger than your dropdown's content height */
-	transform: translateY(0);
 	opacity: 1;
 	pointer-events: auto;
 	visibility: visible;
-	transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+	transform: translateY(0) scale(1); /* Slide down and fade in when open */
+	max-height: 480px;
+	transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
 		transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
+		max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
+}
+
+.menu-container.visible .menu-content > * {
+	opacity: 1;
+	transform: translateY(0);
+	transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1) 0.08s,
+		transform 0.32s cubic-bezier(0.4, 0, 0.2, 1) 0.08s;
+}
+
+.menu-container .menu-content > * {
+	opacity: 0;
+	transform: translateY(-12px); /* Animate children from above */
+	transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+		transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] .menu-container {

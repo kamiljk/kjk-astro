@@ -49,8 +49,11 @@ import '../assets/global.css';
       }
       window.addEventListener('DOMContentLoaded', setNavbarHeightVar);
       window.addEventListener('resize', setNavbarHeightVar);
-      // Also update after fonts/images load (in case navbar height changes)
       window.addEventListener('load', setNavbarHeightVar);
+      // Ensure page reloads on popstate for all routes (for NavbarMenu filter/sort)
+      window.addEventListener('popstate', () => {
+        location.reload();
+      });
     </script>
   </body>
 </html>
