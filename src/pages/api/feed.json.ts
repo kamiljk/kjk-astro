@@ -11,7 +11,10 @@ export const GET: APIRoute = async ({ url }) => {
   const PAGE_SIZE = 9;
 
   let allPosts = (await getCollection('posts')).filter(post => post.data.show === true);
-  if (type !== 'all') {
+  const allowedTypes = ["about", "play", "read"];
+  if (type === 'all') {
+    allPosts = allPosts.filter(post => allowedTypes.includes(normalizeType(post.data.type)));
+  } else {
     allPosts = allPosts.filter(post => normalizeType(post.data.type) === type);
   }
 

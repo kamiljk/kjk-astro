@@ -79,17 +79,25 @@ export default function Feed({ type = "all", sort = "newest", order = "desc" }) 
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef(null);
 
+  // Only allow these types
+  const allowedTypes = ["about", "play", "read"];
+
   const loadPosts = useCallback(async () => {
     if (loading || !hasMore) return;
     setLoading(true);
     const params = new URLSearchParams({ type, sort, order, page: page.toString() });
     const res = await fetch(`/api/feed.json?${params}`);
     const data = await res.json();
-    console.log('[Feed.jsx] Loaded posts:', data.posts, 'Has more:', data.hasMore, 'Params:', { type, sort, order, page });
-    setPosts((prev) => [...prev, ...(data.posts || [])]);
+    let filtered = (data.posts || []).filter(post => {
+      const norm = normalizeType(post.data?.type);
+      if (!norm) return false;
+      if (type === "all") return allowedTypes.includes(norm);
+      return norm === type;
+    });
+    setPosts((prev) => [...prev, ...filtered]);
     setHasMore(data.hasMore);
     setLoading(false);
-  }, [type, sort, order, page]);
+  }, [type, sort, order, page, loading, hasMore]);
 
   // Reset feed when type/sort/order changes
   useEffect(() => {
@@ -118,6 +126,7 @@ export default function Feed({ type = "all", sort = "newest", order = "desc" }) 
     return () => observer.disconnect();
   }, [hasMore, loading]);
 
+  // In the render, always use normalizeType for data-type
   return (
     <>
       <ul id="posts-feed" className={styles["posts-feed"]}>

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import styles from "./NavbarMenu.module.css";
 
@@ -15,26 +15,48 @@ const ORDER_OPTIONS = [
 
 export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"], type = "all", sort = "updated", order = "desc", children }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeType, setActiveType] = useState(type);
-  const [activeSort, setActiveSort] = useState(sort);
-  const [activeOrder, setActiveOrder] = useState(order);
   const menuRef = useRef(null);
   const btnRef = useRef(null);
   const [isClient, setIsClient] = useState(false);
   const [dropdownTop, setDropdownTop] = useState(0);
+  const [shouldRenderMenu, setShouldRenderMenu] = useState(false);
+
+  // Always reflect current URL params for active state
+  const getParam = (key, fallback) => {
+    if (typeof window === 'undefined') return fallback;
+    const url = new URL(window.location.href);
+    return url.searchParams.get(key) || fallback;
+  };
+  const activeType = getParam('type', type);
+  const activeSort = getParam('sort', sort);
+  // For 'alpha', force order to 'asc', else use param or default
+  const activeOrder = activeSort === 'alpha' ? 'asc' : getParam('order', order);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Sync state with props on mount
-  useEffect(() => {
-    setActiveType(type);
-    setActiveSort(sort);
-    setActiveOrder(order);
-  }, [type, sort, order]);
+  // --- URL param update helpers ---
+  function updateUrlParams(params) {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    url.searchParams.set("page", "1");
+    window.history.pushState({}, "", url);
+    window.dispatchEvent(new Event("popstate"));
+  }
 
-  // Close menu on outside click
+  const handleType = (item) => {
+    updateUrlParams({ type: item });
+  };
+  const handleSort = (key) => {
+    // 'alpha' always uses 'asc', others default to 'desc'
+    updateUrlParams({ sort: key, order: key === 'alpha' ? 'asc' : 'desc' });
+  };
+  const handleOrder = (orderKey) => {
+    updateUrlParams({ order: orderKey });
+  };
+
+  // Close menu on outside click, scroll, and Escape; restore focus
   useEffect(() => {
     function handleClickOutside(e) {
       if (
@@ -46,31 +68,46 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
         setMenuOpen(false);
       }
     }
+    function handleScroll() {
+      setMenuOpen(false);
+    }
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        // Restore focus to button after closing
+        setTimeout(() => {
+          btnRef.current && btnRef.current.focus();
+        }, 0);
+      }
+    }
     if (menuOpen) {
       document.body.classList.add("menu-open");
       document.addEventListener("click", handleClickOutside);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      document.addEventListener("keydown", handleKeyDown);
     } else {
       document.body.classList.remove("menu-open");
     }
     return () => {
       document.body.classList.remove("menu-open");
       document.removeEventListener("click", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [menuOpen]);
 
-  // Ensure menu visibility is toggled correctly
+  // Restore focus to button when menu closes (from any cause)
   useEffect(() => {
-    if (typeof document !== "undefined") {
-      const menuContainer = document.getElementById("filter-sort-menu");
-      if (menuContainer) {
-        menuContainer.setAttribute("aria-hidden", !menuOpen);
-        menuContainer.tabIndex = menuOpen ? 0 : -1;
-        if (menuOpen) {
-          menuContainer.classList.add("visible");
-        } else {
-          menuContainer.classList.remove("visible");
-        }
-      }
+    if (!menuOpen) {
+      btnRef.current && btnRef.current.focus();
+    }
+  }, [menuOpen]);
+
+  // Focus first pill when menu opens (for keyboard nav)
+  useEffect(() => {
+    if (menuOpen && menuRef.current) {
+      const firstPill = menuRef.current.querySelector('.pill');
+      if (firstPill) firstPill.focus();
     }
   }, [menuOpen]);
 
@@ -85,33 +122,33 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
     }
   }, [menuOpen, isClient]);
 
-  // --- URL param update helpers ---
-  function updateUrlParam(param, value) {
-    const url = new URL(window.location.href);
-    url.searchParams.set(param, value);
-    // Always reset page to 1 on filter/sort change
-    url.searchParams.set("page", "1");
-    window.history.pushState({}, "", url);
-    window.dispatchEvent(new Event("popstate")); // Astro reloads on popstate
-  }
+  // Show/hide menu with animation
+  useEffect(() => {
+    if (menuOpen) {
+      setShouldRenderMenu(true);
+    }
+  }, [menuOpen]);
 
-  const handleType = (item) => {
-    updateUrlParam("type", item);
-  };
-  const handleSort = (key) => {
-    updateUrlParam("sort", key);
-    updateUrlParam("order", key === "alpha" ? "asc" : "desc");
-  };
-  const handleOrder = (order) => {
-    updateUrlParam("order", order);
-  };
+  // Listen for transition end to unmount after ease-out
+  useEffect(() => {
+    if (!shouldRenderMenu) return;
+    const menuEl = menuRef.current;
+    if (!menuEl) return;
+    function handleTransitionEnd(e) {
+      if (!menuOpen && e.propertyName === 'opacity') {
+        setShouldRenderMenu(false);
+      }
+    }
+    menuEl.addEventListener('transitionend', handleTransitionEnd);
+    return () => menuEl.removeEventListener('transitionend', handleTransitionEnd);
+  }, [menuOpen, shouldRenderMenu]);
 
   return (
     <>
       <button
         ref={btnRef}
         onClick={() => setMenuOpen((prev) => !prev)}
-        aria-expanded={menuOpen}
+        aria-expanded={menuOpen ? "true" : "false"}
         className={`nav__menu-btn menu-toggle-btn${menuOpen ? " open" : ""}`}
         aria-label="Open menu"
       >
@@ -129,22 +166,27 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-      {isClient && createPortal(
+      {isClient && shouldRenderMenu && createPortal(
         <div
           id="filter-sort-menu"
-          className={`menu-container${menuOpen ? " visible" : ""}`}
+          className={`menu-container${menuOpen ? ' visible' : ''}`}
           ref={menuRef}
           style={{
             position: "fixed",
-            zIndex: 2000,
             left: "50%",
             transform: "translateX(-50%)",
-            maxWidth: "826px",
+            maxWidth: "var(--feed-max-width)",
             width: "100%",
-            top: dropdownTop
+            top: dropdownTop,
+            border: "1.5px solid var(--color-border, #d6d5c9)",
+            borderTop: "none",
+            boxShadow: "0 12px 32px -4px rgba(0,0,0,0.18), 0 1.5px 0 0 rgba(0,0,0,0.04)",
+            background: "var(--color-navbar-bg, rgba(255,255,255,0.69))",
+            backdropFilter: "blur(18px) saturate(180%)",
+            WebkitBackdropFilter: "blur(18px) saturate(180%)"
           }}
-          aria-hidden={!menuOpen}
-          tabIndex={menuOpen ? 0 : -1}
+          aria-hidden={menuOpen ? "false" : "true"}
+          tabIndex={0}
         >
           <div className="menu-content">
             <div className="menu-section filter-section">
@@ -169,26 +211,40 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
                   >
                     {opt.label}
                   </button>
-                  {activeSort === opt.key && (
-                    <div style={{ display: 'flex', gap: '0.1rem' }}>
-                      {ORDER_OPTIONS.map((orderOpt) => (
-                        <button
-                          key={orderOpt.key}
-                          className={`pill${activeOrder === orderOpt.key ? " active" : ""}`}
-                          onClick={() => handleOrder(orderOpt.key)}
-                          aria-current={activeOrder === orderOpt.key ? "true" : undefined}
-                          style={{ fontSize: '1.1em', padding: '0 0.5em' }}
-                        >
-                          {orderOpt.label}
-                        </button>
-                      ))}
-                    </div>
+                  {/* Show order arrows for non-alpha sorts */}
+                  {activeSort === opt.key && opt.key !== 'alpha' && (
+                    <span className="sort-arrows">
+                      <button
+                        className={`sort-arrow${activeOrder === 'asc' ? ' active' : ''}`}
+                        aria-label="Sort ascending"
+                        onClick={() => handleOrder('asc')}
+                        tabIndex={0}
+                        type="button"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        className={`sort-arrow${activeOrder === 'desc' ? ' active' : ''}`}
+                        aria-label="Sort descending"
+                        onClick={() => handleOrder('desc')}
+                        tabIndex={0}
+                        type="button"
+                      >
+                        ▼
+                      </button>
+                    </span>
                   )}
                 </div>
               ))}
             </div>
             <div className="menu-section theme-toggle-section">
-              {children}
+              {Array.isArray(children)
+                ? children.filter(React.isValidElement).map((child, i) =>
+                    React.cloneElement(child, { id: 'theme-toggle-btn-' + i })
+                  )
+                : React.isValidElement(children)
+                  ? React.cloneElement(children, { id: 'theme-toggle-btn' })
+                  : null}
             </div>
           </div>
         </div>,

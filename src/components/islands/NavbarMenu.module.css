@@ -45,36 +45,54 @@
 }
 
 .menu-container {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 100%;
-	margin: 0 auto;
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
 	max-width: 826px;
 	width: 100%;
+	top: 100%;
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+	border-radius: var(--border-radius-xs, 2px);
 	background: var(--color-navbar-bg, rgba(255, 255, 255, 0.69));
-	box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.18),
-		0 6px 24px 0 rgba(0, 0, 0, 0.08);
-	border-radius: 0 0 12px 12px;
-	border: 1px solid var(--color-border, #e0e0e0);
+	box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.18),
+		0 1.5px 0 0 rgba(0, 0, 0, 0.04);
+	border: 1.5px solid var(--color-border, #d6d5c9);
 	border-top: none;
 	z-index: 2000;
 	padding: 0.75rem 1.25rem;
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 0.22s cubic-bezier(0.4, 2, 0.6, 1),
-		transform 0.22s cubic-bezier(0.4, 2, 0.6, 1);
-	min-height: 56px;
-	/* Place blur at the end for max specificity */
+	visibility: hidden;
+	display: block;
+	display: block;
+	transform: translateY(-24px) scale(0.98);
+	transition: max-height 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+		transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.38s;
 	backdrop-filter: blur(32px) saturate(1.2) !important;
 	-webkit-backdrop-filter: blur(32px) saturate(1.2) !important;
-	/* Do NOT set background-color here, only use background above */
-	/* If blur is not visible, check for global .menu-container or [style] overrides */
+	overflow: hidden;
+	max-height: 0;
+	padding-right: 0.5rem; /* Compensate for possible scrollbar */
+	scrollbar-gutter: stable both-edges; /* Prevent layout shift when scrollbar appears */
 }
 .menu-container.visible {
+	max-height: 600px; /* Large enough for content, allows scrolling if needed */
+	overflow-y: auto;
+	max-width: 826px;
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+	border-radius: var(--border-radius-xs, 2px);
+	padding-right: 0.5rem; /* Compensate for possible scrollbar */
+	scrollbar-gutter: stable both-edges;
 	opacity: 1;
 	pointer-events: auto;
-	transform: none;
+	visibility: visible;
+	transform: translateY(0) scale(1);
+	transition: max-height 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+		transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
 }
 .menu-container::before {
 	content: "";
@@ -115,9 +133,16 @@
 	justify-content: space-between;
 	gap: 1.2rem;
 	max-width: 826px;
-	margin: 0 auto;
+	margin: 0 !important;
+	padding: 0 0.5rem !important;
+	box-sizing: border-box;
 	width: 100%;
 	min-height: 40px;
+}
+.menu-content > * {
+	opacity: 1;
+	transform: none;
+	transition: none;
 }
 .menu-section {
 	display: flex;
@@ -125,8 +150,8 @@
 	align-items: center;
 	gap: 0.7rem;
 	min-width: 0;
-	margin: 0;
-	padding: 0;
+	margin: 0 !important;
+	padding: 0 !important;
 	position: relative;
 	z-index: 2;
 }
@@ -241,13 +266,6 @@
 		flex-direction: row;
 		gap: 0.5rem;
 	}
-	.menu-container {
-		left: 0;
-		right: 0;
-		transform: none;
-		max-width: 100vw;
-		border-radius: 0 0 12px 12px;
-	}
 }
 
 /* Vertical stack for mobile */
@@ -259,12 +277,9 @@
 		flex-direction: column;
 		align-items: stretch;
 	}
-	.menu-container {
-		padding: 0.4rem 0.1rem 0.4rem 0.1rem;
-		border-radius: 0 0 12px 12px !important;
-		border-top-left-radius: 0 !important;
-		border-top-right-radius: 0 !important;
-		border-bottom-left-radius: 12px !important;
-		border-bottom-right-radius: 12px !important;
-	}
+}
+
+/* Hide scrollbars on overlay for Webkit browsers for aesthetics, but keep space reserved */
+.menu-container.visible::-webkit-scrollbar {
+	display: none;
 }

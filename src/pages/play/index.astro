@@ -5,12 +5,21 @@ import { normalizeType } from "../../utils/normalizeType.js";
 
 const PAGE_SIZE = 9;
 const { searchParams } = new URL(Astro.request.url);
-const sort = searchParams.get("sort") || "newest";
-const order = searchParams.get("order") || "desc";
+const type = searchParams.get("type") || "play";
+let sort = searchParams.get("sort") || "created";
+if (sort === "newest") sort = "created";
+let order = searchParams.get("order");
+if (sort === "alpha") {
+  order = "asc";
+} else {
+  order = order || "desc";
+}
 
 const allPosts = await getCollection("posts");
 const visiblePosts = allPosts.filter((post) => post.data.show === true);
-const filteredPosts = visiblePosts.filter((post) => normalizeType(post.data.type) === "play");
+const filteredPosts = type === "all"
+  ? visiblePosts
+  : visiblePosts.filter((post) => normalizeType(post.data.type) === type);
 
 function getSortDate(post, field) {
   if (field === "updated") {
@@ -20,15 +29,11 @@ function getSortDate(post, field) {
 }
 
 let sortedPosts = filteredPosts;
-if (sort === "created" || sort === "newest") {
+if (sort === "created") {
   sortedPosts = [...filteredPosts].sort((a, b) =>
     order === "asc"
       ? getSortDate(a, "created") - getSortDate(b, "created")
       : getSortDate(b, "created") - getSortDate(a, "created")
-  );
-} else if (sort === "oldest") {
-  sortedPosts = [...filteredPosts].sort((a, b) =>
-    getSortDate(a, "created") - getSortDate(b, "created")
   );
 } else if (sort === "updated") {
   sortedPosts = [...filteredPosts].sort((a, b) =>
@@ -46,10 +51,10 @@ if (sort === "created" || sort === "newest") {
         ignorePunctuation: true,
       }
     );
-    return order === "asc" ? cmp : -cmp;
+    return cmp;
   });
 } else {
-  // Default: newest/created desc
+  // Default: created desc
   sortedPosts = [...filteredPosts].sort(
     (a, b) => getSortDate(b, "created") - getSortDate(a, "created")
   );
@@ -65,7 +70,7 @@ const taxonomy = ["all", "read", "play", "about"];
   taxonomy={taxonomy}
   currentPage={1}
   totalPages={totalPages}
-  type="play"
+  type={type}
   sort={sort}
   order={order}
 />

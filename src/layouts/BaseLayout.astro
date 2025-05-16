@@ -36,7 +36,14 @@ import '../assets/global.css';
         <!-- <Search /> -->
       </div>
       <main class="main-alignment-wrapper">
-        <Feed client:visible type={type} sort={sort} order={order} />
+        <div id="astro-feed-island">
+          <Feed
+            client:visible
+            type={type}
+            sort={sort}
+            order={order}
+          />
+        </div>
       </main>
     </div>
     <script>
@@ -50,10 +57,23 @@ import '../assets/global.css';
       window.addEventListener('DOMContentLoaded', setNavbarHeightVar);
       window.addEventListener('resize', setNavbarHeightVar);
       window.addEventListener('load', setNavbarHeightVar);
-      // Ensure page reloads on popstate for all routes (for NavbarMenu filter/sort)
-      window.addEventListener('popstate', () => {
-        location.reload();
-      });
+      // Ensure Feed island always uses current URL params for type/sort/order
+      function updateFeedIslandProps() {
+        const url = new URL(window.location.href);
+        const type = url.searchParams.get('type') || 'all';
+        const sort = url.searchParams.get('sort') || 'newest';
+        let order = url.searchParams.get('order') || 'desc';
+        if (sort === 'alpha') order = 'asc';
+        var feed = document.getElementById('astro-feed-island');
+        if (feed) {
+          feed.setAttribute('data-prop-type', type);
+          feed.setAttribute('data-prop-sort', sort);
+          feed.setAttribute('data-prop-order', order);
+        }
+      }
+      window.addEventListener('popstate', updateFeedIslandProps);
+      window.addEventListener('DOMContentLoaded', updateFeedIslandProps);
+      window.addEventListener('load', updateFeedIslandProps);
     </script>
   </body>
 </html>
