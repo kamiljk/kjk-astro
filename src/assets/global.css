@@ -1266,12 +1266,19 @@ main > *,
 .navbar-header-row,
 .menu-content,
 .post-card,
-.expanded-card,
-.site-container {
+.expanded-card {
 	width: var(--layout-max-width) !important;
 	max-width: var(--layout-max-width) !important;
 	min-width: 0 !important;
 	box-sizing: border-box;
+}
+
+.site-container {
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0 !important;
+	box-sizing: border-box;
+	margin: 0 auto;
 }
 
 /* Responsive: allow full width on mobile, but always center to viewport */

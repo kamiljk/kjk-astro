@@ -1,25 +1,47 @@
 # Continue Alignment Fix Session
 
-## CURRENT ISSUE
+## CURRENT ISSUE (UPDATED 2025-06-05)
 
-You are working on fixing centering alignment issues in an Astro project. The navbar and feed components are both showing their centers at 420px instead of the expected 640px (220px off), indicating they're not properly centered in a 1280px viewport.
+**STATUS**: ✅ **NAVBAR FIXED** - ❌ **FEED STILL FAILING**
+
+Working on fixing centering alignment issues in an Astro project. **Major progress made**: The navbar (.site-header) is now properly centered at 640px, but the feed (#posts-feed) is still showing center at 420px instead of the expected 640px (220px off).
 
 ## PROJECT CONTEXT
 
 - **Framework**: Astro with React islands (Feed.jsx), NOT a monorepo
-- **Main Issue**: Navbar (.site-header) and Feed (#posts-feed) alignment failing tests
+- **Main Issue**: ✅ Navbar FIXED | ❌ Feed (#posts-feed) alignment failing
 - **Expected**: Elements centered at 640px (viewport_width/2 = 1280/2)
-- **Actual**: Elements centered at 420px (220px offset)
+- **Actual**: Navbar ✅ 640px | Feed ❌ 420px (220px offset)
 - **Unified System**: All components should use `--content-max-width: 840px`
 
 ## WHAT'S BEEN COMPLETED
 
-1. ✅ **Generated comprehensive codebase manifest** (`2025-06-04_siteManifest.md`)
-2. ✅ **Established unified centering system** with `--content-max-width: 840px` in global.css
-3. ✅ **Fixed major blocking issue**: Removed DEBUG CSS section that was hiding all content except navbar
-4. ✅ **Feed component now renders**: Tests show list items appearing (Feed React island working)
-5. ✅ **Updated Feed.module.css**: Changed `--layout-max-width` references to `--content-max-width`
-6. ✅ **Modified navbar positioning**: Changed from `left:0; right:0` to `left:50%; transform:translateX(-50%)`
+### Initial Setup & Foundation (Previous Session)
+1. ✅ **Generated comprehensive codebase manifest** 
+   (`2025-06-04_siteManifest.md`)
+2. ✅ **Established unified centering system** with 
+   `--content-max-width: 840px` in global.css
+3. ✅ **Fixed major blocking issue**: Removed DEBUG CSS section that was 
+   hiding all content except navbar
+4. ✅ **Feed component now renders**: Tests show list items appearing 
+   (Feed React island working)
+5. ✅ **Updated Feed.module.css**: Changed `--layout-max-width` references 
+   to `--content-max-width`
+6. ✅ **Modified navbar positioning**: Changed from `left:0; right:0` to 
+   `left:50%; transform:translateX(-50%)`
+
+### Recent Progress (Current Session 2025-06-05)
+7. ✅ **NAVBAR CENTERING FIXED**: Navbar now correctly centers at 640px
+8. ✅ **Removed CSS variable conflicts**: Fixed conflicting 
+   `--feed-max-width` definitions
+9. ✅ **Cleaned up global CSS overrides**: Removed conflicting width 
+   overrides that broke navbar positioning
+10. ✅ **Excluded components from global rules**: Removed `.site-header` 
+    and `#posts-feed` from problematic global width rules
+11. ✅ **Fixed main padding issue**: Removed lateral padding from main 
+    element that was affecting feed positioning
+12. ✅ **Identified CSS cascade issues**: Found multiple conflicting rules 
+    in global.css affecting feed positioning
 
 ## CURRENT STATE OF KEY FILES
 

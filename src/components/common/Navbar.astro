@@ -256,7 +256,12 @@ const {
 	.main-alignment-wrapper {
 		margin-top: calc(var(--navbar-height) + 1rem);
 		display: block; /* Remove any flex that might cause vertical centering */
-		/* Remove justify-content: center if inherited */
+		/* Ensure proper centering for child elements */
+		width: 100%;
+		max-width: var(--content-max-width);
+		margin-left: auto;
+		margin-right: auto;
+		box-sizing: border-box;
 	}
 
 	@media (max-width: 768px) {
