@@ -1,3 +1,4 @@
+@import "/styles/tokens.css";
 /* NavbarMenu.module.css */
 
 @font-face {
@@ -12,7 +13,7 @@
 	align-items: center;
 	justify-content: flex-end;
 	flex: 0 0 auto;
-	position: relative;
+	position: relative !important; /* ensure dropdown is positioned relative to this wrapper */
 	height: 100%;
 }
 
@@ -45,54 +46,61 @@
 }
 
 .menu-container {
-	position: fixed;
-	left: 50%;
-	transform: translateX(-50%);
-	max-width: 826px;
+	position: absolute !important;
+	top: 100% !important;
+	margin: 0 auto;
 	width: 100%;
-	top: 100%;
-	margin-left: 0.5rem;
-	margin-right: 0.5rem;
+	max-width: var(--dropdown-max-width);
+	box-sizing: border-box;
 	border-radius: var(--border-radius-xs, 2px);
-	background: var(--color-navbar-bg, rgba(255, 255, 255, 0.69));
-	box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.18),
+	background: var(--color-navbar-bg);
+	box-shadow:
+		0 12px 32px -4px var(--color-accent, rgba(0, 0, 0, 0.18)),
 		0 1.5px 0 0 rgba(0, 0, 0, 0.04);
-	border: 1.5px solid var(--color-border, #d6d5c9);
+	border: 1.5px solid var(--color-border);
 	border-top: none;
-	z-index: 2000;
-	padding: 0.75rem 1.25rem;
+	z-index: 9999;
+	padding: 0;
 	opacity: 0;
 	pointer-events: none;
 	visibility: hidden;
 	display: block;
-	display: block;
 	transform: translateY(-24px) scale(0.98);
-	transition: max-height 0.44s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-		transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.38s;
-	backdrop-filter: blur(32px) saturate(1.2) !important;
-	-webkit-backdrop-filter: blur(32px) saturate(1.2) !important;
+	transition: visibility 0s linear 0.38s;
+	backdrop-filter: blur(18px) saturate(180%);
+	-webkit-backdrop-filter: blur(18px) saturate(180%);
 	overflow: hidden;
-	max-height: 0;
-	padding-right: 0.5rem; /* Compensate for possible scrollbar */
-	scrollbar-gutter: stable both-edges; /* Prevent layout shift when scrollbar appears */
+	/* Always reserve space for scrollbar */
+	overflow-y: scroll;
 }
 .menu-container.visible {
-	max-height: 600px; /* Large enough for content, allows scrolling if needed */
+	max-width: var(--dropdown-max-width);
+	margin: 0 auto;
+	width: 100%;
 	overflow-y: auto;
-	max-width: 826px;
-	margin-left: 0.5rem;
-	margin-right: 0.5rem;
-	border-radius: var(--border-radius-xs, 2px);
-	padding-right: 0.5rem; /* Compensate for possible scrollbar */
-	scrollbar-gutter: stable both-edges;
 	opacity: 1;
 	pointer-events: auto;
 	visibility: visible;
 	transform: translateY(0) scale(1);
-	transition: max-height 0.44s cubic-bezier(0.4, 0, 0.2, 1),
+	transition:
+		max-height 0.44s cubic-bezier(0.4, 0, 0.2, 1),
 		opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-		transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
+		transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+		visibility 0s linear 0s;
+	box-shadow:
+		0 12px 48px 0 var(--color-accent, rgba(0, 0, 0, 0.64)),
+		0 6px 24px 0 rgba(0, 0, 0, 0.18);
+	scrollbar-gutter: stable both-edges;
+}
+.menu-container.fade-out {
+	opacity: 0 !important;
+	pointer-events: none;
+	visibility: hidden;
+	transform: translateY(-24px) scale(0.98);
+	transition:
+		opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+		transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+		visibility 0s linear 0.38s;
 }
 .menu-container::before {
 	content: "";
@@ -114,7 +122,8 @@
 [data-theme="dark"] .menu-container {
 	background: rgba(26, 26, 26, 0.35) !important;
 	background: var(--color-navbar-bg, rgba(26, 26, 26, 0.35)) !important;
-	box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.64),
+	box-shadow:
+		0 12px 48px 0 rgba(0, 0, 0, 0.64),
 		0 6px 24px 0 rgba(0, 0, 0, 0.18);
 }
 [data-theme="dark"] .menu-container::before {
@@ -132,12 +141,11 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 1.2rem;
-	max-width: 826px;
-	margin: 0 !important;
-	padding: 0 0.5rem !important;
-	box-sizing: border-box;
+	max-width: var(--dropdown-max-width) !important;
 	width: 100%;
-	min-height: 40px;
+	margin-left: auto !important;
+	margin-right: auto !important;
+	box-sizing: border-box;
 }
 .menu-content > * {
 	opacity: 1;
@@ -160,10 +168,11 @@
 	font-size: 1.08rem;
 	font-weight: 600;
 	margin: 0 0.7rem 0 0;
-	color: var(--color-text, #222);
+	color: var(--color-accent);
 	letter-spacing: 0.02em;
 	white-space: nowrap;
 	text-transform: uppercase;
+	text-shadow: var(--color-accent-glow);
 }
 .pill-list {
 	display: flex;
@@ -179,15 +188,18 @@
 	font-family: "Oswald", Arial, sans-serif;
 	padding: 0.22em 0.85em;
 	border-radius: var(--radius-pill, 9999px);
-	border: 1px solid var(--color-border, #e0e0e0);
-	background: var(--color-navbar-bg, #f5f5f5);
-	color: var(--color-text, #222);
+	border: 1.5px solid var(--color-pill-border);
+	background: var(--color-pill-bg);
+	color: var(--color-text);
 	font-weight: 500;
 	font-size: 1.09em;
 	cursor: pointer;
 	outline: none;
-	transition: background 0.15s, color 0.15s, border 0.15s;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	transition:
+		background 0.15s,
+		color 0.15s,
+		border 0.15s;
+	box-shadow: var(--color-pill-shadow, 0 1px 2px rgba(0, 0, 0, 0.04));
 	letter-spacing: 0.02em;
 	line-height: 1.13;
 	text-transform: uppercase;
@@ -195,11 +207,31 @@
 	z-index: 2;
 }
 .pill.active {
-	background: var(--color-accent, #222);
-	color: #fff;
-	border-color: var(--color-accent, #222);
-	box-shadow: 0 2px 8px #2222;
+	background: var(--color-pill-active);
+	color: var(--color-pill-active-text);
+	border-color: var(--color-accent);
+	box-shadow: var(--color-pill-shadow);
+	text-shadow:
+		0 0 2px var(--color-accent),
+		var(--color-accent-glow);
 }
+
+/* Style disabled sort and filter controls */
+.pill:disabled,
+.sort-arrow:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+/* Prevent hover styles when disabled */
+.pill:disabled:hover {
+	background: var(--color-pill-bg);
+}
+.sort-arrow:disabled:hover {
+	color: #bbb;
+}
+
 .sort-arrows {
 	display: inline-flex;
 	flex-direction: column;
@@ -220,7 +252,8 @@
 	z-index: 2;
 }
 .sort-arrow.active {
-	color: var(--color-accent, #0066cc);
+	color: var(--color-accent);
+	text-shadow: var(--color-accent-glow);
 }
 .theme-toggle-section {
 	display: flex;
@@ -257,6 +290,14 @@
 
 /* Vertical stack for medium viewports */
 @media (max-width: 900px) {
+	.menu-content,
+	.menu-container,
+	.menu-container.visible {
+		max-width: calc(100vw - 1rem) !important;
+		width: calc(100vw - 1rem) !important;
+		padding-left: var(--fluid-space-s) !important;
+		padding-right: var(--fluid-space-s) !important;
+	}
 	.menu-content {
 		flex-direction: column;
 		align-items: stretch;
@@ -270,6 +311,14 @@
 
 /* Vertical stack for mobile */
 @media (max-width: 600px) {
+	.menu-content,
+	.menu-container,
+	.menu-container.visible {
+		max-width: calc(100vw - 1rem) !important;
+		width: calc(100vw - 1rem) !important;
+		padding-left: var(--fluid-space-xs) !important;
+		padding-right: var(--fluid-space-xs) !important;
+	}
 	.menu-content {
 		gap: 0.4rem;
 	}
@@ -282,4 +331,15 @@
 /* Hide scrollbars on overlay for Webkit browsers for aesthetics, but keep space reserved */
 .menu-container.visible::-webkit-scrollbar {
 	display: none;
+}
+
+/* Ensure dropdowns have 0.5rem horizontal margin, fit within available space */
+#filter-sort-menu,
+[class*="dropdown"],
+[class^="dropdown"] {
+	margin-left: 0.5rem;
+	margin-right: 0.5rem;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: var(--dropdown-max-width);
 }

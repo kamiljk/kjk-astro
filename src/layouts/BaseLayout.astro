@@ -21,6 +21,19 @@ import '../assets/global.css';
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="/scripts/parallax-dot-grid.js" type="module"></script>
     <script src="/scripts/view-transitions.js" type="module"></script>
+    <!-- Prevent FOUC: Set theme instantly on page load -->
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme');
+          if (!theme) {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.body.dataset.theme = theme;
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/global.css">
   </head>
   <body>
     <div class="site-container">
@@ -36,14 +49,18 @@ import '../assets/global.css';
         <!-- <Search /> -->
       </div>
       <main class="main-alignment-wrapper">
-        <div id="astro-feed-island">
-          <Feed
-            client:visible
-            type={type}
-            sort={sort}
-            order={order}
-          />
-        </div>
+        {Astro.slots.default ? (
+          <slot />
+        ) : (
+          <div id="astro-feed-island">
+            <Feed
+              client:visible
+              type={type}
+              sort={sort}
+              order={order}
+            />
+          </div>
+        )}
       </main>
     </div>
     <script>

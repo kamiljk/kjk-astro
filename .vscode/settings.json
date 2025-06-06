@@ -1,4 +1,7 @@
 {
-    "editor.fontFamily": "Fira Code",
-    "editor.fontLigatures": true,
+	"editor.fontFamily": "Fira Code",
+	"editor.fontLigatures": true,
+	"python.testing.pytestArgs": ["."],
+	"python.testing.unittestEnabled": false,
+	"python.testing.pytestEnabled": true
 }

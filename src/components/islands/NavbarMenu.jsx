@@ -14,12 +14,15 @@ const ORDER_OPTIONS = [
 ];
 
 export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"], type = "all", sort = "updated", order = "desc", children }) {
+  // Deduplicate taxonomy array to avoid duplicate React keys
+  const uniqueTaxonomy = Array.from(new Set(taxonomy));
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
   const btnRef = useRef(null);
   const [isClient, setIsClient] = useState(false);
   const [dropdownTop, setDropdownTop] = useState(0);
   const [shouldRenderMenu, setShouldRenderMenu] = useState(false);
+  const menuRef = useRef(null); // fallback for event listeners
 
   // Always reflect current URL params for active state
   const getParam = (key, fallback) => {
@@ -38,11 +41,12 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
 
   // --- URL param update helpers ---
   function updateUrlParams(params) {
-    const url = new URL(window.location.href);
+    // Always reset to listing page when updating filters/sort
+    const listingPath = window.location.origin + '/';
+    const url = new URL(listingPath);
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-    url.searchParams.set("page", "1");
-    window.history.pushState({}, "", url);
-    window.dispatchEvent(new Event("popstate"));
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
   }
 
   const handleType = (item) => {
@@ -59,6 +63,14 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
   // Close menu on outside click, scroll, and Escape; restore focus
   useEffect(() => {
     function handleClickOutside(e) {
+      // DEBUG: log click target and refs
+      console.log('Dropdown: handleClickOutside', {
+        target: e.target,
+        menu: menuRef.current,
+        btn: btnRef.current,
+        menuContains: menuRef.current && menuRef.current.contains(e.target),
+        btnContains: btnRef.current && btnRef.current.contains(e.target)
+      });
       if (
         menuRef.current &&
         !menuRef.current.contains(e.target) &&
@@ -103,13 +115,27 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
     }
   }, [menuOpen]);
 
-  // Focus first pill when menu opens (for keyboard nav)
-  useEffect(() => {
-    if (menuOpen && menuRef.current) {
-      const firstPill = menuRef.current.querySelector('.pill');
-      if (firstPill) firstPill.focus();
+  // Callback ref for menu container to focus first pill on mount (deferred, with retry)
+  const menuCallbackRef = node => {
+    menuRef.current = node;
+    if (node && menuOpen) {
+      let tries = 0;
+      function tryFocus() {
+        const firstPill = node.querySelector('.pill');
+        if (firstPill) {
+          firstPill.focus();
+          if (document.activeElement !== firstPill && tries < 5) {
+            tries++;
+            setTimeout(tryFocus, 50);
+          }
+        } else if (tries < 5) {
+          tries++;
+          setTimeout(tryFocus, 50);
+        }
+      }
+      setTimeout(tryFocus, 50);
     }
-  }, [menuOpen]);
+  };
 
   // Set dropdown top position based on navbar height
   useEffect(() => {
@@ -126,28 +152,118 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
   useEffect(() => {
     if (menuOpen) {
       setShouldRenderMenu(true);
+    } else {
+      setShouldRenderMenu(false); // Immediately unmount when closed
     }
   }, [menuOpen]);
 
-  // Listen for transition end to unmount after ease-out
+  // Add keyboard navigation for pills
   useEffect(() => {
-    if (!shouldRenderMenu) return;
-    const menuEl = menuRef.current;
-    if (!menuEl) return;
-    function handleTransitionEnd(e) {
-      if (!menuOpen && e.propertyName === 'opacity') {
-        setShouldRenderMenu(false);
+    if (!menuOpen || !menuRef.current) return;
+    const menu = menuRef.current;
+    function handlePillKeyDown(e) {
+      const pills = Array.from(menu.querySelectorAll('.pill'));
+      if (!pills.length) return;
+      const active = document.activeElement;
+      let idx = pills.indexOf(active);
+      if (idx === -1) idx = 0;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        pills[(idx + 1) % pills.length].focus();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        pills[(idx - 1 + pills.length) % pills.length].focus();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        pills[0].focus();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        pills[pills.length - 1].focus();
       }
     }
-    menuEl.addEventListener('transitionend', handleTransitionEnd);
-    return () => menuEl.removeEventListener('transitionend', handleTransitionEnd);
-  }, [menuOpen, shouldRenderMenu]);
+    menu.addEventListener('keydown', handlePillKeyDown);
+    return () => menu.removeEventListener('keydown', handlePillKeyDown);
+  }, [menuOpen]);
+
+  // --- Scroll dismiss debounce and fade-out logic ---
+  const [fadeOut, setFadeOut] = useState(false);
+  const scrollTimeout = useRef(null);
+  const lastScrollY = useRef(0);
+  const scrollStartTime = useRef(null);
+  const scrollDismissAllowed = useRef(false);
+
+  // Start a timer when menu opens to allow scroll dismiss only after a delay
+  useEffect(() => {
+    if (!isClient) return;
+    if (menuOpen) {
+      scrollDismissAllowed.current = false;
+      const timer = setTimeout(() => {
+        scrollDismissAllowed.current = true;
+      }, 2500); // 2.5s before scroll can dismiss
+      return () => clearTimeout(timer);
+    } else {
+      scrollDismissAllowed.current = false;
+    }
+  }, [menuOpen, isClient]);
+
+  useEffect(() => {
+    if (!isClient) return;
+    function handleScroll() {
+      if (!menuOpen) return;
+      if (!scrollDismissAllowed.current) return;
+      const now = Date.now();
+      const y = window.scrollY;
+      if (scrollStartTime.current === null) {
+        scrollStartTime.current = now;
+        lastScrollY.current = y;
+      }
+      if (Math.abs(y - lastScrollY.current) > 24 || (now - scrollStartTime.current > 300)) {
+        setFadeOut(true);
+        setTimeout(() => {
+          setMenuOpen(false);
+          setFadeOut(false);
+        }, 320);
+        scrollStartTime.current = null;
+        lastScrollY.current = y;
+        return;
+      }
+      clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => {
+        scrollStartTime.current = null;
+        lastScrollY.current = window.scrollY;
+      }, 350);
+    }
+    if (menuOpen) {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+    }
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimeout.current);
+      scrollStartTime.current = null;
+    };
+  }, [menuOpen, isClient]);
+
+  // Detect if currently viewing a single card/detail
+  const isCardView = isClient && typeof window !== 'undefined' && window.location.pathname !== '/';
+
+  // --- PORTAL TARGET LOGIC ---
+  // Use #navbar-dropdown-slot if present, else fallback to body
+  const getDropdownPortalTarget = () => {
+    if (typeof window !== 'undefined') {
+      const slot = document.getElementById('navbar-dropdown-slot');
+      if (slot) return slot;
+    }
+    return document.body;
+  };
 
   return (
     <>
       <button
         ref={btnRef}
-        onClick={() => setMenuOpen((prev) => !prev)}
+        onClick={e => {
+          e.stopPropagation();
+          setMenuOpen((prev) => !prev);
+        }}
         aria-expanded={menuOpen ? "true" : "false"}
         className={`nav__menu-btn menu-toggle-btn${menuOpen ? " open" : ""}`}
         aria-label="Open menu"
@@ -169,8 +285,8 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
       {isClient && shouldRenderMenu && createPortal(
         <div
           id="filter-sort-menu"
-          className={`menu-container${menuOpen ? ' visible' : ''}`}
-          ref={menuRef}
+          className={`menu-container${menuOpen ? ' visible' : ''}${fadeOut ? ' fade-out' : ''}`}
+          ref={menuCallbackRef}
           style={{
             position: "fixed",
             left: "50%",
@@ -186,16 +302,17 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
             WebkitBackdropFilter: "blur(18px) saturate(180%)"
           }}
           aria-hidden={menuOpen ? "false" : "true"}
-          tabIndex={0}
         >
           <div className="menu-content">
             <div className="menu-section filter-section">
-              {taxonomy.map((item) => (
+              {uniqueTaxonomy.map((item) => (
                 <button
                   key={item}
-                  className={`pill${activeType === item ? " active" : ""}`}
+                  className={`pill${activeType === item ? ` active ${styles["pill-active"]}` : ''}`}
                   onClick={() => handleType(item)}
                   aria-current={activeType === item ? "page" : undefined}
+                  style={{ borderRadius: '8px' }}
+                  tabIndex={0}
                 >
                   {item}
                 </button>
@@ -205,9 +322,12 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
               {SORT_OPTIONS.map((opt) => (
                 <div key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                   <button
-                    className={`pill${activeSort === opt.key ? " active" : ""}`}
-                    onClick={() => handleSort(opt.key)}
+                    disabled={isCardView}
+                    className={`pill${activeSort === opt.key ? ` active ${styles["pill-active"]}` : ''}`}
+                    onClick={() => !isCardView && handleSort(opt.key)}
                     aria-current={activeSort === opt.key ? "page" : undefined}
+                    style={{ borderRadius: '8px' }}
+                    tabIndex={0}
                   >
                     {opt.label}
                   </button>
@@ -215,18 +335,20 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
                   {activeSort === opt.key && opt.key !== 'alpha' && (
                     <span className="sort-arrows">
                       <button
+                        disabled={isCardView}
                         className={`sort-arrow${activeOrder === 'asc' ? ' active' : ''}`}
                         aria-label="Sort ascending"
-                        onClick={() => handleOrder('asc')}
+                        onClick={() => !isCardView && handleOrder('asc')}
                         tabIndex={0}
                         type="button"
                       >
                         ▲
                       </button>
                       <button
+                        disabled={isCardView}
                         className={`sort-arrow${activeOrder === 'desc' ? ' active' : ''}`}
                         aria-label="Sort descending"
-                        onClick={() => handleOrder('desc')}
+                        onClick={() => !isCardView && handleOrder('desc')}
                         tabIndex={0}
                         type="button"
                       >
@@ -248,7 +370,7 @@ export default function NavbarMenu({ taxonomy = ["all", "read", "play", "about"]
             </div>
           </div>
         </div>,
-        document.body
+        getDropdownPortalTarget()
       )}
     </>
   );

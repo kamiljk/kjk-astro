@@ -6,6 +6,8 @@ type: "about"
 show: true
 ---
 
+# Colophon
+
 This site represents an exploration of modern web development techniques with an emphasis on performance and maintainability.
 
 Built with Astro as the core framework - chosen for its island architecture that enables rich interactivity with minimal JavaScript. Styled using Tailwind CSS for consistent design language across components.
@@ -19,6 +21,7 @@ Typography emphasizes readability with system fonts for body text and specialize
 This project is heavily inspired by the principles of **digital gardening**, as popularized by **[Maggie Appleton](https://maggieappleton.com/)**. The site is designed as a "living" knowledge base, blending personal exploration with public-facing content. It also draws influence from **[Gwern](https://www.gwern.net/)**, particularly his approach to long-form, interconnected writing and knowledge management.
 
 Additional inspiration comes from:
+
 - **[Non-Technical Gardening](https://maggieappleton.com/nontechnical-gardening)** and **[A Brief History of Digital Gardening](https://maggieappleton.com/garden-history)** by Maggie Appleton.
 - **[The Garden and the Stream](https://hapgood.us/2015/10/17/the-garden-and-the-stream-a-technopastoral/)** by Mike Caulfield.
 - **[Mind Gardens](https://nesslabs.com/mind-garden)** by Anne-Laure Le Cunff.

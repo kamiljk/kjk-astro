@@ -3,6 +3,7 @@ title: "Revolution"
 description: "A fundamental change in power, organizational structures, or social order that occurs in a relatively short period of time."
 dateCreated: 2025-04-01
 type: "post"
+show: true
 ---
 
 **Definition:**  

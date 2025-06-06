@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, getEntry } from "astro:content";
+import styles from "../../components/islands/Feed.module.css";
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("posts");
-  // Only generate pages for posts with show: true
-  const visiblePosts = allPosts.filter((post) => post.data.show === true);
-  return visiblePosts.map((post) => ({ params: { slug: post.slug } }));
+	const allPosts = await getCollection("posts");
+	// Only generate pages for posts with show: true
+	const visiblePosts = allPosts.filter((post) => post.data.show === true);
+	return visiblePosts.map((post) => ({ params: { slug: post.slug } }));
 }
 
 const { slug } = Astro.params;
@@ -14,7 +15,7 @@ const post = await getEntry("posts", slug);
 
 // If post doesn't exist or has show: false, return 404
 if (!post || post.data.show !== true) {
-  return new Response("Post not found or not visible", { status: 404 });
+	return new Response("Post not found or not visible", { status: 404 });
 }
 
 const rendered = await post.render();
@@ -24,12 +25,117 @@ const dateCreated = new Date(post.data.dateCreated);
 ---
 
 <BaseLayout>
-  <article>
-    <h1>{post.data.title}</h1>
-    <p>{post.data.description}</p>
-    <p>Created: {dateCreated.toLocaleDateString()}</p>
-    <div class="post-content">
-      <rendered.Content />
-    </div>
-  </article>
+	<!-- Use same feed layout wrapper to match card styles -->
+	<ul id="posts-feed">
+		<li class={`${styles["post-card"]} expanded-card`}>
+			<div
+				class={styles["post-card-inner"]}
+				style="flex-direction:column; gap:1.5rem;"
+			>
+				{
+					(post.data.type === "game" || post.data.type === "play") &&
+						post.data.slug && (
+							<div
+								class={styles["post-card-thumbnail"]}
+								style="margin-bottom:0; margin-right:2rem; display:flex; align-items:center;"
+							>
+								<img
+									src={`/games/${post.data.slug}/thumbnail.png`}
+									alt={`Thumbnail for ${post.data.title}`}
+									class={`${styles["post-thumb-large"]}`}
+									loading="lazy"
+									style="display:block;"
+									onerror="this.style.display='none'"
+								/>
+							</div>
+						)
+				}
+				<!-- New expandable embed card -->
+				{
+					(post.data.type === "game" || post.data.type === "play") &&
+						post.data.slug && (
+							<div
+								class={styles["post-card"]}
+								style="width:100%; margin-bottom:1.5rem; flex-direction:column;"
+							>
+								<div
+									class={styles["post-card-inner"]}
+									style="flex-direction:column; padding:1rem;"
+								>
+									<button
+										id="toggle-embedded-game"
+										class={`${styles["feed-cta"]} ${styles["pill"]}`}
+										style="margin-bottom:1rem;"
+									>
+										Show Embedded Game
+									</button>
+									<div
+										id="embedded-game-container"
+										style="display:none; width:100%;"
+									>
+										<iframe
+											src={`/games/${post.data.slug}/index.html`}
+											title={`Embedded game: ${post.data.title}`}
+											style="width:100%;min-height:480px;border-radius:11px;border:1.5px solid #39ff14;box-shadow:0 2px 8px #0002;margin-top:1.2em;background:#fff;"
+											loading="lazy"
+											allowfullscreen
+										/>
+									</div>
+								</div>
+							</div>
+						)
+				}
+
+				<article class={styles["post-card-content"]}>
+					<button
+						onclick="history.back()"
+						class={`${styles["feed-cta"]} ${styles["pill"]}`}
+						style="margin-bottom:1.5em;"
+						>← Back</button
+					>
+					<a
+						href={Astro.url.pathname}
+						data-testid="feed-post-link"
+						style="font-size:1.15em; font-weight:600; color:#222; margin-bottom:0.2em; word-break:break-word; display:block;"
+					>
+						{post.data.title}
+					</a>
+					<div
+						style="font-size:0.95em; color:#888; margin:0.2em 0 0.5em 0; min-height:1.2em;"
+					>
+						{dateCreated ? `Created: ${dateCreated.toLocaleDateString()}` : ""}
+					</div>
+					{
+						post.data.description && (
+							<div
+								class={styles["post-description"]}
+								style="margin-bottom:0.5em;"
+							>
+								{post.data.description}
+							</div>
+						)
+					}
+					<div class="post-content">
+						<rendered.Content />
+					</div>
+				</article>
+			</div>
+		</li>
+	</ul>
+	<script is:inline>
+		const toggleBtn = document.getElementById("toggle-embedded-game");
+		const embeddedContainer = document.getElementById(
+			"embedded-game-container"
+		);
+		if (toggleBtn && embeddedContainer) {
+			toggleBtn.addEventListener("click", () => {
+				embeddedContainer.style.display =
+					embeddedContainer.style.display === "none" ? "block" : "none";
+				toggleBtn.textContent =
+					embeddedContainer.style.display === "block" ?
+						"Hide Embedded Game"
+					:	"Show Embedded Game";
+			});
+		}
+	</script>
 </BaseLayout>

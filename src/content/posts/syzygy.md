@@ -3,6 +3,7 @@ title: "Syzygy"
 description: "A concept describing meaningful alignments or conjunctions of elements, often used in astronomy, psychology, and literary analysis."
 dateCreated: 2025-04-01
 type: "post"
+show: true
 ---
 
 # Syzygy: Meaningful Alignments

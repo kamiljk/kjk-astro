@@ -1,3 +1,4 @@
+@import "/styles/tokens.css";
 /*
   * MASTER CSS RESET & FOUNDATION (Roboto Only, Variable Weights)
   * Uses only Roboto Variable for all text, leveraging font-variation-settings and font-weight for emphasis
@@ -12,8 +13,9 @@
 }
 
 :root {
-	--font-family-base: "Roboto", system-ui, -apple-system, BlinkMacSystemFont,
-		"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--font-family-base:
+		"Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
 	--font-weight-thin: 100;
 	--font-weight-light: 300;
 	--font-weight-regular: 400;
@@ -27,6 +29,8 @@
 	--color-text: #181c17;
 	--color-accent: #39ff14;
 	--color-accent-dark: #1aff00;
+	--color-link: #22d900; /* More neon but still readable green */
+	--color-link-hover: #33ff14; /* Brighter neon green when hovered */
 	--color-border: #d6d5c9;
 	--color-bg-alt: #ecebe3;
 	--color-desc: #888888;
@@ -56,22 +60,29 @@
 	--space-2: 8px;
 	--space-3: 16px;
 	--space-4: 24px;
-	--space-xs: 0.75rem;
-	--space-s: 1rem;
-	--space-m: 1.5rem;
-	--space-l: 2rem;
-	--space-xl: 3rem;
+	--space-xs: 0.75rem; /* Maintained for specific small-scale uses */
+	--space-s: 1rem; /* Maintained for specific small-scale uses */
+	--space-m: 1.5rem; /* Maintained for specific small-scale uses */
+	--space-l: 2rem; /* Maintained for specific small-scale uses */
+	--space-xl: 3rem; /* Maintained for specific small-scale uses */
 
-	/* Fluid spacing tokens (Utopia-compliant) */
-	--space-3xs: clamp(2px, 0.2vw, 4px);
-	--space-2xs: clamp(4px, 0.4vw, 8px);
-	--space-xs: clamp(8px, 0.7vw, 12px);
-	--space-s: clamp(12px, 1vw, 20px);
-	--space-m: clamp(16px, 1.5vw, 32px);
-	--space-l: clamp(24px, 2vw, 48px);
-	--space-xl: clamp(32px, 3vw, 64px);
-	--space-2xl: clamp(48px, 5vw, 96px);
-	--space-3xl: clamp(64px, 8vw, 128px);
+	/* Fluid spacing tokens (Utopia-compliant) - PRIORITIZE THESE FOR LAYOUT */
+	--fluid-space-3xs: clamp(2px, 0.2vw, 4px);
+	--fluid-space-2xs: clamp(4px, 0.4vw, 8px);
+	--fluid-space-xs: clamp(8px, 0.7vw, 12px);
+	--fluid-space-s: clamp(12px, 1vw, 20px);
+	--fluid-space-m: clamp(16px, 1.5vw, 32px);
+	--fluid-space-l: clamp(24px, 2vw, 48px);
+	--fluid-space-xl: clamp(32px, 3vw, 64px);
+	--fluid-space-2xl: clamp(48px, 5vw, 96px);
+	--fluid-space-3xl: clamp(64px, 8vw, 128px);
+
+	/* Renamed old spacing tokens to avoid conflict and clarify usage */
+	--static-space-xs: 0.75rem;
+	--static-space-s: 1rem;
+	--static-space-m: 1.5rem;
+	--static-space-l: 2rem;
+	--static-space-xl: 3rem;
 
 	/* Border tokens */
 	--border-width-thin: 1px;
@@ -105,10 +116,25 @@
 	--font-size-header-6: 1rem;
 	--font-size-menu: clamp(1rem, 0.95rem + 0.3vw, 1.1rem);
 
-	/* Feed and navbar background widths and gap */
-	--feed-max-width: 840px;
-	--navbar-bg-max-width: calc(var(--feed-max-width) + 2rem);
-	--gap-navbar-feed: 1rem;
+	/* UNIFIED CENTERING SYSTEM - Single source of truth */
+	--site-max-width: 1280px; /* Overall site maximum width */
+	--content-max-width: 840px; /* ALL content aligns to this width */
+
+	/* All components use the same max-width for perfect alignment */
+	--feed-max-width: var(--content-max-width);
+	--navbar-max-width: var(--content-max-width);
+	--dropdown-max-width: var(--content-max-width);
+	--navbar-content-max-width: var(--content-max-width);
+
+	/* Gaps and Margins */
+	--main-content-padding-x: var(
+		--fluid-space-m
+	); /* Horizontal padding for main content area */
+	--main-content-padding-y: var(
+		--fluid-space-l
+	); /* Vertical padding for main content area */
+	--content-gap: var(--fluid-space-m); /* Default gap between elements */
+	--card-margin-y: var(--fluid-space-m); /* Vertical margin for cards */
 }
 
 /* Dark theme (Warm neutral gray palette) */
@@ -118,6 +144,8 @@
 	--color-text: #ffffff;
 	--color-accent: #39ff14; /* Neon green */
 	--color-accent-dark: #1aff00;
+	--color-link: #39ff14; /* Bright neon green for dark mode */
+	--color-link-hover: #52ff3d; /* Slightly lighter neon when hovered */
 	--color-border: #333333;
 	--color-bg-alt: #1e1e1e; /* Slightly lighter than background */
 	--color-desc: #b0b0b0; /* Warm light gray for descriptions */
@@ -155,6 +183,90 @@
 	}
 }
 
+/* REMOVE CONFLICTING WIDTH DEFINITIONS - Using unified system above */
+
+.navbar-content-inner,
+.navbar-header-row {
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 100%;
+	box-sizing: border-box;
+	gap: var(--content-gap);
+}
+
+.menu-content {
+	max-width: var(--dropdown-max-width);
+	margin: 0 auto;
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: 2rem;
+	min-height: 40px;
+	padding: 0 1rem;
+}
+
+#posts-feed {
+	max-width: var(--feed-max-width);
+	margin: 0 auto;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: var(--card-margin-y);
+	border-radius: 2px;
+	border: none;
+	box-shadow: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+	.menu-content {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.7rem;
+	}
+}
+@media (max-width: 600px) {
+	.menu-content {
+		gap: 0.4rem;
+	}
+	.menu-section {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+@media (max-width: 639px) {
+	#posts-feed {
+		gap: var(--fluid-space-m);
+	}
+}
+@media (min-width: 640px) and (max-width: 1024px) {
+	#posts-feed {
+		gap: var(--fluid-space-l);
+	}
+}
+@media (min-width: 1025px) {
+	#posts-feed {
+		gap: var(--fluid-space-xl);
+	}
+}
+
+/* Remove horizontal margin/padding from direct children of main/feed */
+main > *,
+#posts-feed > * {
+	margin-left: unset !important;
+	margin-right: unset !important;
+	padding-left: unset !important;
+	padding-right: unset !important;
+}
+
+/* --- END CLEANED UP LAYOUT & ALIGNMENT SYSTEM --- */
+
 /* --- NAVBAR & FEED ARCHITECTURE: TRUE FIRST PRINCIPLES --- */
 
 /*
@@ -177,133 +289,22 @@
 	background: var(--color-navbar-bg);
 }
 
-.site-header {
-	position: fixed; /* Ensure it is relative to the viewport */
-	top: 0;
-	left: 50%;
-	transform: translateX(-50%); /* Center horizontally in the viewport */
-	margin: 0;
-	max-width: var(--feed-max-width);
-	width: 100%;
-	box-sizing: border-box;
-	z-index: 1000;
-	background: var(--color-navbar-bg);
-	box-shadow: var(--color-card-shadow);
-	border-bottom: 1px solid var(--color-border);
-	padding: 0.75rem 0;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
+/* Removing manual overrides */
+/* deleted broad overrides for .site-header-inner, .navbar-header-row, #posts-feed and related rules */
 
-#posts-feed {
-	max-width: var(--feed-max-width);
-	margin-left: auto;
-	margin-right: auto;
-	width: 100%;
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	align-items: center; /* Center content horizontally */
-	justify-content: center; /* Center content vertically */
-	padding-top: 1rem;
-}
-
-body::before {
-	content: "";
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 8px;
-	background: var(--color-bg); /* Match page background color for both themes */
-	z-index: 99;
-	pointer-events: none;
-	opacity: 0; /* Hide from view but keep in DOM for Safari blur fix */
-}
-
-[data-theme="dark"] body::before {
-	background: var(--color-bg);
-	opacity: 0;
-}
-
-.site-header-inner {
-	max-width: var(--navbar-bg-max-width);
-	margin-left: auto;
-	margin-right: auto;
-	width: 100%;
-	box-sizing: border-box;
-	border: none !important;
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	background: none !important;
-	display: flex;
-	align-items: center; /* Ensure horizontal centering */
-	justify-content: center; /* Ensure vertical centering */
-}
-
-.site-header-inner,
-.main-alignment-wrapper,
-#posts-feed {
-	max-width: var(--feed-max-width);
-	margin-left: auto;
-	margin-right: auto;
-	width: 100%;
-	box-sizing: border-box;
-}
-
-.main-alignment-wrapper {
-	margin-top: var(--navbar-height);
-	display: block;
-	max-width: var(--feed-max-width);
-	margin-left: auto;
-	margin-right: auto;
-	width: 100%;
-	box-sizing: border-box;
-	background: none;
-}
-
-.site-container {
-	max-width: var(--feed-max-width);
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 0;
-	margin-bottom: 0;
-	box-sizing: border-box;
-	position: relative;
-	/* padding-top removed to prevent double offset */
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-
-@media (min-width: calc(var(--feed-max-width) + 2rem)) {
-	.site-container {
-		margin-left: auto;
-		margin-right: auto;
-	}
-}
-
-.navbar-content-inner {
-	max-width: var(--feed-max-width); /* 840px */
-	width: 100%;
-}
-
+.navbar-content-inner,
 .navbar-header-row {
+	max-width: var(
+		--navbar-content-max-width
+	); /* Max width for the content inside navbar */
 	width: 100%;
-	max-width: var(--feed-max-width);
-	margin: 0 auto;
-	border: none !important;
-	border-radius: 0 !important;
-	box-shadow: none !important; /* keep this row flat, only .site-header gets shadow */
-	background: none !important;
+	margin: 0 auto; /* Center content within the navbar */
 	display: flex;
 	align-items: center;
-	justify-content: center; /* Center content horizontally */
-	height: var(--navbar-height);
+	justify-content: space-between; /* Adjust as needed, space-between is common */
+	height: 100%; /* Fill navbar height */
 	box-sizing: border-box;
-	gap: 1rem;
+	gap: var(--content-gap); /* Use token for gap */
 }
 
 /* Remove horizontal padding and margin from all direct children of .site-container */
@@ -315,78 +316,37 @@ body::before {
 }
 
 main {
-	padding: 0;
-	min-height: calc(100vh - var(--navbar-height));
+	padding-top: var(
+		--navbar-height
+	); /* Ensure content starts below fixed navbar */
+	padding-bottom: var(--main-content-padding-y);
+	min-height: calc(100vh); /* Adjusted to be full viewport height */
 	box-sizing: border-box;
+	width: 100%;
+	margin: 0 auto; /* Center main content */
 }
 
 #posts-feed {
 	box-sizing: border-box;
-	gap: var(--gap-navbar-feed);
+	gap: var(--card-margin-y); /* Use token for gap between posts */
 	border-radius: 2px;
 	border: none;
 	box-shadow: none;
-	padding-left: 1rem;
-	padding-right: 1rem;
-	/* background: yellow !important; */
-}
-
-[class^="post-card_"],
-[class^="_post-card_"] {
-	background: var(--color-card-bg, #fff) !important;
-	border-radius: var(--radius-unified) !important;
-	border: 1px solid var(--color-border) !important;
-	box-shadow: var(--color-card-shadow) !important;
-}
-
-[data-theme="dark"] [class^="post-card_"],
-[data-theme="dark"] [class^="_post-card_"] {
-	background: var(--color-card-bg, #1a1a1a) !important;
-}
-
-[class*="post-card-inner"] {
-	background: none !important;
-	border-radius: 0 !important;
-	border: none !important;
-}
-
-/* Remove bottom margin from the last card to prevent extra space at the bottom */
-.post-card:last-child {
-	margin-bottom: 0;
-}
-
-.post-card-inner {
-	background: none !important;
-}
-
-/* Remove horizontal margin from search bar for perfect alignment */
-.nav__search-stretch {
-	margin: 0 !important;
-	flex: 1;
-	justify-content: center;
-}
-
-.nav__search-input {
 	width: 100%;
-	max-width: 320px;
-	padding: 0.5em 1em;
-	border-radius: 8px;
-	border: 1px solid var(--color-border);
-	background: var(--color-bg-alt);
-	color: var(--color-text);
-	font-size: 1em;
-	outline: none;
+	max-width: var(--feed-max-width); /* Max width for the feed itself */
+	margin: 0 auto; /* Center the feed within the main container */
+	/* padding-left and padding-right removed, handled by main or specific feed items if needed */
 }
 
 /* Feed column layout: only one source of truth */
 @media (max-width: 1024px) {
 	#posts-feed {
-		gap: var(--space-l) !important;
+		gap: var(--fluid-space-l) !important; /* Use fluid token */
 	}
 }
 @media (min-width: 1025px) {
 	#posts-feed {
-		gap: var(--space-xl) !important;
+		gap: var(--fluid-space-xl) !important; /* Use fluid token */
 	}
 }
 
@@ -398,52 +358,149 @@ main {
 	border-radius: var(--radius-unified) !important;
 }
 
+.post-card {
+	/* margin-left and margin-right removed, handled by #posts-feed centering */
+	margin-bottom: var(--card-margin-y); /* Use token for vertical spacing */
+}
+
 /* Remove bottom margin from the last card to prevent extra space at the bottom */
 .post-card:last-child {
 	margin-bottom: 0;
 }
 
-/* Remove all horizontal widths, margins, and padding from all elements */
-.site-container,
-.main-alignment-wrapper,
-main,
-.card,
-.post-card,
-.nav__search-stretch {
-	/* width: unset !important; */
-	/* margin: unset !important; */
-	/* Do not unset margin-top here! Let .main-alignment-wrapper control it. */
+#posts-feed > .post-card:first-child {
+	margin-top: 0; /* remove individual post margin now handled by wrapper */
 }
 
-/* Remove conflicting resets for main-alignment-wrapper and main */
-main {
-	/* Remove margin-top here, let .main-alignment-wrapper handle spacing */
-	/* margin-top: var(--gap-navbar-feed); */
+/* Navbar dropdown layout */
+.menu-content {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	gap: 2rem;
+	max-width: 826px;
+	margin: 0 auto;
+	width: 100%;
+	min-height: 40px;
+	padding: 0 1rem;
+}
+
+.menu-section {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 1.2rem;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	z-index: 2;
+}
+
+.menu-section.filter {
+	flex: 1 1 0;
+	justify-content: flex-start;
+}
+.menu-section.sort {
+	flex: 0 0 auto;
+	justify-content: center;
+}
+.menu-section.theme-toggle-section {
+	flex: 0 0 auto;
+	justify-content: flex-end;
+	margin-left: auto;
+}
+
+@media (max-width: 900px) {
+	.menu-content {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.7rem;
+	}
+	.menu-section {
+		flex-direction: row;
+		gap: 0.5rem;
+	}
+}
+@media (max-width: 600px) {
+	.menu-content {
+		gap: 0.4rem;
+	}
+	.menu-section {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+@media (max-width: 639px) {
+	#posts-feed {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: var(--fluid-space-m) !important; /* Adjusted for smaller screens */
+	}
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+	#posts-feed {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: var(--fluid-space-l) !important; /* Use fluid token */
+	}
+}
+
+@media (min-width: 1025px) {
+	#posts-feed {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: var(--fluid-space-xl) !important; /* Use fluid token */
+	}
+}
+
+/* --- NAVBAR, DROPDOWN, FEED, FULLPOST CONSISTENCY FIXES --- */
+:root {
+	--content-gap: var(--fluid-space-m);
+	--card-margin-y: var(--fluid-space-m);
+}
+
+.navbar-content-inner,
+.navbar-header-row {
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	margin: 0 auto;
+	box-sizing: border-box;
+}
+
+.menu-content {
+	max-width: var(--dropdown-max-width);
+	width: 100%;
+	margin: 0 auto;
+	gap: var(--content-gap);
 }
 
 #posts-feed {
-	/* Remove margin-top here, let .main-alignment-wrapper handle spacing */
-	/* margin-top: var(--navbar-height); */
-	/* margin-top: var(--gap-navbar-feed); */
+	max-width: var(--feed-max-width);
+	width: 100%;
+	margin: 0 auto;
+	gap: var(--card-margin-y);
 }
 
-/* Remove horizontal padding and margin from all direct children of .site-container */
-.site-container > * {
-	margin-left: unset;
-	margin-right: unset;
-	padding-left: unset;
-	padding-right: unset;
+.post-card,
+.expanded-card {
+	max-width: var(--feed-element-max-width);
+	width: 100%;
+	margin: 0 auto var(--card-margin-y) auto;
 }
 
-/* Remove horizontal padding and margin from all direct children of main */
-main > * {
-	margin-left: unset !important;
-	margin-right: unset !important;
-	padding-left: unset !important;
-	padding-right: unset !important;
+.post-card-inner {
+	padding-left: max(1.25rem, 2rem);
+	padding-right: max(1.25rem, 2rem);
+	box-sizing: border-box;
 }
 
-/* Remove horizontal padding and margin from all direct children of #posts-feed */
+/* Remove horizontal padding/margin from direct children */
+.site-container > *,
+main > *,
 #posts-feed > * {
 	margin-left: unset !important;
 	margin-right: unset !important;
@@ -451,19 +508,54 @@ main > * {
 	padding-right: unset !important;
 }
 
-/* Remove any accidental border: none or box-shadow: none on .site-header */
-.site-header[style*="border: none"],
-.site-header[style*="box-shadow: none"] {
-	border-left: var(--border-unified) !important;
-	border-right: var(--border-unified) !important;
-	border-bottom: var(--border-unified) !important;
-	border-top: none !important;
-	box-shadow: var(--color-card-shadow) !important;
+/* Responsive: full width on mobile, consistent padding */
+@media (max-width: 900px) {
+	.site-header,
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	#posts-feed,
+	.post-card,
+	.expanded-card {
+		max-width: 100vw;
+		width: 100vw;
+		padding-left: var(--fluid-space-s);
+		padding-right: var(--fluid-space-s);
+	}
+}
+@media (max-width: 600px) {
+	.site-header,
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	#posts-feed,
+	.post-card,
+	.expanded-card {
+		max-width: 100vw;
+		width: 100vw;
+		padding-left: var(--fluid-space-xs);
+		padding-right: var(--fluid-space-xs);
+	}
 }
 
-/* --- END NAVBAR & FEED ARCHITECTURE --- */
+/* Ensure dropdown never overflows navbar */
+.menu-content {
+	box-sizing: border-box;
+	padding-left: 0;
+	padding-right: 0;
+}
 
-/* .nav-feed-wrapper styles removed: now handled by .site-container */
+/* Z-index fixes */
+.site-header,
+.navbar-header-row {
+	z-index: 1000;
+}
+.menu-content {
+	z-index: 1001;
+}
+.expanded-card {
+	z-index: 100;
+}
 
 /* Dark theme adjustments */
 [data-theme="dark"] .theme-toggle-btn img,
@@ -1043,208 +1135,290 @@ body.search-active {
 	overflow: hidden;
 }
 
-/* Fix navbar display */
-.nav {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-}
-
-.nav__menu-btn {
-	flex: 0 0 auto;
-}
-
-.navbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	min-height: var(--navbar-height);
-	box-shadow: var(--color-card-shadow) !important;
-}
-
-.post-card {
-	margin-left: 0 !important;
-	margin-right: 0 !important;
-	margin-bottom: 0rem; /* Add vertical spacing between cards */
-}
-
-/* Remove bottom margin from the last card to prevent extra space at the bottom */
-.post-card:last-child {
-	margin-bottom: 0;
-}
-
-/* Navbar dropdown layout */
-.menu-content {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	gap: 2rem;
-	max-width: 826px;
+.site-header-inner {
+	max-width: var(--navbar-max-width);
 	margin: 0 auto;
 	width: 100%;
-	min-height: 40px;
-	padding: 0 1rem;
+	box-sizing: border-box;
 }
 
-.menu-section {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 1.2rem;
-	min-width: 0;
-	margin: 0;
-	padding: 0;
-	position: relative;
-	z-index: 2;
+/* --- FORCE CENTERING FOR ALL MAJOR LAYOUTS --- */
+.site-header,
+.navbar-content-inner,
+.navbar-header-row,
+.menu-content,
+#posts-feed,
+.post-card,
+.expanded-card {
+	margin-left: auto !important;
+	margin-right: auto !important;
 }
 
-.menu-section.filter {
-	flex: 1 1 0;
-	justify-content: flex-start;
-}
-.menu-section.sort {
-	flex: 0 0 auto;
-	justify-content: center;
-}
-.menu-section.theme-toggle-section {
-	flex: 0 0 auto;
-	justify-content: flex-end;
-	margin-left: auto;
+/* Remove any left/right padding that could offset centering */
+.site-header,
+.navbar-content-inner,
+.navbar-header-row,
+.menu-content,
+#posts-feed,
+.post-card,
+.expanded-card {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
 }
 
+/* Responsive: still center, but allow some horizontal padding for breathing room */
 @media (max-width: 900px) {
-	.menu-content {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 0.7rem;
-	}
-	.menu-section {
-		flex-direction: row;
-		gap: 0.5rem;
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	#posts-feed,
+	.post-card,
+	.expanded-card {
+		margin-left: auto !important;
+		margin-right: auto !important;
+		padding-left: var(--fluid-space-s) !important;
+		padding-right: var(--fluid-space-s) !important;
 	}
 }
 @media (max-width: 600px) {
-	.menu-content {
-		gap: 0.4rem;
-	}
-	.menu-section {
-		flex-direction: column;
-		align-items: stretch;
-	}
-}
-
-@media (max-width: 639px) {
-	#posts-feed {
-		display: flex !important;
-		flex-direction: column !important;
-		gap: var(--space-l) !important;
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	#posts-feed,
+	.post-card,
+	.expanded-card {
+		margin-left: auto !important;
+		margin-right: auto !important;
+		padding-left: var(--fluid-space-xs) !important;
+		padding-right: var(--fluid-space-xs) !important;
 	}
 }
 
-@media (min-width: 640px) and (max-width: 1024px) {
-	#posts-feed {
-		display: flex !important;
-		flex-direction: column !important;
-		gap: var(--space-l) !important;
+/* --- FINAL: ENFORCE ABSOLUTE ALIGNMENT & CENTERING FOR NAVBAR, DROPDOWN, FEED, FULL POST --- */
+:root {
+	--layout-max-width: 840px;
+}
+
+/* Allow .site-header to use its own width from Navbar.astro */
+.site-header-inner,
+.navbar-content-inner,
+.navbar-header-row,
+.menu-content,
+.post-card,
+.expanded-card {
+	max-width: var(--layout-max-width) !important;
+	width: 100%;
+	margin-left: auto !important;
+	margin-right: auto !important;
+	box-sizing: border-box;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+}
+
+/* Remove any horizontal padding/margin from direct children */
+.site-container > *,
+main > *,
+#posts-feed > * {
+	margin-left: unset !important;
+	margin-right: unset !important;
+	padding-left: unset !important;
+	padding-right: unset !important;
+}
+
+/* Responsive: allow some breathing room on mobile, but always center to viewport */
+@media (max-width: 900px) {
+	.site-header-inner,
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	#posts-feed,
+	.post-card,
+	.expanded-card {
+		width: 100vw !important;
+		max-width: 100vw !important;
+		padding-left: 0.5rem !important;
+		padding-right: 0.5rem !important;
+	}
+}
+@media (max-width: 600px) {
+	.site-header-inner,
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	#posts-feed,
+	.post-card,
+	.expanded-card {
+		width: 100vw !important;
+		max-width: 100vw !important;
+		padding-left: 0.25rem !important;
+		padding-right: 0.25rem !important;
 	}
 }
 
-@media (min-width: 1025px) {
-	#posts-feed {
-		display: flex !important;
-		flex-direction: column !important;
-		gap: var(--space-xl) !important;
+/*
+ * ENFORCE UNIFIED WIDTHS FOR ALL MAJOR LAYOUT ELEMENTS
+ * - All major containers and wrappers must use the same max-width and width logic
+ * - Remove or override any width: 100vw, width: 100%, or max-width: 100vw that could break centering
+ * - Remove or override any width/max-width on .site-header, .site-header-inner, .navbar-content-inner, .navbar-header-row, .menu-content, #posts-feed, .post-card, .expanded-card, .site-container, .main-alignment-wrapper
+ */
+.site-header-inner,
+.navbar-content-inner,
+.navbar-header-row,
+.menu-content,
+.post-card,
+.expanded-card,
+.site-container {
+	width: var(--layout-max-width) !important;
+	max-width: var(--layout-max-width) !important;
+	min-width: 0 !important;
+	box-sizing: border-box;
+}
+
+/* Responsive: allow full width on mobile, but always center to viewport */
+@media (max-width: 900px) {
+	.site-header-inner,
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	.post-card,
+	.expanded-card,
+	.site-container {
+		width: 100vw !important;
+		max-width: 100vw !important;
+		min-width: 0 !important;
+	}
+}
+@media (max-width: 600px) {
+	.site-header-inner,
+	.navbar-content-inner,
+	.navbar-header-row,
+	.menu-content,
+	.post-card,
+	.expanded-card,
+	.site-container {
+		width: 100vw !important;
+		max-width: 100vw !important;
+		min-width: 0 !important;
 	}
 }
 
-span[data-astro-cid-353qvbhl] {
+/* Remove any horizontal margin/padding from direct children of .site-container */
+.site-container > * {
+	margin-left: unset !important;
+	margin-right: unset !important;
+	padding-left: unset !important;
+	padding-right: unset !important;
+}
+
+/*
+ * Allow Navbar.astro component to handle its own positioning
+ * - Keep centering transforms from component
+ * - Don't override left/transform positioning
+ */
+
+.site-header-inner,
+.navbar-content-inner,
+.navbar-header-row {
+	/* Remove any inline or component-level margin, left, right, or width overrides */
+	margin-left: auto !important;
+	margin-right: auto !important;
+	left: unset !important;
+	right: unset !important;
+	width: 100%;
+	max-width: var(--layout-max-width) !important;
+	box-sizing: border-box;
+}
+
+.navbar-header-row {
+	/* Remove gap: 0 and justify-content overrides from inline style */
+	gap: var(--content-gap) !important;
+	justify-content: space-between !important;
+}
+
+.nav__search-stretch {
+	/* Remove margin and max-width inline overrides */
+	margin: 0 !important;
+	max-width: 240px !important;
+}
+
+.navbar-menu-wrapper {
+	/* Remove flex: 0 0 auto and height inline overrides */
+	flex: unset !important;
+	height: 100% !important;
+}
+
+/* Hide all except navbar and dropdown when modal is open */
+body.hero-modal-open .site-container,
+body.hero-modal-open main,
+body.hero-modal-open #posts-feed,
+body.hero-modal-open .post-card,
+body.hero-modal-open .expanded-card {
 	display: none !important;
 }
+body.hero-modal-open .site-header,
+body.hero-modal-open .menu-content {
+	display: flex !important;
+}
 
-/* 404 page styles */
-.maximalist-404 {
-	min-height: 100vh;
-	height: 100vh;
-	width: 100vw;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	background: #fff;
-	text-align: center;
-	padding: 0 2rem;
-	box-sizing: border-box;
-	position: fixed;
-	left: 0;
+/* Optionally, ensure hero-card is always above if needed */
+#hero-card.active {
+	z-index: 99999 !important;
+}
+
+/* Hide all except hero card when modal is open */
+body.hero-modal-open .site-container {
+	display: none !important;
+}
+body.hero-modal-open #hero-card {
+	display: block !important;
+	z-index: 99999 !important;
+	position: fixed !important;
 	top: 0;
-	z-index: 9999;
-}
-.maximalist-404-number {
-	font-size: 50vw;
-	font-family: "Oswald", Arial Black, Impact, sans-serif;
-	font-weight: 900;
-	color: #000;
-	letter-spacing: 0.1em;
-	margin-bottom: 1.5rem;
-	line-height: 1;
-}
-.maximalist-404-message {
-	font-size: 2.1rem;
-	font-family: "Roboto", Arial, sans-serif;
-	color: #000;
-	margin-bottom: 2rem;
-	max-width: 700px;
-}
-.maximalist-404-sass {
-	font-size: 1.3rem;
-	color: #000;
-	margin-top: 1.2rem;
-}
-.maximalist-404-back {
-	margin-top: 2.5rem;
-	font-size: 1.2rem;
-	padding: 0.8em 2.2em;
-	border: 2px solid #000;
-	background: #fff;
-	color: #000;
-	border-radius: 2em;
-	cursor: pointer;
-	transition: background 0.2s, color 0.2s;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.7);
+	overflow: auto;
 }
 
-/* PagefindSearch styles */
-.pagefind-search-island {
-	max-width: 500px;
-	margin: 2em auto;
+/* Optionally, ensure hero-card is always above */
+#hero-card.active {
+	z-index: 99999 !important;
 }
-.pagefind-search-input {
-	width: 100%;
-	padding: 0.5em;
-	font-size: 1.1em;
+
+/* DEBUG SECTION REMOVED - Content should now be visible */
+
+/* Comment out or remove all modal/conditional hiding logic for clarity */
+/*
+body.hero-modal-open .site-container,
+body.hero-modal-open main,
+body.hero-modal-open #posts-feed,
+body.hero-modal-open .post-card,
+body.hero-modal-open .expanded-card {
+  display: none !important;
 }
-.pagefind-search-loading {
-	color: #888;
-	margin-top: 8px;
+body.hero-modal-open .site-header,
+body.hero-modal-open .menu-content {
+  display: flex !important;
 }
-.pagefind-search-results {
-	list-style: none;
-	padding: 0;
-	margin-top: 12px;
+#hero-card.active {
+  z-index: 99999 !important;
 }
-.pagefind-search-result-item {
-	margin-bottom: 12px;
+body.hero-modal-open .site-container {
+  display: none !important;
 }
-.pagefind-search-result-link {
-	font-weight: 600;
+body.hero-modal-open #hero-card {
+  display: block !important;
+  z-index: 99999 !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.7);
+  overflow: auto;
 }
-.pagefind-search-result-excerpt {
-	color: #666;
-	font-size: 0.95em;
-	margin-top: 2px;
+#hero-card.active {
+  z-index: 99999 !important;
 }
-.pagefind-search-no-results {
-	color: #888;
-	margin-top: 8px;
-}
+*/

@@ -1,0 +1,771 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Ad-Solitaire</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				background: #222;
+				color: white;
+			}
+			canvas {
+				display: block;
+				margin: 0 auto;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			let cards = [];
+			let suits = ["♠", "♥", "♣", "♦"];
+			let ads = [
+				"🔥 50% OFF SNEAKERS",
+				"💊 Brain Pills!",
+				"🎯 Unlock Your Potential",
+				"📈 Grow Your Wealth",
+				"🏝 Work from Bali",
+				"🧠 AI Can Make You Rich",
+				"🚗 Tesla Giveaway",
+				"👀 You Won’t Believe This",
+				"📚 Learn in 5 Minutes",
+				"💼 Become Your Own Boss",
+			];
+			const brandAds = {
+				1: [
+					"Amazon Prime Trial",
+					"Apple One Free Month",
+					"Google One Cloud Free",
+					"Try Disney+ on Us",
+				],
+				2: [
+					"2X Points at Starbucks",
+					"Double Miles with Delta",
+					"2 Months Free: Audible",
+					"2-Day Shipping: Walmart+",
+				],
+				3: [
+					"3% Back at Target",
+					"3 Free Rides: Lyft",
+					"3 Months Free: Spotify",
+					"3x Rewards: Chase",
+				],
+				4: [
+					"4K Streaming: Netflix",
+					"4 Free Stocks: Robinhood",
+					"4 Weeks Free: Peloton",
+					"4x Data: Verizon",
+				],
+				5: [
+					"5% Off: Walmart",
+					"5 Free Deliveries: DoorDash",
+					"5-Star Hotels: Expedia",
+					"5x Points: Amex",
+				],
+				6: [
+					"6 Months Free: Disney+",
+					"6% Cashback: Apple Card",
+					"6 Free Audiobooks: Audible",
+					"6x Miles: United",
+				],
+				7: [
+					"7-Day Free Uber Pass",
+					"7% Off: Instacart+",
+					"7 Free Meals: HelloFresh",
+					"7x Rewards: Citi",
+				],
+				8: [
+					"8% APY: Robinhood Gold",
+					"8 Free Classes: MasterClass",
+					"8x Data: T-Mobile",
+					"8 Free Games: Prime Gaming",
+				],
+				9: [
+					"9 Free Rides: Lyft",
+					"9% Off: Nike",
+					"9 Free Stocks: Webull",
+					"9x Points: Marriott",
+				],
+				10: [
+					"10% Off: Best Buy",
+					"10x Points: Fidelity",
+					"10 Free Deliveries: Grubhub+",
+					"10 Free Audiobooks: Audible",
+				],
+				11: [
+					"Jackpot: TikTok Mystery Box",
+					"Jack's Deal: Amazon",
+					"Jack's Free Month: HBO Max",
+					"Jack's Bonus: DoorDash",
+				],
+				12: [
+					"Queen's Glam: Sephora",
+					"Queen's Pick: Instagram Shop",
+					"Queen's Deal: Ulta Beauty",
+					"Queen's Choice: Nordstrom",
+				],
+				13: [
+					"King of Streaming: Netflix",
+					"King's Deal: Walmart",
+					"King's Bonus: Amazon Prime",
+					"King's Pick: YouTube TV",
+				],
+			};
+
+			let deck = [];
+			let tableau = [];
+			let foundations = [[], [], [], []];
+			let stock = [];
+			let waste = [];
+			let draggingCard = null;
+			let dragOffset = { x: 0, y: 0 };
+			let dropTarget = null; // {type: 'tableau'|'foundation', col|fndIdx}
+
+			function shuffle(array) {
+				for (let i = array.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[array[i], array[j]] = [array[j], array[i]];
+				}
+			}
+
+			function getAdForCard(rank, suit) {
+				const pool = brandAds[rank];
+				if (pool) return pool[Math.floor(Math.random() * pool.length)];
+				return ads[Math.floor(Math.random() * ads.length)];
+			}
+
+			function createAdDeck() {
+				let adDeck = [];
+				for (let i = 0; i < 52; i++) {
+					let suit = suits[i % 4];
+					let rank = (i % 13) + 1;
+					adDeck.push({
+						ad: getAdForCard(rank, suit),
+						suit,
+						rank,
+						faceUp: false,
+						pile: null,
+						x: 0,
+						y: 0,
+						w: 100,
+						h: 140,
+					});
+				}
+				return adDeck;
+			}
+
+			function setup() {
+				createCanvas(windowWidth, windowHeight);
+				textAlign(CENTER, CENTER);
+				textSize(18);
+				deck = createAdDeck();
+				shuffle(deck);
+				// Deal to tableau (7 columns)
+				tableau = [[], [], [], [], [], [], []];
+				let deckIdx = 0;
+				for (let col = 0; col < 7; col++) {
+					for (let row = 0; row <= col; row++) {
+						let card = deck[deckIdx++];
+						card.pile = "tableau";
+						card.col = col;
+						card.row = row;
+						card.faceUp = row === col;
+						tableau[col].push(card);
+					}
+				}
+				// Remaining cards go to stock
+				stock = [];
+				for (; deckIdx < deck.length; deckIdx++) {
+					let card = deck[deckIdx];
+					card.pile = "stock";
+					card.faceUp = false;
+					stock.push(card);
+				}
+				waste = [];
+				foundations = [[], [], [], []];
+				createResetButton();
+			}
+
+			function windowResized() {
+				resizeCanvas(windowWidth, windowHeight);
+				setup();
+			}
+
+			function draw() {
+				background(30);
+				drawFoundations();
+				drawStockAndWaste();
+				drawTableau();
+				if (draggingCard && dropTarget) {
+					// Draw highlight for drop target
+					push();
+					if (dropTarget.type === "tableau") {
+						let col = dropTarget.col;
+						let colCards = tableau[col];
+						let cardW = 100,
+							cardH = 140,
+							colSpacing = 120,
+							rowSpacing = 30;
+						let numCols = 7;
+						let totalWidth = colSpacing * (numCols - 1) + cardW;
+						let startX = (windowWidth - totalWidth) / 2;
+						let startY = 200;
+						let tx = startX + col * colSpacing;
+						let ty =
+							startY +
+							(colCards.length ? (colCards.length - 1) * rowSpacing : 0);
+						// Enlarge drop area
+						fill(255, 220, 60, 60);
+						stroke(255, 220, 60, 120);
+						strokeWeight(4);
+						rect(tx - 8, ty - 8, cardW + 16, cardH + 16, 10);
+					} else if (dropTarget.type === "foundation") {
+						let fx = 420,
+							fy = 40;
+						let fndX = fx + dropTarget.fndIdx * 120;
+						let fndY = fy;
+						fill(255, 220, 60, 60);
+						stroke(255, 220, 60, 120);
+						strokeWeight(4);
+						rect(fndX - 8, fndY - 8, 100 + 16, 140 + 16, 10);
+					}
+					pop();
+				}
+				if (draggingCard) {
+					drawCard(
+						draggingCard,
+						mouseX + dragOffset.x,
+						mouseY + dragOffset.y,
+						true
+					);
+				}
+			}
+
+			function drawCard(card, x, y, isDragging = false) {
+				push();
+				translate(x || card.x, y || card.y);
+				const cornerPadX = 18;
+				const cornerPadY = 10;
+				const adPad = 18;
+				if (card.faceUp) {
+					// Subtle gradient base
+					let grad = drawingContext.createLinearGradient(0, 0, card.w, card.h);
+					grad.addColorStop(0, "#fff");
+					grad.addColorStop(1, "#f3f3f3");
+					drawingContext.fillStyle = grad;
+					noStroke();
+					rect(0, 0, card.w, card.h, 6);
+					// Intricate border pattern (filigree)
+					const outerThickness = 2; // px
+					const borderGap = 2; // px between borders
+					const numBorders = 3;
+					for (let i = 0; i < numBorders; i++) {
+						const outerR = 4 + i * borderGap;
+						const thickness = outerThickness;
+						const innerR = outerR - thickness / 2;
+						rect(
+							outerR,
+							outerR,
+							card.w - 2 * outerR,
+							card.h - 2 * outerR,
+							innerR
+						);
+					}
+					// Corner flourishes
+					stroke("#bfa76a");
+					for (let i = 0; i < 4; i++) {
+						push();
+						translate(i < 2 ? 10 : card.w - 10, i % 3 === 0 ? 10 : card.h - 10);
+						rotate((PI / 2) * i);
+						arc(0, 0, 18, 18, PI, PI + HALF_PI);
+						pop();
+					}
+					// Center faint pattern
+					noFill();
+					stroke("#ede6d0");
+					strokeWeight(0.7);
+					for (let r = 18; r < 40; r += 7) {
+						ellipse(card.w / 2, card.h / 2, r * 2, r * 2);
+					}
+					// Clean, thin border
+					const cleanOuterR = 0.75;
+					const cleanThickness = 1.5;
+					const cleanInnerR = cleanOuterR - cleanThickness / 2;
+					stroke("#888");
+					strokeWeight(cleanThickness);
+					noFill();
+					rect(
+						cleanOuterR,
+						cleanOuterR,
+						card.w - 2 * cleanOuterR,
+						card.h - 2 * cleanOuterR,
+						cleanInnerR
+					);
+
+					// Value and suit in top-left (improved layout)
+					textSize(16);
+					textFont("Roboto", 700);
+					let rankStr = [
+						null,
+						"A",
+						"2",
+						"3",
+						"4",
+						"5",
+						"6",
+						"7",
+						"8",
+						"9",
+						"10",
+						"J",
+						"Q",
+						"K",
+					][card.rank];
+					let valueStr = rankStr;
+					let suitStr = card.suit;
+					let valueW = textWidth(valueStr);
+					let suitW = textWidth(suitStr);
+					let gap = 4;
+					let padX = 22,
+						padY = 16;
+					// Draw value
+					textAlign(LEFT, TOP);
+					fill(isRed(card.suit) ? "#c00" : "#222");
+					text(valueStr, padX, padY);
+					// Draw suit, vertically centered to value
+					textAlign(LEFT, TOP);
+					text(suitStr, padX + valueW + gap, padY + 1);
+					// Value and suit in bottom-right (mirrored)
+					push();
+					translate(card.w - padX, card.h - padY);
+					rotate(PI);
+					textAlign(LEFT, TOP);
+					fill(isRed(card.suit) ? "#c00" : "#222");
+					text(valueStr, 0, 0);
+					textAlign(LEFT, TOP);
+					text(suitStr, valueW + gap, 1);
+					pop();
+
+					// Ad text background (soft white, rounded, with drop shadow)
+					let txt = card.ad;
+					let maxWidth = card.w - adPad * 2;
+					textSize(14);
+					textAlign(CENTER, CENTER);
+					// Improved word wrapping: break into lines that fit maxWidth
+					let words = txt.split(/\s+/);
+					let lines = [];
+					let currentLine = words[0] || "";
+					for (let i = 1; i < words.length; i++) {
+						let testLine = currentLine + " " + words[i];
+						if (textWidth(testLine) > maxWidth) {
+							lines.push(currentLine);
+							currentLine = words[i];
+						} else {
+							currentLine = testLine;
+						}
+					}
+					if (currentLine) lines.push(currentLine);
+					let lineHeight = textAscent() + textDescent();
+					let textBlockHeight = lines.length * lineHeight;
+					let yOffset = (card.h - textBlockHeight) / 2;
+					// Draw background for ad text
+					push();
+					let bgPadX = 10,
+						bgPadY = 6;
+					let bgW = maxWidth + bgPadX * 2;
+					let bgH = textBlockHeight + bgPadY * 2;
+					let bgX = (card.w - bgW) / 2;
+					let bgY = yOffset - bgPadY;
+					// Drop shadow
+
+					pop();
+					// Draw ad text, centered in the background
+					fill("#222");
+					noStroke();
+					for (let i = 0; i < lines.length; i++) {
+						// HORIZONTAL CENTERING: measure text width and center each line
+						let line = lines[i];
+						let lineW = textWidth(line);
+						let x = card.w / 2;
+						let y = yOffset + i * lineHeight + lineHeight / 2;
+						textAlign(CENTER, CENTER);
+						text(line, x, y);
+					}
+				} else {
+					// Elegant die-cut inspired back
+					let grad = drawingContext.createLinearGradient(0, 0, card.w, card.h);
+					grad.addColorStop(0, "#3a5ba0");
+					grad.addColorStop(1, "#6b8fcf");
+					drawingContext.fillStyle = grad;
+					noStroke();
+					rect(0, 0, card.w, card.h, 6);
+					// Refined ornate border: double gold lines with dots
+					const ornateOuterR1 = 2;
+					const ornateThickness1 = 1.2;
+					const ornateInnerR1 = ornateOuterR1 - ornateThickness1 / 2;
+					stroke("#bfa76a");
+					strokeWeight(ornateThickness1);
+					rect(
+						ornateOuterR1,
+						ornateOuterR1,
+						card.w - 2 * ornateOuterR1,
+						card.h - 2 * ornateOuterR1,
+						ornateInnerR1
+					);
+					const ornateOuterR2 = 5;
+					const ornateThickness2 = 0.7;
+					const ornateInnerR2 = ornateOuterR2 - ornateThickness2 / 2;
+					stroke("#e6d8b6");
+					strokeWeight(ornateThickness2);
+					rect(
+						ornateOuterR2,
+						ornateOuterR2,
+						card.w - 2 * ornateOuterR2,
+						card.h - 2 * ornateOuterR2,
+						ornateInnerR2
+					);
+					// Inner white border for depth
+					const whiteOuterR = 9;
+					const whiteThickness = 0.7;
+					const whiteInnerR = whiteOuterR - whiteThickness / 2;
+					stroke("#fff8e1");
+					strokeWeight(whiteThickness);
+					rect(
+						whiteOuterR,
+						whiteOuterR,
+						card.w - 2 * whiteOuterR,
+						card.h - 2 * whiteOuterR,
+						whiteInnerR
+					);
+					// Corner dots
+					noStroke();
+					fill("#bfa76a");
+					let dotR = 2.2;
+					ellipse(8, 8, dotR, dotR);
+					ellipse(card.w - 8, 8, dotR, dotR);
+					ellipse(8, card.h - 8, dotR, dotR);
+					ellipse(card.w - 8, card.h - 8, dotR, dotR);
+					// Sunburst filigree behind rosette
+					push();
+					translate(card.w / 2, card.h / 2);
+					for (let i = 0; i < 24; i++) {
+						stroke("rgba(255,220,60,0.18)");
+						strokeWeight(2.2);
+						let angle = (TWO_PI / 24) * i;
+						let r1 = 36,
+							r2 = 48;
+						line(
+							r1 * cos(angle),
+							r1 * sin(angle),
+							r2 * cos(angle),
+							r2 * sin(angle)
+						);
+					}
+					// Rosette: filled gold circle with gradient
+					let rosetteGrad = drawingContext.createRadialGradient(
+						0,
+						0,
+						10,
+						0,
+						0,
+						32
+					);
+					rosetteGrad.addColorStop(0, "#ffe9a0cc");
+					rosetteGrad.addColorStop(1, "#bfa76aee");
+					drawingContext.fillStyle = rosetteGrad;
+					noStroke();
+					ellipse(0, 0, 64, 64);
+					// Rosette white filigree
+					noFill();
+					stroke("#fff8e1");
+					strokeWeight(0.7);
+					for (let a = 0; a < TWO_PI; a += PI / 8) {
+						let r1 = 20,
+							r2 = 32;
+						line(
+							r1 * Math.cos(a),
+							r1 * Math.sin(a),
+							r2 * Math.cos(a),
+							r2 * Math.sin(a)
+						);
+					}
+					for (let r = 12; r < 32; r += 10) {
+						ellipse(0, 0, r * 2, r * 2);
+					}
+					pop();
+					// Subtle watermark pattern (diagonal lines) - NO CLIP, lines stay inside card
+					stroke("rgba(255,255,255,0.07)");
+					strokeWeight(1);
+					for (let i = -card.h; i < card.w; i += 12) {
+						let x1 = Math.max(0, i);
+						let y1 = Math.max(0, -i);
+						let x2 = Math.min(card.w, i + card.h);
+						let y2 = Math.min(card.h, card.h + i);
+						if (y1 <= card.h && x1 <= card.w && x2 >= 0 && y2 >= 0) {
+							line(x1, y1, x2, y2);
+						}
+					}
+					// Subtle crosshatch overlay
+					stroke("#a2b4d6");
+					strokeWeight(0.5);
+					for (let i = 12; i < card.w - 8; i += 8) {
+						line(i, 8, i, card.h - 8);
+					}
+					for (let j = 12; j < card.h - 8; j += 8) {
+						line(8, j, card.w - 8, j);
+					}
+				}
+				pop();
+			}
+
+			function getLayout() {
+				const cardW = 100,
+					cardH = 140;
+				const colSpacing = 120,
+					rowSpacing = 32;
+				const numCols = 7;
+				const totalWidth = colSpacing * (numCols - 1) + cardW;
+				const startX = Math.max(60, (windowWidth - totalWidth) / 2);
+				const tableauY = 220;
+				const stockY = 40;
+				const foundationY = 40;
+				const foundationX = startX + colSpacing * 3; // Foundations start after 3 columns
+				return {
+					cardW,
+					cardH,
+					colSpacing,
+					rowSpacing,
+					numCols,
+					totalWidth,
+					startX,
+					tableauY,
+					stockY,
+					foundationY,
+					foundationX,
+				};
+			}
+
+			function drawTableau() {
+				const L = getLayout();
+				for (let i = 0; i < 7; i++) {
+					let pile = tableau[i];
+					for (let j = 0; j < pile.length; j++) {
+						let card = pile[j];
+						let x = L.startX + i * L.colSpacing;
+						let y = L.tableauY + j * L.rowSpacing;
+						card.x = x;
+						card.y = y;
+						drawCard(card, x, y, false, isCardSelected(card));
+					}
+				}
+			}
+
+			function drawStockAndWaste() {
+				const L = getLayout();
+				let sx = L.startX,
+					sy = L.stockY;
+				// Stock
+				if (stock.length > 0) {
+					drawCard(stock[stock.length - 1], sx, sy);
+				} else {
+					push();
+					stroke("#888");
+					noFill();
+					rect(sx, sy, L.cardW, L.cardH, 8);
+					pop();
+				}
+				// Waste
+				if (waste.length > 0) {
+					drawCard(waste[waste.length - 1], sx + L.colSpacing, sy);
+				}
+			}
+
+			function drawFoundations() {
+				const L = getLayout();
+				let fx = L.foundationX,
+					fy = L.foundationY;
+				for (let i = 0; i < 4; i++) {
+					if (foundations[i].length > 0) {
+						drawCard(
+							foundations[i][foundations[i].length - 1],
+							fx + i * L.colSpacing,
+							fy
+						);
+					} else {
+						push();
+						stroke("#888");
+						noFill();
+						rect(fx + i * L.colSpacing, fy, L.cardW, L.cardH, 8);
+						pop();
+					}
+				}
+			}
+
+			function isRed(suit) {
+				return suit === "♥" || suit === "♦";
+			}
+
+			function canStackTableau(top, bottom) {
+				// top: card being dropped, bottom: card on tableau
+				return (
+					top.rank === bottom.rank - 1 && isRed(top.suit) !== isRed(bottom.suit)
+				);
+			}
+
+			function canStackFoundation(top, foundation) {
+				if (foundation.length === 0) {
+					return top.rank === 1; // Ace
+				}
+				let last = foundation[foundation.length - 1];
+				return top.suit === last.suit && top.rank === last.rank + 1;
+			}
+
+			function mousePressed() {
+				// Stock click
+				let sx = 60,
+					sy = 40;
+				if (
+					mouseX > sx &&
+					mouseX < sx + 100 &&
+					mouseY > sy &&
+					mouseY < sy + 140
+				) {
+					if (stock.length > 0) {
+						let card = stock.pop();
+						card.faceUp = true;
+						waste.push(card);
+					} else {
+						while (waste.length > 0) {
+							let card = waste.pop();
+							card.faceUp = false;
+							stock.push(card);
+						}
+					}
+					return;
+				}
+				// Waste click (drag top card)
+				if (waste.length > 0) {
+					let wx = sx + 120,
+						wy = sy;
+					let card = waste[waste.length - 1];
+					if (
+						mouseX > wx &&
+						mouseX < wx + card.w &&
+						mouseY > wy &&
+						mouseY < wy + card.h
+					) {
+						draggingCard = card;
+						dragOffset.x = wx - mouseX;
+						dragOffset.y = wy - mouseY;
+						dropTarget = null;
+						return;
+					}
+				}
+				// Tableau click (flip or drag)
+				for (let col = 0; col < 7; col++) {
+					let colCards = tableau[col];
+					for (let row = colCards.length - 1; row >= 0; row--) {
+						let card = colCards[row];
+						if (
+							mouseX > card.x &&
+							mouseX < card.x + card.w &&
+							mouseY > card.y &&
+							mouseY < card.y + card.h
+						) {
+							if (!card.faceUp && row === colCards.length - 1) {
+								card.faceUp = true;
+								return;
+							}
+							if (card.faceUp) {
+								draggingCard = card;
+								dragOffset.x = card.x - mouseX;
+								dragOffset.y = card.y - mouseY;
+								dropTarget = null;
+								return;
+							}
+						}
+					}
+				}
+			}
+
+			function mouseDragged() {
+				// Just to trigger mouseMoved for dropTarget
+				mouseMoved();
+			}
+
+			function mouseReleased() {
+				if (!draggingCard) return;
+				let fromWaste = false;
+				let idxWaste = waste.indexOf(draggingCard);
+				if (idxWaste !== -1) {
+					waste.splice(idxWaste, 1);
+					fromWaste = true;
+				}
+				if (dropTarget) {
+					if (dropTarget.type === "tableau") {
+						draggingCard.pile = "tableau";
+						draggingCard.col = dropTarget.col;
+						tableau[dropTarget.col].push(draggingCard);
+						draggingCard = null;
+						dropTarget = null;
+						return;
+					} else if (dropTarget.type === "foundation") {
+						draggingCard.pile = "foundation";
+						foundations[dropTarget.fndIdx].push(draggingCard);
+						draggingCard = null;
+						dropTarget = null;
+						return;
+					}
+				}
+				// If not dropped anywhere valid, snap back to waste if it was from waste
+				if (fromWaste) {
+					waste.push(draggingCard);
+				}
+				draggingCard = null;
+				dropTarget = null;
+			}
+
+			function moveCardToTableau(card, col) {
+				// Remove from old pile
+				removeCardFromPiles(card);
+				card.pile = "tableau";
+				card.col = col;
+				tableau[col].push(card);
+			}
+
+			function moveCardToFoundation(card, fndIdx) {
+				removeCardFromPiles(card);
+				card.pile = "foundation";
+				foundations[fndIdx].push(card);
+			}
+
+			function removeCardFromPiles(card) {
+				for (let col = 0; col < 7; col++) {
+					let idx = tableau[col].indexOf(card);
+					if (idx !== -1) {
+						tableau[col].splice(idx, 1);
+						return;
+					}
+				}
+				let idx = waste.indexOf(card);
+				if (idx !== -1) waste.splice(idx, 1);
+				for (let i = 0; i < 4; i++) {
+					let idx2 = foundations[i].indexOf(card);
+					if (idx2 !== -1) foundations[i].splice(idx2, 1);
+				}
+			}
+
+			function createResetButton() {
+				if (window.resetBtn) {
+					window.resetBtn.remove();
+				}
+				window.resetBtn = createButton("Reset");
+				window.resetBtn.position(20, 20);
+				window.resetBtn.mousePressed(() => {
+					for (let card of cards) card.flipped = false;
+				});
+			}
+		</script>
+	</body>
+</html>

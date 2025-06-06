@@ -9,4 +9,6 @@ keywords:
 show: true
 ---
 
+# Bad Ghost
+
 Play the game [here](/games/badghost/index.html).

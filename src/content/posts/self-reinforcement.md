@@ -8,6 +8,7 @@ dateUpdated: 2025-03-22
 type: "post"
 epistemic_status: "Initial capture."
 description: "The process by which behaviors, beliefs, or systems strengthen themselves through feedback loops, often leading to increased stability or entrenchment."
+show: true
 lineage:
   - "[Wikipedia: Feedback](https://en.wikipedia.org/wiki/Feedback)"
 child_of:

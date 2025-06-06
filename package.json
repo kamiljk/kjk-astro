@@ -10,19 +10,22 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "@astrojs/react": "^4.2.7",
-    "@astrojs/svelte": "^7.0.13",
-    "@astrojs/vercel": "^8.1.4",
-    "astro": "^5.7.12",
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/react": "^4.3.0",
+    "@astrojs/svelte": "^7.1.0",
+    "@astrojs/vercel": "^8.1.5",
+    "astro": "^5.8.2",
     "astro-pagefind": "^1.8.3",
     "gray-matter": "^4.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "remark-wiki-link": "^2.0.1",
+    "typescript": "^5.8.3",
     "vite": "^6.3.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
-    "@types/node": "^22.14.1"
+    "@types/node": "^22.14.1",
+    "playwright": "^1.52.0"
   }
 }

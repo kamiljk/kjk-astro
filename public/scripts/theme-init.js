@@ -3,6 +3,7 @@
  * This script runs before other scripts to ensure proper theme initialization
  */
 
+/* THEME INIT SCRIPT DISABLED - handled by React ThemeToggle component
 (function() {
   // Ensure theme is applied immediately before any rendering occurs
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -59,3 +60,4 @@
     }
   });
 })();
+*/

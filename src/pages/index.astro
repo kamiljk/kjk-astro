@@ -20,7 +20,10 @@ const allPosts = await getCollection("posts");
 const visiblePosts = allPosts.filter((post) => post.data.show === true);
 const filteredPosts =
   type === "all"
-    ? visiblePosts
+    ? visiblePosts.filter((post) => {
+        const norm = normalizeType(post.data.type);
+        return norm === "read" || norm === "post" || norm === "play" || norm === "about";
+      })
     : visiblePosts.filter((post) => normalizeType(post.data.type) === type);
 
 function getSortDate(post, field) {
