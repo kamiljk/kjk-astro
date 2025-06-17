@@ -305,9 +305,9 @@ main > *,
 }
 
 main {
-	padding-top: var(
-		--navbar-height
-	); /* Ensure content starts below fixed navbar */
+	padding-top: calc(
+		var(--navbar-height) + 1rem
+	); /* Ensures content starts 1rem below navbar globally */
 	padding-bottom: var(--main-content-padding-y);
 	min-height: calc(100vh); /* Adjusted to be full viewport height */
 	box-sizing: border-box;
@@ -1272,3 +1272,7 @@ body.hero-modal-open #hero-card {
   z-index: 99999 !important;
 }
 */
+#astro-feed-island,
+#posts-feed {
+	margin-top: 1rem; /* Ensures both feed and single post start 1rem below navbar */
+}

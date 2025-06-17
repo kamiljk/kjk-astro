@@ -100,7 +100,7 @@
 
 - [X] Center and align navbar using only tokens and unified layout rules.
 - [X] Ensure feed scales smoothly and responsively at all breakpoints.
-- [ ] Add at least 1rem space between bottom of navbar and feed start at all breakpoints.
+- [X] Add at least 1rem space between bottom of navbar and feed start at all breakpoints.
 - [ ] Standardize border radius, border style, and spacing for all pills, buttons, dropdown, navbar, and cards.
 - [ ] Add a subtle, unified border to all major UI elements.
 - [ ] Implement a frosted glass (blurred, translucent) effect for the navbar and dropdown using `backdrop-filter: blur(...)` and semi-transparent backgrounds.
@@ -123,6 +123,7 @@
 
 ## SESSION LOG
 
+- 2025-06-17: Locked in consistent 1rem spacing below navbar for both feed and single post views using margin-top on #astro-feed-island and #posts-feed. All spacing is now token-driven and visually correct at all breakpoints.
 - 2025-06-16: Feed scaling and responsiveness fixed. Ready to add spacing between navbar and feed.
 - 2025-06-16: Navbar centering and alignment visually confirmed and complete. Ready to proceed to dropdown polish and consistency.
 - 2025-06-15: Alignment and width system complete. Visual consistency and polish needed. Next: unify border radius, border style, spacing, and add frosted glass effect to navbar and dropdown.
