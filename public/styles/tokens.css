@@ -18,6 +18,12 @@
 	--color-pill-border: #e0e0e0;
 	--color-pill-shadow: 0 2px 8px #00ffe733;
 	--border-radius-xs: 6px;
+
+	/* Responsive max-widths for layout elements */
+	--navbar-max-width: clamp(340px, 90vw, 1200px);
+	--dropdown-max-width: calc(var(--navbar-max-width) - 1rem);
+	--content-max-width: calc(var(--dropdown-max-width) - 1rem);
+	--feed-max-width: var(--content-max-width);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,7 +61,9 @@
 body {
 	background: var(--color-bg);
 	color: var(--color-text);
-	transition: background 0.3s, color 0.3s;
+	transition:
+		background 0.3s,
+		color 0.3s;
 }
 
 .menu-open {

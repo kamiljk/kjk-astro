@@ -19,17 +19,17 @@
 	top: 100%;
 	box-sizing: border-box;
 	z-index: 999;
-	border-radius: 10px;
+	border-radius: var(--radius-card);
 }
 
 /* --- FEED & POSTS --- */
 #posts-feed,
 .post-card,
 .expanded-card {
-	max-width: var(--content-max-width) !important;
+	max-width: var(--feed-max-width);
 	width: 100%;
-	margin-left: auto !important;
-	margin-right: auto !important;
+	margin-left: auto;
+	margin-right: auto;
 	box-sizing: border-box;
 	scrollbar-gutter: stable both-edges;
 }
@@ -37,20 +37,30 @@
 #posts-feed {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: var(--fluid-space-s); /* [RULE: Spacing] */
 	list-style: none;
-	max-width: var(--content-max-width);
+	max-width: clamp(320px, 96vw, var(--feed-max-width)); /* Smooth scaling */
 	width: 100%;
 	margin: 0 auto;
-	box-sizing: border-box;
-	border: none;
-	background: none;
-	border-radius: 0;
-	align-items: stretch;
-	justify-content: flex-start;
-	overflow: visible;
-	scrollbar-gutter: stable both-edges;
-	overflow-y: scroll;
+	gap: var(--fluid-space-m);
+	padding-left: var(--fluid-space-s);
+	padding-right: var(--fluid-space-s);
+}
+
+@media (max-width: 600px) {
+	#posts-feed {
+		padding-left: var(--fluid-space-xs);
+		padding-right: var(--fluid-space-xs);
+	}
+}
+
+.post-card,
+.expanded-card {
+	border-radius: var(--radius-card);
+	box-shadow: var(--shadow-elevation-2);
+	border: var(--border-unified);
+	background: var(--color-card-bg);
+	margin-bottom: var(--fluid-space-m);
 }
 
 #posts-feed > * {
@@ -61,57 +71,39 @@
 .single-column-feed {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: var(--fluid-space-s); /* [RULE: Spacing] */
 	min-height: 1px;
 	min-width: 0;
 	width: 100%;
 	max-width: var(--content-max-width);
 	margin: 0 auto;
 	box-sizing: border-box;
-	border-radius: 2px;
-	background: #fff;
-	outline: none;
-	box-shadow: none;
-	padding: 0;
+	border-radius: var(--radius-unified);
+	background: var(--color-card-bg);
+	gap: var(--fluid-space-s);
 }
 
 .post-card {
-	margin: 0;
-	background: #fff;
-	border-radius: 11px;
-	box-shadow: 0 2px 8px #0001;
-	padding: 0;
-	display: flex;
-	align-items: stretch;
-	gap: 0;
-	transition: box-shadow 0.2s;
-	width: 100%;
-	max-width: var(--content-max-width) !important;
-	margin-left: auto !important;
-	margin-right: auto !important;
-	box-sizing: border-box;
-	border: none;
 	outline: none;
 	min-width: 0;
 	min-height: 180px;
+	/* Inherits width from #posts-feed per RULES */
+}
+
+.post-card:hover,
+.post-card:focus {
+	box-shadow: var(--shadow-elevation-3);
+	border-color: var(--color-accent);
 }
 
 .post-card-inner {
-	display: flex;
-	align-items: stretch;
-	gap: 2rem;
-	border: none;
-	background: #fff;
-	outline: none;
-	margin: 0;
-	padding: 2rem;
-	min-width: 0;
-	min-height: 180px;
-	width: 100%;
-	box-sizing: border-box;
-	padding-left: max(1.25rem, 2rem);
-	padding-right: max(1.25rem, 2rem);
-	position: relative;
+	border-radius: var(--radius-card);
+	background: var(--color-card-bg);
+	box-shadow: none;
+	padding: var(--fluid-space-l);
+	gap: var(--fluid-space-l);
+	padding-left: max(var(--fluid-space-s), var(--fluid-space-l));
+	padding-right: max(var(--fluid-space-s), var(--fluid-space-l));
 }
 
 .post-card-inner > * {
@@ -176,20 +168,15 @@
 	max-height: 40vw;
 	display: block;
 	margin: 0 2rem 0 0;
-	border-radius: 8px;
-	box-shadow: 0 4px 24px #0002;
+	border-radius: var(--radius-unified);
+	box-shadow: var(--shadow-elevation-2);
 }
 
 .expanded-content {
-	padding: 2rem 1.5rem 1.5rem 1.5rem;
-	background: #f8fff8;
-	border-top: 1px solid #39ff14;
-	margin-top: 1rem;
-	border-radius: 0 0 11px 11px;
-	max-width: 100%;
-	overflow-x: auto;
-	font-size: 1.08em;
-	color: #222;
+	padding: var(--fluid-space-l) var(--fluid-space-m) var(--fluid-space-m)
+		var(--fluid-space-m);
+	border-top: var(--border-unified);
+	border-radius: 0 0 var(--radius-card) var(--radius-card);
 }
 
 .close-btn {
@@ -199,13 +186,13 @@
 	background: #222;
 	color: #fff;
 	border: none;
-	border-radius: 2em;
-	padding: 0.3em 1.1em;
+	border-radius: var(--radius-pill);
+	padding: var(--space-2) var(--space-4);
 	font-size: 1em;
 	font-weight: 700;
 	cursor: pointer;
 	z-index: 20;
-	box-shadow: 0 2px 8px #0002;
+	box-shadow: var(--shadow-elevation-2);
 	transition:
 		background 0.2s,
 		color 0.2s;
@@ -219,13 +206,13 @@
 	background: #222;
 	color: #fff;
 	border: none;
-	border-radius: 2em;
-	padding: 0.3em 1.1em;
-	font-size: 1em;
-	font-weight: 700;
+	border-radius: var(--radius-pill);
+	padding: var(--space-s) var(--space-m);
+	font-size: 1rem;
+	font-weight: 600;
 	cursor: pointer;
 	margin-right: 0.5em;
-	box-shadow: 0 2px 8px #0002;
+	box-shadow: var(--shadow-elevation-2);
 	transition:
 		background 0.2s,
 		color 0.2s;
@@ -242,9 +229,8 @@
 	max-width: 180px;
 	max-height: 180px;
 	object-fit: cover;
-	border-radius: 2px;
+	border-radius: var(--radius-unified);
 	border: 1px solid var(--color-border);
-	background: none;
 	box-shadow: none;
 	margin: 0;
 	padding: 0;
@@ -254,32 +240,20 @@
 /* Responsive: full width on mobile, but maintain hierarchy */
 @media (max-width: 900px) {
 	#posts-feed {
-		max-width: calc(100vw - 2rem) !important;
-		width: calc(100vw - 2rem) !important;
-		padding-left: var(--fluid-space-s) !important;
-		padding-right: var(--fluid-space-s) !important;
+		/* Removed !important and hard overrides for smooth scaling */
 	}
 	.post-card,
 	.expanded-card {
-		max-width: calc(100vw - 3rem) !important;
-		width: calc(100vw - 3rem) !important;
-		padding-left: var(--fluid-space-s) !important;
-		padding-right: var(--fluid-space-s) !important;
+		/* Removed !important and hard overrides for smooth scaling */
 	}
 }
 @media (max-width: 600px) {
 	#posts-feed {
-		max-width: calc(100vw - 2rem) !important;
-		width: calc(100vw - 2rem) !important;
-		padding-left: var(--fluid-space-xs) !important;
-		padding-right: var(--fluid-space-xs) !important;
+		/* Removed !important and hard overrides for smooth scaling */
 	}
 	.post-card,
 	.expanded-card {
-		max-width: calc(100vw - 3rem) !important;
-		width: calc(100vw - 3rem) !important;
-		padding-left: var(--fluid-space-xs) !important;
-		padding-right: var(--fluid-space-xs) !important;
+		/* Removed !important and hard overrides for smooth scaling */
 	}
 }
 
@@ -302,4 +276,9 @@
 .post-card,
 .post-card-inner {
 	z-index: unset;
+}
+
+:root {
+	--navbar-top-margin: 1rem;
+	--navbar-height: 64px; /* Adjust if your navbar is taller */
 }

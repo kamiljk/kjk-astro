@@ -9,7 +9,7 @@ const {
 } = Astro.props;
 ---
 
-<header class="site-header">
+<header class="navbar site-header">
 	<div class="site-header-inner">
 		<div class="navbar-content-inner">
 			<div class="navbar-header-row">
@@ -32,7 +32,10 @@ const {
 						disabled
 					/>
 				</div>
-				<div class="navbar-menu-wrapper">
+				<div
+					class="navbar-menu-wrapper"
+					style="position:relative;"
+				>
 					<NavbarMenu
 						taxonomy={taxonomy}
 						type={type}
@@ -42,7 +45,7 @@ const {
 				</div>
 			</div>
 			<!-- Remove the invalid NavbarMenu.Dropdown, and add a dropdown slot for the portal target -->
-			<div id="navbar-dropdown-slot"></div>
+			<!-- DROPDOWN SLOT REMOVED: now handled inline for CSS alignment -->
 		</div>
 	</div>
 </header>
@@ -55,39 +58,49 @@ const {
 	/* Navbar Styles */
 	.site-header {
 		position: fixed;
-		top: 0;
+		top: 1rem;
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 10;
-		backdrop-filter: blur(18px) saturate(180%);
-		-webkit-backdrop-filter: blur(18px) saturate(180%);
-		background: var(--color-navbar-bg);
-		border: 1.5px solid var(--color-border, #d6d5c9);
-		padding: 0.75rem 0;
-		box-sizing: border-box;
-		box-shadow:
-			0 12px 32px -4px rgba(0, 0, 0, 0.18),
-			0 1.5px 0 0 rgba(0, 0, 0, 0.04);
-		width: var(--content-max-width);
-		max-width: var(--content-max-width);
+		max-width: var(--navbar-max-width);
+		width: 100%; /* If you want a fixed width, use width: var(--navbar-max-width); */
+		margin: 0;
+		z-index: 10000;
+		background: var(--frosted-bg);
+		backdrop-filter: var(--frosted-blur);
+		-webkit-backdrop-filter: var(--frosted-blur);
+		border-bottom: var(--frosted-border);
+		box-shadow: var(--frosted-shadow);
+		border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+		transition:
+			background 0.3s,
+			box-shadow 0.3s;
 	}
 
-	.site-header-inner,
+	.site-header-inner {
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		margin: 0 auto;
+		padding-left: var(--fluid-space-s);
+		padding-right: var(--fluid-space-s);
+		box-sizing: border-box;
+	}
+
 	.navbar-content-inner,
 	.navbar-header-row {
-		max-width: var(--content-max-width) !important;
 		width: 100%;
-		margin-left: auto !important;
-		margin-right: auto !important;
+		margin: 0;
 		box-sizing: border-box;
 	}
 
 	.navbar-header-row {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		padding: 0;
-		gap: 1rem;
+		justify-content: center; /* Center the navbar content */
+		gap: var(--fluid-space-s);
+		border-radius: var(--radius-unified);
+		border: var(--frosted-border);
+		background: transparent;
+		box-shadow: none;
 	}
 
 	.nav__logo {
@@ -185,46 +198,6 @@ const {
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		max-width: var(--content-max-width) !important;
 		width: 100%;
-		margin-left: auto !important;
-		margin-right: auto !important;
-		box-sizing: border-box;
-	}
-	[data-theme="dark"] :global(#filter-sort-menu),
-	[data-theme="dark"] :global(.menu-container) {
-		background: var(--color-navbar-bg) !important;
-	}
-
-	:global(#filter-sort-menu .menu-content),
-	:global(.menu-content) {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		gap: 2rem;
-		max-width: var(--content-max-width) !important;
-		width: 100%;
-		margin-left: auto !important;
-		margin-right: auto !important;
-		box-sizing: border-box;
-		min-height: 40px;
-		padding: 0 1rem;
-	}
-
-	@media (max-width: 600px) {
-		:global(#filter-sort-menu .menu-content) {
-			flex-direction: column;
-			align-items: stretch;
-			gap: 0.7rem;
-		}
-	}
-
-	:global(#filter-sort-menu .menu-section) {
-		margin: 0;
-		padding: 0;
-	}
-
-	:global(#filter-sort-menu ul),
-	:global(#filter-sort-menu li) {
 		list-style: none;
 		margin: 0;
 		padding: 0;
@@ -254,7 +227,7 @@ const {
 
 	/* Feed should start 1rem below navbar (robust for fixed header) */
 	.main-alignment-wrapper {
-		margin-top: calc(var(--navbar-height) + 1rem);
+		margin-top: calc(var(--navbar-height) + 2rem);
 		display: block; /* Remove any flex that might cause vertical centering */
 		/* Ensure proper centering for child elements */
 		width: 100%;
@@ -309,60 +282,8 @@ const {
 	[data-theme="dark"] :global(#filter-sort-menu .dropdown-item),
 	[data-theme="dark"] :global(#filter-sort-menu .pill),
 	[data-theme="dark"] :global(#filter-sort-menu .feed-cta) {
-		color: var(--color-text);
 		background: var(--color-bg-alt);
-		border: 1px solid var(--color-border);
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-	}
-	:global(#filter-sort-menu button:hover),
-	:global(#filter-sort-menu .dropdown-item:hover),
-	:global(#filter-sort-menu .pill:hover),
-	:global(#filter-sort-menu .feed-cta:hover) {
-		background: var(--color-navbar-bg);
 		color: var(--color-text);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-	}
-	:global(#filter-sort-menu .feed-cta.feed-cta-play),
-	:global(#filter-sort-menu .feed-cta.feed-cta-discover),
-	:global(#filter-sort-menu .feed-cta.feed-cta-experience),
-	:global(#filter-sort-menu .feed-cta.feed-cta-dive),
-	:global(#filter-sort-menu .feed-cta.feed-cta-read) {
-		background: var(--color-accent);
-		color: #111;
-		border: 1px solid var(--color-accent-dark);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-	}
-	[data-theme="dark"] :global(#filter-sort-menu .feed-cta.feed-cta-play),
-	[data-theme="dark"] :global(#filter-sort-menu .feed-cta.feed-cta-discover),
-	[data-theme="dark"] :global(#filter-sort-menu .feed-cta.feed-cta-experience),
-	[data-theme="dark"] :global(#filter-sort-menu .feed-cta.feed-cta-dive),
-	[data-theme="dark"] :global(#filter-sort-menu .feed-cta.feed-cta-read) {
-		background: var(--color-accent);
-		color: #111;
-		border: 1px solid var(--color-accent-dark);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
-	}
-
-	/* Reverse the READ CTA in dark mode for contrast */
-	:global(.feed-cta.read),
-	:global(.pill.read) {
-		background: #181c17;
-		color: #fff;
-		border: 1px solid #333;
-	}
-	[data-theme="dark"] :global(.feed-cta.read),
-	[data-theme="dark"] :global(.pill.read) {
-		background: #fff;
-		color: #181c17;
-		border: 1px solid #fff;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-	}
-
-	/* Ensure card titles and headers are readable in all themes */
-	:global(.card-title),
-	:global(.card-header) {
-		color: var(--color-text) !important;
-		font-weight: var(--font-weight-bold);
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+		border: 1px solid var(--color-border);
 	}
 </style>
