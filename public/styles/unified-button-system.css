@@ -1,0 +1,1056 @@
+/*
+  ===== UNIFIED BUTTON SYSTEM =====
+  Single source of truth for ALL button styling across the site.
+  This file must be imported AFTER all other CSS to ensure it takes precedence.
+  
+  ✨ INTEGRATED HDR NEON SYSTEM ✨
+  All buttons automatically adapt to the randomly generated HDR neon color from random-theme-color.js
+  Colors are set dynamically via CSS custom properties and work on all supported displays.
+  
+  🎯 COMPREHENSIVE COVERAGE 🎯
+  This system covers ALL interactive buttons: navbar, dropdown, feed, cards, games, modals, etc.
+  
+  ⚠️  STRICT RULE: DO NOT OVERRIDE ⚠️
+  Do not override these styles in module CSS, inline styles, or component files!
+  Use data attributes, CSS custom properties, or additional classes for customization.
+  
+  📋 SUPPORTED BUTTON TYPES:
+  - Navbar buttons (.menu-toggle-btn, .navbar-btn)
+  - Dropdown items (.pill, .dropdown-item, .filter-btn, .sort-btn)
+  - Feed buttons (.feed-cta, .card-action-btn, .card-play-btn)
+  - Game buttons (.game-button, .game-btn, .game-cta)
+  - Modal buttons (.close-btn, .modal-btn)
+  - Hero sections (.hero-play-btn, .hero-cta)
+  - Theme toggles (.theme-toggle-btn, .theme-btn)
+  - Generic (.btn, .button, button elements)
+*/
+
+/* Import Roboto Variable font for button use */
+@font-face {
+	font-family: "Roboto VF";
+	src: url("/fonts/Roboto-VariableFont_wdth,wght.ttf")
+		format("truetype-variations");
+	font-weight: 100 900;
+	font-stretch: 75% 125%;
+	font-display: swap;
+}
+
+/* Define button tokens */
+:root {
+	--btn-bg: var(--color-accent);
+	--btn-border: var(--color-accent);
+	--btn-color: var(--color-accent-text, #181c17);
+	--btn-radius: var(--radius-btn);
+	--btn-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1);
+	--btn-font-family: "Roboto VF", "Roboto", Arial, sans-serif;
+	--btn-icon-size: 40px;
+	--btn-glyph-size: 40px;
+	--btn-glyph-radius: 12px;
+}
+
+/* HIGH SPECIFICITY SELECTORS TO OVERRIDE CSS MODULES */
+/* Triple-class selectors for maximum specificity without IDs */
+.btn.btn.btn,
+.button.button.button,
+.feed-cta.feed-cta.feed-cta,
+.pill.pill.pill,
+.game-button.game-button.game-button,
+.game-btn.game-btn.game-btn,
+.game-cta.game-cta.game-cta,
+.close-btn.close-btn.close-btn,
+.modal-btn.modal-btn.modal-btn,
+.card-action-btn.card-action-btn.card-action-btn,
+.card-play-btn.card-play-btn.card-play-btn,
+.card-btn.card-btn.card-btn,
+.hero-play-btn.hero-play-btn.hero-play-btn,
+.hero-cta.hero-cta.hero-cta,
+.hero-btn.hero-btn.hero-btn,
+.card-cta-banner.card-cta-banner.card-cta-banner,
+.hero-game-cta-banner.hero-game-cta-banner.hero-game-cta-banner,
+.theme-toggle-btn.theme-toggle-btn.theme-toggle-btn,
+.theme-btn.theme-btn.theme-btn,
+.menu-toggle-btn.menu-toggle-btn.menu-toggle-btn,
+.navbar-btn.navbar-btn.navbar-btn,
+.dropdown-item.dropdown-item.dropdown-item,
+.filter-btn.filter-btn.filter-btn,
+.sort-btn.sort-btn.sort-btn,
+.nav-btn.nav-btn.nav-btn,
+.action-btn.action-btn.action-btn,
+.cta-btn.cta-btn.cta-btn,
+/* Also catch single-class buttons */
+.btn,
+.button,
+.feed-cta,
+.pill,
+.game-button,
+.game-btn,
+.game-cta,
+.close-btn,
+.modal-btn,
+.card-action-btn,
+.card-play-btn,
+.card-btn,
+.hero-play-btn,
+.hero-cta,
+.hero-btn,
+.card-cta-banner,
+.hero-game-cta-banner,
+.theme-toggle-btn,
+.theme-btn,
+.menu-toggle-btn,
+.navbar-btn,
+.dropdown-item,
+.filter-btn,
+.sort-btn,
+.nav-btn,
+.action-btn,
+.cta-btn,
+button:not([class]),
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+	/* Reset any inherited styles */
+	all: unset;
+
+	/* Core layout properties */
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-sizing: border-box !important;
+	overflow: visible !important;
+
+	/* Typography */
+	font-family: var(--btn-font-family, var(--font-family-base)) !important;
+	font-weight: 500 !important;
+	font-size: 1rem !important;
+	line-height: 1.2 !important;
+	text-align: center !important;
+	text-decoration: none !important;
+	white-space: nowrap !important;
+	letter-spacing: 0.02em !important;
+	text-transform: uppercase !important;
+
+	/* Sizing */
+	min-height: 40px !important;
+	min-width: 80px !important;
+	padding: 0.5em 1em !important;
+
+	/* Visual appearance - DEFAULT STATE: Filled with accent background */
+	background: var(--btn-bg) !important;
+	border: 2px solid var(--btn-border) !important;
+	border-radius: var(--btn-radius) !important;
+	color: var(--btn-color) !important;
+
+	/* Effects */
+	box-shadow: var(--btn-shadow) !important;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+	/* Interaction */
+	cursor: pointer !important;
+	user-select: none !important;
+	touch-action: manipulation !important;
+	/* Positioning */
+	position: relative !important;
+	overflow: hidden !important;
+	z-index: 1 !important;
+}
+
+/* ===== MENU CONTAINERS OVERFLOW FIX ===== */
+.menu-dropdown,
+.menu-content,
+.menu-section,
+.button-group,
+.order-controls {
+	overflow: visible !important;
+	box-sizing: border-box !important;
+}
+
+/* ===== GLYPH BUTTON TYPE (for icons, arrows, symbols) ===== */
+/* Triple specificity for CSS module override */
+.glyph-btn.glyph-btn.glyph-btn {
+	width: var(--btn-glyph-size) !important;
+	height: var(--btn-glyph-size) !important;
+	min-width: var(--btn-glyph-size) !important;
+	min-height: var(--btn-glyph-size) !important;
+	max-width: var(--btn-glyph-size) !important;
+	max-height: var(--btn-glyph-size) !important;
+	padding: 0 !important;
+	border-radius: var(--btn-glyph-radius) !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-sizing: border-box !important;
+	overflow: visible !important;
+	text-align: center !important;
+	font-size: 1.25rem !important;
+	line-height: 1 !important;
+	background: var(--btn-bg) !important;
+	border: 2px solid var(--btn-border) !important;
+	color: var(--btn-color) !important;
+	box-shadow: var(--btn-shadow) !important;
+	font-family: var(--btn-font-family, var(--font-family-base)) !important;
+	font-weight: 500 !important;
+	text-transform: uppercase !important;
+	cursor: pointer !important;
+	user-select: none !important;
+	touch-action: manipulation !important;
+	position: relative !important;
+	z-index: 1 !important;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	flex-shrink: 0 !important;
+	flex-grow: 0 !important;
+}
+
+/* Glyph button hover states */
+.glyph-btn.glyph-btn.glyph-btn:hover {
+	background: var(--color-accent-hover, var(--color-accent)) !important;
+	border-color: var(--color-accent-hover, var(--color-accent)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+		0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1) !important;
+}
+
+/* Glyph button focus states */
+.glyph-btn.glyph-btn.glyph-btn:focus,
+.glyph-btn.glyph-btn.glyph-btn:focus-visible {
+	background: var(--color-accent-hover, var(--color-accent)) !important;
+	border-color: var(--color-accent-hover, var(--color-accent)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+		0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1),
+		0 0 0 3px rgba(var(--color-accent-rgb, 57, 255, 20), 0.3) !important;
+	outline: none !important;
+}
+
+/* Glyph button active states */
+.glyph-btn.glyph-btn.glyph-btn:active {
+	background: var(--color-accent-active, var(--color-accent)) !important;
+	border-color: var(--color-accent-active, var(--color-accent)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(0) !important;
+	box-shadow: 0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2) !important;
+}
+
+/* Glyph button selected/active states */
+.glyph-btn.glyph-btn.glyph-btn.active,
+.glyph-btn.glyph-btn.glyph-btn[aria-pressed="true"] {
+	background: var(--color-accent-active, var(--color-accent)) !important;
+	border-color: var(--color-accent-active, var(--color-accent)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.3),
+		inset 0 2px 6px 0 rgba(0, 0, 0, 0.2) !important;
+	transform: translateY(1px) !important;
+}
+
+/* Glyph button disabled states */
+.glyph-btn.glyph-btn.glyph-btn:disabled {
+	opacity: 0.4 !important;
+	cursor: not-allowed !important;
+	pointer-events: none !important;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* Remove old incompatible styles */
+.order-btn.pill {
+	/* Remove conflicting styles - now handled by .glyph-btn */
+	width: unset !important;
+	height: unset !important;
+	min-width: unset !important;
+	min-height: unset !important;
+	max-width: unset !important;
+	max-height: unset !important;
+}
+
+/* ===== INTERACTION STATES ===== */
+
+/* HIGH SPECIFICITY HOVER STATES */
+.btn.btn.btn:hover,
+.button.button.button:hover,
+.feed-cta.feed-cta.feed-cta:hover,
+.pill.pill.pill:hover,
+.game-button.game-button.game-button:hover,
+.game-btn.game-btn.game-btn:hover,
+.game-cta.game-cta.game-cta:hover,
+.close-btn.close-btn.close-btn:hover,
+.modal-btn.modal-btn.modal-btn:hover,
+.card-action-btn.card-action-btn.card-action-btn:hover,
+.card-play-btn.card-play-btn.card-play-btn:hover,
+.card-btn.card-btn.card-btn:hover,
+.hero-play-btn.hero-play-btn.hero-play-btn:hover,
+.hero-cta.hero-cta.hero-cta:hover,
+.hero-btn.hero-btn.hero-btn:hover,
+.card-cta-banner.card-cta-banner.card-cta-banner:hover,
+.hero-game-cta-banner.hero-game-cta-banner.hero-game-cta-banner:hover,
+.theme-toggle-btn.theme-toggle-btn.theme-toggle-btn:hover,
+.theme-btn.theme-btn.theme-btn:hover,
+.menu-toggle-btn.menu-toggle-btn.menu-toggle-btn:hover,
+.navbar-btn.navbar-btn.navbar-btn:hover,
+.dropdown-item.dropdown-item.dropdown-item:hover,
+.filter-btn.filter-btn.filter-btn:hover,
+.sort-btn.sort-btn.sort-btn:hover,
+.nav-btn.nav-btn.nav-btn:hover,
+.action-btn.action-btn.action-btn:hover,
+/* Also catch single-class buttons */
+.btn:hover,
+.button:hover,
+.feed-cta:hover,
+.pill:hover,
+.game-button:hover,
+.game-btn:hover,
+.game-cta:hover,
+.close-btn:hover,
+.modal-btn:hover,
+.card-action-btn:hover,
+.card-play-btn:hover,
+.card-btn:hover,
+.hero-play-btn:hover,
+.hero-cta:hover,
+.hero-btn:hover,
+.card-cta-banner:hover,
+.hero-game-cta-banner:hover,
+.theme-toggle-btn:hover,
+.theme-btn:hover,
+.menu-toggle-btn:hover,
+.navbar-btn:hover,
+.dropdown-item:hover,
+.filter-btn:hover,
+.sort-btn:hover,
+.nav-btn:hover,
+.action-btn:hover,
+.cta-btn:hover,
+button:not([class]):hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover {
+	background: var(--color-accent-hover, var(--color-accent)) !important;
+	border-color: var(--color-accent-hover, var(--color-accent)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+		0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1) !important;
+}
+
+/* Focus - Same as hover with focus ring */
+.btn:focus,
+.btn:focus-visible,
+.button:focus,
+.button:focus-visible,
+.feed-cta:focus,
+.feed-cta:focus-visible,
+.pill:focus,
+.pill:focus-visible,
+.game-button:focus,
+.game-button:focus-visible,
+.game-btn:focus,
+.game-btn:focus-visible,
+.game-cta:focus,
+.game-cta:focus-visible,
+.close-btn:focus,
+.close-btn:focus-visible,
+.modal-btn:focus,
+.modal-btn:focus-visible,
+.card-action-btn:focus,
+.card-action-btn:focus-visible,
+.card-play-btn:focus,
+.card-play-btn:focus-visible,
+.card-btn:focus,
+.card-btn:focus-visible,
+.hero-play-btn:focus,
+.hero-play-btn:focus-visible,
+.hero-cta:focus,
+.hero-cta:focus-visible,
+.hero-btn:focus,
+.hero-btn:focus-visible,
+.card-cta-banner:focus,
+.card-cta-banner:focus-visible,
+.hero-game-cta-banner:focus,
+.hero-game-cta-banner:focus-visible,
+.theme-toggle-btn:focus,
+.theme-toggle-btn:focus-visible,
+.theme-btn:focus,
+.theme-btn:focus-visible,
+.menu-toggle-btn:focus,
+.menu-toggle-btn:focus-visible,
+.navbar-btn:focus,
+.navbar-btn:focus-visible,
+.dropdown-item:focus,
+.dropdown-item:focus-visible,
+.filter-btn:focus,
+.filter-btn:focus-visible,
+.sort-btn:focus,
+.sort-btn:focus-visible,
+.nav-btn:focus,
+.nav-btn:focus-visible,
+.action-btn:focus,
+.action-btn:focus-visible,
+.cta-btn:focus,
+.cta-btn:focus-visible,
+button:not([class]):focus,
+button:not([class]):focus-visible,
+input[type="button"]:focus,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus,
+input[type="submit"]:focus-visible,
+input[type="reset"]:focus,
+input[type="reset"]:focus-visible {
+	background: var(--color-accent-hover, var(--color)) !important;
+	border-color: var(--color-accent-hover, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+		0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1),
+		0 0 0 3px rgba(var(--color-accent-rgb, 57, 255, 20), 0.3) !important;
+	outline: none !important;
+}
+
+/* Active - Slightly darker and no transform */
+.btn:active,
+.button:active,
+.feed-cta:active,
+.pill:active,
+.game-button:active,
+.game-btn:active,
+.game-cta:active,
+.close-btn:active,
+.modal-btn:active,
+.card-action-btn:active,
+.card-play-btn:active,
+.card-btn:active,
+.hero-play-btn:active,
+.hero-cta:active,
+.hero-btn:active,
+.card-cta-banner:active,
+.hero-game-cta-banner:active,
+.theme-toggle-btn:active,
+.theme-btn:active,
+.menu-toggle-btn:active,
+.navbar-btn:active,
+.dropdown-item:active,
+.filter-btn:active,
+.sort-btn:active,
+.nav-btn:active,
+.action-btn:active,
+.cta-btn:active,
+button:not([class]):active,
+input[type="button"]:active,
+input[type="submit"]:active,
+input[type="reset"]:active {
+	background: var(--color-accent-active, var(--color)) !important;
+	border-color: var(--color-accent-active, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(0) !important;
+	box-shadow: 0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2) !important;
+}
+
+/* ===== STATE VARIANTS ===== */
+
+/* Active/Selected state (e.g., current filter/sort option) */
+.btn.active,
+.btn[aria-pressed="true"],
+.button.active,
+.button[aria-pressed="true"],
+.feed-cta.active,
+.feed-cta[aria-pressed="true"],
+.pill.active,
+.pill[aria-pressed="true"],
+.game-button.active,
+.game-button[aria-pressed="true"],
+.game-btn.active,
+.game-btn[aria-pressed="true"],
+.game-cta.active,
+.game-cta[aria-pressed="true"],
+.close-btn.active,
+.close-btn[aria-pressed="true"],
+.modal-btn.active,
+.modal-btn[aria-pressed="true"],
+.card-action-btn.active,
+.card-action-btn[aria-pressed="true"],
+.card-play-btn.active,
+.card-play-btn[aria-pressed="true"],
+.card-btn.active,
+.card-btn[aria-pressed="true"],
+.hero-play-btn.active,
+.hero-play-btn[aria-pressed="true"],
+.hero-cta.active,
+.hero-cta[aria-pressed="true"],
+.hero-btn.active,
+.hero-btn[aria-pressed="true"],
+.card-cta-banner.active,
+.card-cta-banner[aria-pressed="true"],
+.hero-game-cta-banner.active,
+.hero-game-cta-banner[aria-pressed="true"],
+.theme-toggle-btn.active,
+.theme-toggle-btn[aria-pressed="true"],
+.theme-btn.active,
+.theme-btn[aria-pressed="true"],
+.menu-toggle-btn.active,
+.menu-toggle-btn[aria-pressed="true"],
+.navbar-btn.active,
+.navbar-btn[aria-pressed="true"],
+.dropdown-item.active,
+.dropdown-item[aria-pressed="true"],
+.filter-btn.active,
+.filter-btn[aria-pressed="true"],
+.sort-btn.active,
+.sort-btn[aria-pressed="true"],
+.nav-btn.active,
+.nav-btn[aria-pressed="true"],
+.action-btn.active,
+.action-btn[aria-pressed="true"],
+.cta-btn.active,
+.cta-btn[aria-pressed="true"] {
+	background: var(--color-accent-active, var(--color)) !important;
+	border-color: var(--color-accent-active, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.3),
+		inset 0 2px 6px 0 rgba(0, 0, 0, 0.2) !important;
+	transform: translateY(1px) !important; /* Pressed-in effect */
+}
+
+/* Active state hover */
+.btn.active:hover,
+.btn[aria-pressed="true"]:hover,
+.button.active:hover,
+.button[aria-pressed="true"]:hover,
+.feed-cta.active:hover,
+.feed-cta[aria-pressed="true"]:hover,
+.pill.active:hover,
+.pill[aria-pressed="true"]:hover,
+.game-button.active:hover,
+.game-button[aria-pressed="true"]:hover,
+.card-action-btn.active:hover,
+.card-action-btn[aria-pressed="true"]:hover,
+.card-play-btn.active:hover,
+.card-play-btn[aria-pressed="true"]:hover,
+.hero-play-btn.active:hover,
+.hero-play-btn[aria-pressed="true"]:hover,
+.card-cta-banner.active:hover,
+.card-cta-banner[aria-pressed="true"]:hover,
+.hero-game-cta-banner.active:hover,
+.hero-game-cta-banner[aria-pressed="true"]:hover,
+.theme-toggle-btn.active:hover,
+.theme-toggle-btn[aria-pressed="true"]:hover,
+.menu-toggle-btn.active:hover,
+.menu-toggle-btn[aria-pressed="true"]:hover,
+.dropdown-item.active:hover,
+.dropdown-item[aria-pressed="true"]:hover {
+	background: var(--color-accent-hover, var(--color)) !important;
+	border-color: var(--color-accent-hover, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(
+		-1px
+	) !important; /* Less movement since already filled */
+}
+
+/* Disabled state */
+.btn:disabled,
+.button:disabled,
+.feed-cta:disabled,
+.pill:disabled,
+.game-button:disabled,
+.game-btn:disabled,
+.game-cta:disabled,
+.close-btn:disabled,
+.modal-btn:disabled,
+.card-action-btn:disabled,
+.card-play-btn:disabled,
+.card-btn:disabled,
+.hero-play-btn:disabled,
+.hero-cta:disabled,
+.hero-btn:disabled,
+.card-cta-banner:disabled,
+.hero-game-cta-banner:disabled,
+.theme-toggle-btn:disabled,
+.theme-btn:disabled,
+.menu-toggle-btn:disabled,
+.navbar-btn:disabled,
+.dropdown-item:disabled,
+.filter-btn:disabled,
+.sort-btn:disabled,
+.nav-btn:disabled,
+.action-btn:disabled,
+.cta-btn:disabled,
+button:not([class]):disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+input[type="reset"]:disabled {
+	opacity: 0.4 !important;
+	cursor: not-allowed !important;
+	pointer-events: none !important;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* ===== SIZE VARIANTS ===== */
+
+/* Small buttons */
+.btn--small,
+.button--small,
+.pill--small {
+	font-size: 0.875rem !important;
+	min-height: 32px !important;
+	min-width: 60px !important;
+	padding: 0.375em 0.75em !important;
+}
+
+/* Large buttons */
+.btn--large,
+.button--large {
+	font-size: 1.25rem !important;
+	min-height: 48px !important;
+	min-width: 120px !important;
+	padding: 0.75em 1.5em !important;
+}
+
+/* Extra large buttons for hero sections */
+.btn--xl,
+.button--xl {
+	font-size: 1.5rem !important;
+	min-height: 56px !important;
+	min-width: 140px !important;
+	padding: 1em 2em !important;
+}
+
+/* ===== STYLE VARIANTS ===== */
+
+/* Primary buttons - filled by default */
+.btn--primary,
+.button--primary {
+	background: var(--color-accent) !important;
+	border: 2px solid var(--color-accent) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2) !important;
+}
+
+.btn--primary:hover,
+.button--primary:hover {
+	background: var(--color-accent-hover, var(--color-accent)) !important;
+	border-color: var(--color-accent-hover, var(--color-accent)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+}
+
+/* Ghost buttons - no border */
+.btn--ghost,
+.button--ghost {
+	border: none !important;
+	background: transparent !important;
+	color: var(--color-accent) !important;
+	box-shadow: none !important;
+}
+
+.btn--ghost:hover,
+.button--ghost:hover {
+	background: rgba(var(--color-accent-rgb, 57, 255, 20), 0.1) !important;
+	color: var(--color-accent-hover, var(--color-accent)) !important;
+}
+
+/* Icon-only buttons */
+.btn--icon,
+.button--icon,
+.order-btn.pill {
+	width: var(--btn-icon-size) !important;
+	height: var(--btn-icon-size) !important;
+	min-width: unset !important;
+	min-height: unset !important;
+	max-width: var(--btn-icon-size) !important;
+	max-height: var(--btn-icon-size) !important;
+	padding: 0 !important;
+	border-radius: var(--btn-radius) !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-sizing: border-box !important;
+	overflow: visible !important;
+	text-align: center !important;
+	font-size: 1.25rem !important;
+	line-height: 1 !important;
+}
+
+/* ===== RESPONSIVE BEHAVIOR ===== */
+
+/* Touch targets on mobile */
+@media (max-width: 768px) {
+	.btn,
+	.button,
+	.feed-cta,
+	.pill,
+	.game-button,
+	.game-btn,
+	.game-cta,
+	.close-btn,
+	.modal-btn,
+	.card-action-btn,
+	.card-play-btn,
+	.card-btn,
+	.hero-play-btn,
+	.hero-cta,
+	.hero-btn,
+	.card-cta-banner,
+	.hero-game-cta-banner,
+	.theme-toggle-btn,
+	.theme-btn,
+	.menu-toggle-btn,
+	.navbar-btn,
+	.dropdown-item,
+	.filter-btn,
+	.sort-btn,
+	.nav-btn,
+	.action-btn,
+	.cta-btn,
+	button:not([class]),
+	input[type="button"],
+	input[type="submit"],
+	input[type="reset"] {
+		min-height: 44px !important; /* WCAG touch target size */
+		font-size: 1rem !important;
+		padding: 0.75em 1.25em !important;
+	}
+
+	.btn--small,
+	.button--small,
+	.pill--small {
+		min-height: 40px !important;
+		font-size: 0.875rem !important;
+	}
+}
+
+@media (max-width: 480px) {
+	.btn,
+	.button,
+	.feed-cta,
+	.pill,
+	.game-button,
+	.game-btn,
+	.game-cta,
+	.close-btn,
+	.modal-btn,
+	.card-action-btn,
+	.card-play-btn,
+	.card-btn,
+	.hero-play-btn,
+	.hero-cta,
+	.hero-btn,
+	.card-cta-banner,
+	.hero-game-cta-banner,
+	.theme-toggle-btn,
+	.theme-btn,
+	.menu-toggle-btn,
+	.navbar-btn,
+	.dropdown-item,
+	.filter-btn,
+	.sort-btn,
+	.nav-btn,
+	.action-btn,
+	.cta-btn,
+	button:not([class]),
+	input[type="button"],
+	input[type="submit"],
+	input[type="reset"] {
+		font-size: 0.875rem !important;
+		padding: 1em 1.125em !important;
+		min-width: 88px !important;
+	}
+}
+
+/* ===== SPECIFIC CONTEXT OVERRIDES ===== */
+
+/* Navbar specific adjustments */
+.navbar .pill,
+.navbar .menu-toggle-btn,
+.navbar .dropdown-item {
+	height: clamp(32px, 7vw, 40px) !important;
+	min-height: clamp(32px, 7vw, 40px) !important;
+	font-size: clamp(0.75rem, 2vw, 0.875rem) !important;
+	padding: 0 clamp(0.5rem, 2.5vw, 1rem) !important;
+}
+
+/* Menu dropdown specific adjustments */
+.menu-content .pill,
+.menu-content .dropdown-item,
+.menu-content .filter-btn,
+.menu-content .sort-btn {
+	margin: 0.125rem !important;
+}
+
+/* ===== HDR COLOR SUPPORT ===== */
+
+/* Enhanced colors for HDR displays - handled automatically by random-theme-color.js */
+
+/* ===== ANIMATION ENHANCEMENTS ===== */
+
+/* Subtle glow effect on hover for HDR displays */
+@media (hover: hover) and (pointer: fine) {
+	.btn:hover,
+	.button:hover,
+	.feed-cta:hover,
+	.pill:hover,
+	.game-button:hover,
+	.game-btn:hover,
+	.game-cta:hover,
+	.close-btn:hover,
+	.modal-btn:hover,
+	.card-action-btn:hover,
+	.card-play-btn:hover,
+	.card-btn:hover,
+	.hero-play-btn:hover,
+	.hero-cta:hover,
+	.hero-btn:hover,
+	.card-cta-banner:hover,
+	.hero-game-cta-banner:hover,
+	.theme-toggle-btn:hover,
+	.theme-btn:hover,
+	.menu-toggle-btn:hover,
+	.navbar-btn:hover,
+	.dropdown-item:hover,
+	.filter-btn:hover,
+	.sort-btn:hover,
+	.nav-btn:hover,
+	.action-btn:hover,
+	.cta-btn:hover,
+	button:not([class]):hover,
+	input[type="button"]:hover,
+	input[type="submit"]:hover,
+	input[type="reset"]:hover {
+		/* Glow effect for capable displays */
+		box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+			0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1),
+			var(--color-accent-glow, 0 0 8px var(--color-accent)) !important;
+	}
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+	.btn,
+	.button,
+	.feed-cta,
+	.pill,
+	.game-button,
+	.game-btn,
+	.game-cta,
+	.close-btn,
+	.modal-btn,
+	.card-action-btn,
+	.card-play-btn,
+	.card-btn,
+	.hero-play-btn,
+	.hero-cta,
+	.hero-btn,
+	.card-cta-banner,
+	.hero-game-cta-banner,
+	.theme-toggle-btn,
+	.theme-btn,
+	.menu-toggle-btn,
+	.navbar-btn,
+	.dropdown-item,
+	.filter-btn,
+	.sort-btn,
+	.nav-btn,
+	.action-btn,
+	.cta-btn,
+	button:not([class]),
+	input[type="button"],
+	input[type="submit"],
+	input[type="reset"] {
+		transition: color 0.1s ease, background-color 0.1s ease,
+			border-color 0.1s ease !important;
+		transform: none !important;
+	}
+
+	.btn:hover,
+	.button:hover,
+	.feed-cta:hover,
+	.pill:hover,
+	.game-button:hover,
+	.game-btn:hover,
+	.game-cta:hover,
+	.close-btn:hover,
+	.modal-btn:hover,
+	.card-action-btn:hover,
+	.card-play-btn:hover,
+	.card-btn:hover,
+	.hero-play-btn:hover,
+	.hero-cta:hover,
+	.hero-btn:hover,
+	.card-cta-banner:hover,
+	.hero-game-cta-banner:hover,
+	.theme-toggle-btn:hover,
+	.theme-btn:hover,
+	.menu-toggle-btn:hover,
+	.navbar-btn:hover,
+	.dropdown-item:hover,
+	.filter-btn:hover,
+	.sort-btn:hover,
+	.nav-btn:hover,
+	.action-btn:hover,
+	.cta-btn:hover,
+	button:not([class]):hover,
+	input[type="button"]:hover,
+	input[type="submit"]:hover,
+	input[type="reset"]:hover {
+		transform: none !important;
+	}
+}
+
+/* ===== OVERRIDE PREVENTION ===== */
+/* 
+  These rules ensure the unified system takes precedence over any component-level 
+  button styling that might exist in module CSS files or inline styles 
+*/
+
+/* Force all buttons to inherit from the unified system */
+[class*="module"] .btn,
+[class*="module"] .button,
+[class*="module"] .pill,
+[class*="module"] .game-button,
+[class*="module"] .feed-cta,
+[class*="module"] button,
+.astro-* .btn,
+.astro-* .button,
+.astro-* .pill,
+.astro-* .game-button,
+.astro-* .feed-cta,
+.astro-* button {
+	/* Inherit unified button styles */
+	background: inherit !important;
+	border: inherit !important;
+	color: inherit !important;
+	padding: inherit !important;
+	border-radius: inherit !important;
+	transition: inherit !important;
+	box-shadow: inherit !important;
+	font-family: inherit !important;
+	font-size: inherit !important;
+	font-weight: inherit !important;
+}
+
+/* ===== ULTRA-HIGH SPECIFICITY CSS MODULE OVERRIDES ===== */
+/*
+  These selectors use extremely high specificity to override CSS Module scoped classes
+  that might interfere with the unified button system
+*/
+
+/* Target CSS Module scoped classes directly with attribute selectors */
+button[class*="_pill_"],
+button[class*="_button_"],
+button[class*="_menuButton_"],
+[class*="_pills-container_"] button,
+[class*="_menu-section_"] button,
+[class*="_sort-item_"] button,
+[class*="NavbarMenu"] button,
+[class*="Feed"] button {
+	/* Reset and apply unified styles with maximum priority */
+	all: unset !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-sizing: border-box !important;
+	overflow: visible !important;
+
+	/* Typography */
+	font-family: var(--font-family-base) !important;
+	font-weight: 500 !important;
+	font-size: 1rem !important;
+	line-height: 1.2 !important;
+	text-align: center !important;
+	text-decoration: none !important;
+	white-space: nowrap !important;
+	letter-spacing: 0.02em !important;
+	text-transform: uppercase !important;
+
+	/* Sizing */
+	min-height: 40px !important;
+	min-width: 80px !important;
+	padding: 0.5em 1em !important;
+
+	/* Visual appearance - DEFAULT STATE: Filled with accent background */
+	background: var(--color-accent) !important;
+	border: 2px solid var(--color-accent) !important;
+	border-radius: var(--radius-btn) !important;
+	color: var(--color-accent-text, #181c17) !important;
+
+	/* Effects */
+	box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1) !important;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+	/* Interaction */
+	cursor: pointer !important;
+	user-select: none !important;
+	touch-action: manipulation !important;
+
+	/* Positioning */
+	position: relative !important;
+	overflow: hidden !important;
+	z-index: 1 !important;
+}
+
+/* Hover states for CSS Module buttons */
+button[class*="_pill_"]:hover,
+button[class*="_button_"]:hover,
+button[class*="_menuButton_"]:hover,
+[class*="_pills-container_"] button:hover,
+[class*="_menu-section_"] button:hover,
+[class*="_sort-item_"] button:hover,
+[class*="NavbarMenu"] button:hover,
+[class*="Feed"] button:hover {
+	background: var(--color-accent-hover, var(--color)) !important;
+	border-color: var(--color-accent-hover, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+		0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1) !important;
+}
+
+/* Active states for CSS Module buttons */
+button[class*="_pill_"].active,
+button[class*="_pill_"][aria-pressed="true"],
+button[class*="_button_"].active,
+button[class*="_button_"][aria-pressed="true"],
+button[class*="_menuButton_"].active,
+button[class*="_menuButton_"][aria-pressed="true"],
+[class*="_pills-container_"] button.active,
+[class*="_pills-container_"] button[aria-pressed="true"],
+[class*="_menu-section_"] button.active,
+[class*="_menu-section_"] button[aria-pressed="true"],
+[class*="_sort-item_"] button.active,
+[class*="_sort-item_"] button[aria-pressed="true"],
+[class*="NavbarMenu"] button.active,
+[class*="NavbarMenu"] button[aria-pressed="true"],
+[class*="Feed"] button.active,
+[class*="Feed"] button[aria-pressed="true"] {
+	background: var(--color-accent-active, var(--color)) !important;
+	border-color: var(--color-accent-active, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.3),
+		inset 0 2px 6px 0 rgba(0, 0, 0, 0.2) !important;
+	transform: translateY(1px) !important;
+}
+
+/* Focus states for CSS Module buttons */
+button[class*="_pill_"]:focus,
+button[class*="_pill_"]:focus-visible,
+button[class*="_button_"]:focus,
+button[class*="_button_"]:focus-visible,
+button[class*="_menuButton_"]:focus,
+button[class*="_menuButton_"]:focus-visible,
+[class*="_pills-container_"] button:focus,
+[class*="_pills-container_"] button:focus-visible,
+[class*="_menu-section_"] button:focus,
+[class*="_menu-section_"] button:focus-visible,
+[class*="_sort-item_"] button:focus,
+[class*="_sort-item_"] button:focus-visible,
+[class*="NavbarMenu"] button:focus,
+[class*="NavbarMenu"] button:focus-visible,
+[class*="Feed"] button:focus,
+[class*="Feed"] button:focus-visible {
+	background: var(--color-accent-hover, var(--color)) !important;
+	border-color: var(--color-accent-hover, var(--color)) !important;
+	color: var(--color-accent-text, #181c17) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+		0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1),
+		0 0 0 3px rgba(var(--color-accent-rgb, 57, 255, 20), 0.3) !important;
+	outline: none !important;
+}

@@ -3,6 +3,10 @@
 	<head>
 		<title>Minecraft Faces</title>
 		<link
+			rel="stylesheet"
+			href="/styles/unified-button-system.css"
+		/>
+		<link
 			rel="preload"
 			href="/fonts/PressStart2P-Regular.ttf"
 			as="font"
@@ -135,25 +139,12 @@
 				opacity: 0;
 			}
 
-			/* Button styles */
-			button {
-				font-family: "PressStart2P", sans-serif;
-				font-size: 14px;
-				padding: 10px 20px;
-				border: none;
-				border-radius: 5px;
-				background-color: #2196f3;
-				color: white;
-				cursor: pointer;
-				transition: background-color 0.3s ease;
-			}
-
-			button:hover {
-				background-color: #1976d2;
-			}
-
-			button:active {
-				background-color: #0d47a1;
+			/* Game-specific button styling - font family override only */
+			button,
+			.btn,
+			.game-button {
+				font-family: "PressStart2P", sans-serif !important;
+				font-size: 14px !important;
 			}
 		</style>
 	</head>

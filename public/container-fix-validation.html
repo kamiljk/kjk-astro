@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Search Container Fix Validation</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				padding: 20px;
+				background: #1a1a1a;
+				color: white;
+				line-height: 1.6;
+			}
+			.test-section {
+				margin-bottom: 30px;
+				padding: 20px;
+				background: #2a2a2a;
+				border-radius: 8px;
+				border: 1px solid #444;
+			}
+			.test-item {
+				margin: 10px 0;
+				padding: 10px;
+				background: #3a3a3a;
+				border-radius: 4px;
+			}
+			.status {
+				font-weight: bold;
+				margin-left: 10px;
+			}
+			.pass {
+				color: #4caf50;
+			}
+			.fail {
+				color: #f44336;
+			}
+			.warning {
+				color: #ff9800;
+			}
+			button {
+				margin: 5px;
+				padding: 8px 16px;
+				background: #4a4a4a;
+				border: none;
+				color: white;
+				cursor: pointer;
+				border-radius: 4px;
+			}
+			button:hover {
+				background: #5a5a5a;
+			}
+			code {
+				background: #222;
+				padding: 2px 4px;
+				border-radius: 3px;
+				font-family: monospace;
+				font-size: 0.85em;
+			}
+			.details {
+				font-size: 0.9em;
+				color: #ccc;
+				margin-top: 5px;
+				max-height: 100px;
+				overflow-y: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>🔧 Search Container Fix Validation</h1>
+		<p>
+			Testing fixes for the search container flex behavior and border-radius
+			issues.
+		</p>
+
+		<div class="test-section">
+			<h2>🎯 Container Issues Fixed</h2>
+			<div id="container-tests"></div>
+			<button onclick="runContainerTests()">🔄 Test Container Issues</button>
+			<button onclick="applyContainerFix()">🚀 Apply Container Fix</button>
+		</div>
+
+		<div class="test-section">
+			<h2>📊 Visual Inspection</h2>
+			<button onclick="highlightContainers()">
+				🔍 Highlight All Containers
+			</button>
+			<button onclick="clearHighlights()">✨ Clear Highlights</button>
+			<button onclick="measureFlexBehavior()">📏 Measure Flex Behavior</button>
+		</div>
+
+		<div class="test-section">
+			<h2>⚡ Nuclear Options</h2>
+			<button onclick="removeAllDropdownStyling()">
+				💥 Remove All Dropdown Styling
+			</button>
+			<button onclick="forceFlexBehavior()">🔧 Force Flex Behavior</button>
+		</div>
+
+		<div class="test-section">
+			<h2>📋 Results</h2>
+			<div id="results"></div>
+		</div>
+
+		<script>
+			function runContainerTests() {
+				const mainWindow = parent;
+				const tests = [
+					{
+						name: "Search Container Has No Background",
+						test: () => {
+							const container = mainWindow.document.querySelector(
+								".search-results-container"
+							);
+							if (!container)
+								return { status: "fail", message: "Container not found" };
+
+							const bg = mainWindow.getComputedStyle(container).background;
+							const isTransparent =
+								bg.includes("rgba(0, 0, 0, 0)") ||
+								bg.includes("transparent") ||
+								bg === "none";
+
+							return isTransparent
+								? { status: "pass", message: `Background: ${bg}` }
+								: { status: "fail", message: `Background: ${bg}` };
+						},
+					},
+					{
+						name: "Search Container Has No Border Radius",
+						test: () => {
+							const container = mainWindow.document.querySelector(
+								".search-results-container"
+							);
+							if (!container)
+								return { status: "fail", message: "Container not found" };
+
+							const radius =
+								mainWindow.getComputedStyle(container).borderRadius;
+							return radius === "0px"
+								? { status: "pass", message: `Border-radius: ${radius}` }
+								: { status: "fail", message: `Border-radius: ${radius}` };
+						},
+					},
+					{
+						name: "Search Container Stretches (Flex: 1)",
+						test: () => {
+							const container = mainWindow.document.querySelector(
+								".search-results-container"
+							);
+							if (!container)
+								return { status: "fail", message: "Container not found" };
+
+							const flex = mainWindow.getComputedStyle(container).flex;
+							const flexGrow = mainWindow.getComputedStyle(container).flexGrow;
+							const width = container.getBoundingClientRect().width;
+
+							// Check if it's actually taking up significant space (more than 200px)
+							const isStretching = width > 200;
+							const hasFlexGrow = flex.includes("1") || flexGrow === "1";
+
+							if (isStretching && hasFlexGrow) {
+								return {
+									status: "pass",
+									message: `Width: ${width.toFixed(
+										0
+									)}px, Flex: ${flex}, FlexGrow: ${flexGrow}`,
+								};
+							} else {
+								return {
+									status: "fail",
+									message: `Width: ${width.toFixed(
+										0
+									)}px, Flex: ${flex}, FlexGrow: ${flexGrow}`,
+								};
+							}
+						},
+					},
+					{
+						name: "Navbar Row is Flex Container",
+						test: () => {
+							const navbarRow =
+								mainWindow.document.querySelector(".navbar-header-row");
+							if (!navbarRow)
+								return { status: "fail", message: "Navbar row not found" };
+
+							const display = mainWindow.getComputedStyle(navbarRow).display;
+							const justifyContent =
+								mainWindow.getComputedStyle(navbarRow).justifyContent;
+
+							return display === "flex"
+								? {
+										status: "pass",
+										message: `Display: ${display}, Justify: ${justifyContent}`,
+								  }
+								: {
+										status: "fail",
+										message: `Display: ${display}, Justify: ${justifyContent}`,
+								  };
+						},
+					},
+					{
+						name: "Search Wrapper Containers Also Stretch",
+						test: () => {
+							const inline = mainWindow.document.querySelector(
+								".search-container-inline"
+							);
+							const bar =
+								mainWindow.document.querySelector(".search-bar-inline");
+
+							if (!inline || !bar)
+								return {
+									status: "warning",
+									message: "Wrapper containers not found",
+								};
+
+							const inlineFlex = mainWindow.getComputedStyle(inline).flex;
+							const barFlex = mainWindow.getComputedStyle(bar).flex;
+
+							const bothStretch =
+								(inlineFlex.includes("1") || inlineFlex === "1 1 0%") &&
+								(barFlex.includes("1") || barFlex === "1 1 0%");
+
+							return bothStretch
+								? {
+										status: "pass",
+										message: `Inline: ${inlineFlex}, Bar: ${barFlex}`,
+								  }
+								: {
+										status: "fail",
+										message: `Inline: ${inlineFlex}, Bar: ${barFlex}`,
+								  };
+						},
+					},
+					{
+						name: "No Interfering Backdrop Filter",
+						test: () => {
+							const container = mainWindow.document.querySelector(
+								".search-results-container"
+							);
+							if (!container)
+								return { status: "fail", message: "Container not found" };
+
+							const filter =
+								mainWindow.getComputedStyle(container).backdropFilter ||
+								mainWindow.getComputedStyle(container).webkitBackdropFilter;
+
+							return filter === "none" || !filter
+								? {
+										status: "pass",
+										message: `Backdrop filter: ${filter || "none"}`,
+								  }
+								: { status: "fail", message: `Backdrop filter: ${filter}` };
+						},
+					},
+				];
+
+				const container = document.getElementById("container-tests");
+				let html = "";
+				let passCount = 0;
+
+				tests.forEach((test) => {
+					const result = test.test();
+					const statusClass = result.status;
+					const statusSymbol = {
+						pass: "✅",
+						fail: "❌",
+						warning: "⚠️",
+					}[result.status];
+
+					if (result.status === "pass") passCount++;
+
+					html += `
+                    <div class="test-item">
+                        <strong>${test.name}</strong>
+                        <span class="status ${statusClass}">${statusSymbol} ${result.status.toUpperCase()}</span>
+                        <div class="details">${result.message}</div>
+                    </div>
+                `;
+				});
+
+				const score = Math.round((passCount / tests.length) * 100);
+				const scoreColor =
+					score >= 80 ? "pass" : score >= 60 ? "warning" : "fail";
+
+				html =
+					`
+                <div class="test-item">
+                    <strong>🎯 Container Score</strong>
+                    <span class="status ${scoreColor}">${score}% (${passCount}/${tests.length})</span>
+                </div>
+            ` + html;
+
+				container.innerHTML = html;
+			}
+
+			function applyContainerFix() {
+				const mainWindow = parent;
+
+				// Apply nuclear container fix
+				const containerFix = mainWindow.document.createElement("style");
+				containerFix.id = "nuclear-container-fix";
+				containerFix.textContent = `
+                /* NUCLEAR CONTAINER FIX - FLEX STRETCHING */
+                .navbar-header-row {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    width: 100% !important;
+                    gap: 1rem !important;
+                }
+                
+                .search-container-inline,
+                .search-bar-inline {
+                    flex: 1 !important;
+                    flex-grow: 1 !important;
+                    flex-shrink: 1 !important;
+                    flex-basis: 0% !important;
+                    width: 100% !important;
+                    max-width: none !important;
+                    min-width: 200px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    background: transparent !important;
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                    border: none !important;
+                    border-radius: 0 !important;
+                    box-shadow: none !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    transition: none !important;
+                }
+                
+                .search-results-container {
+                    flex: 1 !important;
+                    width: 100% !important;
+                    max-width: none !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    background: transparent !important;
+                    border: none !important;
+                    border-radius: 0 !important;
+                    box-shadow: none !important;
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                }
+                
+                /* Override any remaining dropdown styles */
+                .navbar .search-results-container,
+                header .search-results-container {
+                    background: transparent !important;
+                    border: none !important;
+                    border-radius: 0 !important;
+                    box-shadow: none !important;
+                    backdrop-filter: none !important;
+                    -webkit-backdrop-filter: none !important;
+                }
+            `;
+
+				// Remove existing fix if present
+				const existing = mainWindow.document.getElementById(
+					"nuclear-container-fix"
+				);
+				if (existing) existing.remove();
+
+				mainWindow.document.head.appendChild(containerFix);
+
+				// Apply direct DOM fixes
+				const navbarRow =
+					mainWindow.document.querySelector(".navbar-header-row");
+				if (navbarRow) {
+					navbarRow.style.cssText += `
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    width: 100% !important;
+                    gap: 1rem !important;
+                `;
+				}
+
+				const containers = [
+					".search-results-container",
+					".search-container-inline",
+					".search-bar-inline",
+				];
+
+				containers.forEach((selector) => {
+					const element = mainWindow.document.querySelector(selector);
+					if (element) {
+						element.style.cssText += `
+                        flex: 1 !important;
+                        flex-grow: 1 !important;
+                        width: 100% !important;
+                        max-width: none !important;
+                        min-width: 200px !important;
+                        background: transparent !important;
+                        border: none !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
+                        backdrop-filter: none !important;
+                        -webkit-backdrop-filter: none !important;
+                        display: flex !important;
+                        align-items: center !important;
+                    `;
+					}
+				});
+
+				console.log("🚀 Nuclear container fix applied!");
+				setTimeout(runContainerTests, 100);
+			}
+
+			function highlightContainers() {
+				clearHighlights();
+				const mainWindow = parent;
+				const containers = [
+					{ selector: ".search-results-container", color: "red" },
+					{ selector: ".search-container-inline", color: "blue" },
+					{ selector: ".search-bar-inline", color: "green" },
+				];
+
+				containers.forEach(({ selector, color }) => {
+					const element = mainWindow.document.querySelector(selector);
+					if (element) {
+						element.style.outline = `3px solid ${color}`;
+						element.style.outlineOffset = "2px";
+					}
+				});
+			}
+
+			function clearHighlights() {
+				const mainWindow = parent;
+				const selectors = [
+					".search-results-container",
+					".search-container-inline",
+					".search-bar-inline",
+				];
+				selectors.forEach((selector) => {
+					const element = mainWindow.document.querySelector(selector);
+					if (element) {
+						element.style.outline = "";
+						element.style.outlineOffset = "";
+					}
+				});
+			}
+
+			function measureFlexBehavior() {
+				const mainWindow = parent;
+				const results = document.getElementById("results");
+
+				const containers = [
+					".search-results-container",
+					".search-container-inline",
+					".search-bar-inline",
+				];
+
+				let html = "<h3>📏 Flex Measurements</h3>";
+
+				containers.forEach((selector) => {
+					const element = mainWindow.document.querySelector(selector);
+					if (element) {
+						const styles = mainWindow.getComputedStyle(element);
+						const rect = element.getBoundingClientRect();
+
+						html += `
+                        <div class="test-item">
+                            <strong>${selector}</strong>
+                            <div class="details">
+                                <code>Width:</code> ${rect.width.toFixed(
+																	1
+																)}px<br>
+                                <code>Flex:</code> ${styles.flex}<br>
+                                <code>Flex-grow:</code> ${styles.flexGrow}<br>
+                                <code>Display:</code> ${styles.display}<br>
+                                <code>Position:</code> ${styles.position}
+                            </div>
+                        </div>
+                    `;
+					}
+				});
+
+				results.innerHTML = html;
+			}
+
+			function removeAllDropdownStyling() {
+				const mainWindow = parent;
+
+				// Find and disable the navbar-dropdowns.css
+				const styleSheets = Array.from(mainWindow.document.styleSheets);
+				styleSheets.forEach((sheet) => {
+					try {
+						if (sheet.href && sheet.href.includes("navbar-dropdowns.css")) {
+							sheet.disabled = true;
+							console.log("Disabled navbar-dropdowns.css");
+						}
+					} catch (e) {
+						console.log("Could not access stylesheet:", e);
+					}
+				});
+
+				setTimeout(runContainerTests, 100);
+			}
+
+			function forceFlexBehavior() {
+				const mainWindow = parent;
+
+				// Find the parent container that should be flex
+				const navbarRow =
+					mainWindow.document.querySelector(".navbar-header-row");
+				if (navbarRow) {
+					navbarRow.style.cssText += `
+                    display: flex !important;
+                    align-items: center !important;
+                    width: 100% !important;
+                `;
+				}
+
+				// Force all search containers to flex
+				const searchContainers = mainWindow.document.querySelectorAll(
+					".search-container-inline, .search-bar-inline, .search-results-container"
+				);
+				searchContainers.forEach((container) => {
+					container.style.cssText += `
+                    flex: 1 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    width: 100% !important;
+                    min-width: 0 !important;
+                `;
+				});
+
+				setTimeout(runContainerTests, 100);
+			}
+
+			// Run initial tests
+			runContainerTests();
+		</script>
+	</body>
+</html>

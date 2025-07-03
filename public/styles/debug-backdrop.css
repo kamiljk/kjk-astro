@@ -1,0 +1,54 @@
+/* Temporary test styles for backdrop-filter debugging */
+
+/* Add colorful background behind navbar for testing */
+body::before {
+	content: "";
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(
+		45deg,
+		#ff6b6b 0%,
+		#4ecdc4 25%,
+		#45b7d1 50%,
+		#96ceb4 75%,
+		#feca57 100%
+	);
+	background-size: 400% 400%;
+	animation: gradientBG 15s ease infinite;
+	z-index: -1;
+	pointer-events: none;
+}
+
+@keyframes gradientBG {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+/* Add pattern overlay for better blur visibility */
+main::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 200px;
+	background: repeating-linear-gradient(
+		45deg,
+		rgba(255, 255, 255, 0.1) 0px,
+		rgba(255, 255, 255, 0.1) 10px,
+		transparent 10px,
+		transparent 20px
+	);
+	z-index: 1;
+	pointer-events: none;
+}

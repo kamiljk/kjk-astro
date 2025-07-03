@@ -4,45 +4,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	if (!btn || !menu) return;
 
-	function openMenu() {
-		menu.setAttribute("aria-hidden", "false");
-		btn.setAttribute("aria-expanded", "true");
-		menu.style.display = "block";
-		document.body.classList.add("dropdown-open");
-	}
-
-	function closeMenu() {
-		menu.setAttribute("aria-hidden", "true");
-		btn.setAttribute("aria-expanded", "false");
-		menu.style.display = "none";
-		document.body.classList.remove("dropdown-open");
+	// Helper functions
+	function setMenuState(isOpen) {
+		menu.setAttribute("aria-hidden", String(!isOpen));
+		btn.setAttribute("aria-expanded", String(isOpen));
+		menu.style.display = isOpen ? "block" : "none";
+		document.body.classList.toggle("dropdown-open", isOpen);
 	}
 
 	function toggleMenu(e) {
 		e.stopPropagation();
-		if (menu.getAttribute("aria-hidden") === "true") {
-			openMenu();
-		} else {
-			closeMenu();
+		const isHidden = menu.getAttribute("aria-hidden") === "true";
+		setMenuState(isHidden);
+	}
+
+	function handleOutsideClick(e) {
+		if (!menu.contains(e.target) && !btn.contains(e.target)) {
+			setMenuState(false);
 		}
 	}
 
-	btn.addEventListener("click", toggleMenu);
-
-	// Close on outside click
-	document.addEventListener("click", function (e) {
-		if (!menu.contains(e.target) && !btn.contains(e.target)) {
-			closeMenu();
-		}
-	});
-
-	// Close on Escape key
-	document.addEventListener("keydown", function (e) {
+	function handleKeyDown(e) {
 		if (e.key === "Escape") {
-			closeMenu();
+			setMenuState(false);
 		}
-	});
+	}
+
+	// Event listeners
+	btn.addEventListener("click", toggleMenu);
+	document.addEventListener("click", handleOutsideClick);
+	document.addEventListener("keydown", handleKeyDown);
 
 	// Initialize menu as hidden
-	closeMenu();
+	setMenuState(false);
 });

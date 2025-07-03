@@ -1,0 +1,97 @@
+---
+import NavbarMenuRedesign from "../islands/NavbarMenu.redesign.jsx";
+import ThemeToggleRedesign from "../islands/ThemeToggle.redesign.jsx";
+
+const {
+	taxonomy = ["all", "read", "play", "about"],
+	type = "all",
+	sort = "newest",
+	currentPage = 1,
+} = Astro.props;
+---
+
+<!-- Test Implementation of Redesigned Navbar -->
+<header class="navbar site-header">
+	<div class="site-header-inner">
+		<div class="navbar-content-inner">
+			<div class="navbar-header-row">
+				<a
+					href="/"
+					class="nav__logo"
+				>
+					<img
+						src="/assets/k_blk_svg.svg"
+						alt="Logo"
+						class="nav__logo-img"
+					/>
+				</a>
+
+				<!-- Inline search bar -->
+				<div class="search-container-inline">
+					<div
+						id="pagefind-search-inline"
+						class="search-bar-inline"
+					>
+					</div>
+				</div>
+
+				<!-- Redesigned Menu -->
+				<div class="navbar-menu-wrapper">
+					<NavbarMenuRedesign
+						taxonomy={taxonomy}
+						type={type}
+						sort={sort}
+						order="desc"
+						client:load
+					>
+						<ThemeToggleRedesign client:load />
+					</NavbarMenuRedesign>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Portal target for dropdown -->
+	<div id="navbar-dropdown-portal"></div>
+</header>
+
+<style>
+	/* Minimal styling to integrate with existing system */
+	.navbar {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: var(--color-bg);
+		border-bottom: var(--border-unified);
+	}
+
+	.navbar-header-row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-m);
+		max-width: var(--navbar-max-width);
+		margin: 0 auto;
+		padding: var(--space-s) var(--space-m);
+	}
+
+	.nav__logo-img {
+		height: 36px;
+		max-height: 100%;
+		width: auto;
+		transition: height 0.2s;
+	}
+
+	.search-container-inline {
+		flex: 1;
+		max-width: 300px;
+	}
+
+	.navbar-menu-wrapper {
+		position: relative;
+	}
+
+	#navbar-dropdown-portal {
+		position: relative;
+		z-index: 1000;
+	}
+</style>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Test Unified Button System</title>
+		<link
+			rel="stylesheet"
+			href="/styles/tokens.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/assets/styles.css"
+		/>
+		<style>
+			body {
+				padding: 2rem;
+				background: var(--color-bg);
+				color: var(--color-text);
+				font-family: var(--font-family-base);
+				line-height: 1.6;
+			}
+			.test-section {
+				margin: 2rem 0;
+				padding: 1rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-card);
+			}
+			.button-test-grid {
+				display: flex;
+				gap: 1rem;
+				flex-wrap: wrap;
+				margin: 1rem 0;
+			}
+			.output {
+				background: var(--color-card-bg);
+				padding: 1rem;
+				margin: 1rem 0;
+				border-radius: var(--radius-btn);
+				border: 1px solid var(--color-border);
+				white-space: pre-wrap;
+				font-family: monospace;
+				max-height: 200px;
+				overflow-y: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Unified Button System Test</h1>
+
+		<div class="test-section">
+			<h2>Feed Buttons (Global Classes)</h2>
+			<div class="button-test-grid">
+				<a
+					href="#"
+					class="feed-cta pill"
+					>READ</a
+				>
+				<button class="feed-cta pill">PLAY NOW</button>
+				<button class="feed-cta pill">EXPLORE</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Navbar Pills</h2>
+			<div class="button-test-grid">
+				<button class="pill">All</button>
+				<button class="pill">Read</button>
+				<button class="pill">Play</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Generic Buttons</h2>
+			<div class="button-test-grid">
+				<button class="button">Generic Button</button>
+				<button class="button button--secondary">Secondary</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Test Controls</h2>
+			<button onclick="testColorSystem()">Test Color System</button>
+			<button onclick="testInteractiveStates()">Test Interactive States</button>
+			<button onclick="testHDRSupport()">Test HDR Support</button>
+			<div
+				class="output"
+				id="test-output"
+			>
+				Test results will appear here...
+			</div>
+		</div>
+
+		<script src="/scripts/test-unified-buttons.js"></script>
+		<script>
+			// Add visual feedback for button interactions
+			document.querySelectorAll("button, .feed-cta").forEach((btn) => {
+				btn.addEventListener("click", (e) => {
+					if (!e.target.onclick) {
+						e.preventDefault();
+						console.log("Button clicked:", e.target.textContent);
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

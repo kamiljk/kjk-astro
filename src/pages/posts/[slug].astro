@@ -28,23 +28,21 @@ const dateCreated = new Date(post.data.dateCreated);
 	<!-- Use same feed layout wrapper to match card styles -->
 	<ul id="posts-feed">
 		<li class={`${styles["post-card"]} expanded-card`}>
-			<div
-				class={styles["post-card-inner"]}
-				style="flex-direction:column; gap:1.5rem;"
-			>
+			<div class={styles["post-card-inner"] + " flex-col gap-lg"}>
 				{
 					(post.data.type === "game" || post.data.type === "play") &&
 						post.data.slug && (
 							<div
-								class={styles["post-card-thumbnail"]}
-								style="margin-bottom:0; margin-right:2rem; display:flex; align-items:center;"
+								class={
+									styles["post-card-thumbnail"] +
+									" mb-0 mr-lg flex items-center"
+								}
 							>
 								<img
 									src={`/games/${post.data.slug}/thumbnail.png`}
 									alt={`Thumbnail for ${post.data.title}`}
-									class={`${styles["post-thumb-large"]}`}
+									class={`${styles["post-thumb-large"]} block`}
 									loading="lazy"
-									style="display:block;"
 									onerror="this.style.display='none'"
 								/>
 							</div>
@@ -54,29 +52,22 @@ const dateCreated = new Date(post.data.dateCreated);
 				{
 					(post.data.type === "game" || post.data.type === "play") &&
 						post.data.slug && (
-							<div
-								class={styles["post-card"]}
-								style="width:100%; margin-bottom:1.5rem; flex-direction:column;"
-							>
-								<div
-									class={styles["post-card-inner"]}
-									style="flex-direction:column; padding:1rem;"
-								>
+							<div class={styles["post-card"] + " w-full mb-lg flex-col"}>
+								<div class={styles["post-card-inner"] + " flex-col p-md"}>
 									<button
 										id="toggle-embedded-game"
-										class={`${styles["feed-cta"]} ${styles["pill"]}`}
-										style="margin-bottom:1rem;"
+										class="feed-cta pill mb-md"
 									>
 										Show Embedded Game
 									</button>
 									<div
 										id="embedded-game-container"
-										style="display:none; width:100%;"
+										class="w-full hidden"
 									>
 										<iframe
 											src={`/games/${post.data.slug}/index.html`}
 											title={`Embedded game: ${post.data.title}`}
-											style="width:100%;min-height:480px;border-radius:11px;border:1.5px solid #39ff14;box-shadow:0 2px 8px #0002;margin-top:1.2em;background:#fff;"
+											class="w-full min-h-embed rounded-unified border-unified shadow-unified mt-lg bg-card"
 											loading="lazy"
 											allowfullscreen
 										/>
@@ -89,28 +80,22 @@ const dateCreated = new Date(post.data.dateCreated);
 				<article class={styles["post-card-content"]}>
 					<button
 						onclick="history.back()"
-						class={`${styles["feed-cta"]} ${styles["pill"]}`}
-						style="margin-bottom:1.5em;"
+						class="feed-cta pill mb-lg"
 						>← Back</button
 					>
 					<a
 						href={Astro.url.pathname}
 						data-testid="feed-post-link"
-						style="font-size:1.15em; font-weight:600; color:#222; margin-bottom:0.2em; word-break:break-word; display:block;"
+						class="post-title block font-lg font-bold color-title mb-xs break-word"
 					>
 						{post.data.title}
 					</a>
-					<div
-						style="font-size:0.95em; color:#888; margin:0.2em 0 0.5em 0; min-height:1.2em;"
-					>
+					<div class="post-date color-muted mb-xs min-h-date">
 						{dateCreated ? `Created: ${dateCreated.toLocaleDateString()}` : ""}
 					</div>
 					{
 						post.data.description && (
-							<div
-								class={styles["post-description"]}
-								style="margin-bottom:0.5em;"
-							>
+							<div class={styles["post-description"] + " mb-xs"}>
 								{post.data.description}
 							</div>
 						)
@@ -129,12 +114,11 @@ const dateCreated = new Date(post.data.dateCreated);
 		);
 		if (toggleBtn && embeddedContainer) {
 			toggleBtn.addEventListener("click", () => {
-				embeddedContainer.style.display =
-					embeddedContainer.style.display === "none" ? "block" : "none";
+				embeddedContainer.classList.toggle("hidden");
 				toggleBtn.textContent =
-					embeddedContainer.style.display === "block" ?
-						"Hide Embedded Game"
-					:	"Show Embedded Game";
+					embeddedContainer.classList.contains("hidden") ?
+						"Show Embedded Game"
+					:	"Hide Embedded Game";
 			});
 		}
 	</script>

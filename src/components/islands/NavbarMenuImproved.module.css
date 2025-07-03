@@ -1,0 +1,304 @@
+/* Modern, Compact Dropdown Menu - Improved Design */
+
+.menuContainer {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+/* === MENU BUTTON === */
+.menuButton {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-width: 140px;
+	height: 44px;
+	padding: 0 16px;
+	cursor: pointer;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.buttonContent {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	gap: 12px;
+}
+
+.currentState {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.stateIcon {
+	font-size: 16px;
+	line-height: 1;
+}
+
+.stateText {
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.5px;
+}
+
+.chevron {
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	opacity: 0.7;
+}
+
+.chevron.open {
+	transform: rotate(180deg);
+}
+
+/* === DROPDOWN === */
+.dropdown {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	min-width: 420px;
+	max-width: 480px;
+	z-index: 1000;
+
+	animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-8px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.dropdownContent {
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+/* === SECTIONS === */
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 4px;
+}
+
+.sectionIcon {
+	font-size: 16px;
+	line-height: 1;
+}
+
+.sectionTitle {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-text);
+	opacity: 0.8;
+	margin: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* === FILTER BUTTONS === */
+.buttonGrid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 8px;
+}
+
+.filterButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 16px;
+	color: var(--color-text);
+	cursor: pointer;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	min-height: 44px;
+}
+
+.filterButton:hover {
+	transform: translateY(-1px);
+}
+
+.filterButton.active {
+	color: #111;
+	box-shadow: 0 4px 12px rgba(57, 255, 20, 0.3);
+}
+
+.filterButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* === SORT CONTROLS === */
+.sortControls {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.sortButtons {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+}
+
+.sortButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 10px 12px;
+	color: var(--color-text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	min-height: 40px;
+}
+
+.sortButton:hover {
+}
+
+.sortButton.active {
+	color: #111;
+}
+
+.sortButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* === ORDER CONTROLS === */
+.orderControls {
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+}
+
+.orderButton {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 8px 16px;
+	color: var(--color-text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	flex: 1;
+	justify-content: center;
+	min-height: 36px;
+}
+
+.orderButton:hover {
+}
+
+.orderButton.active {
+	color: #111;
+}
+
+.orderButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* === BUTTON CONTENT === */
+.buttonIcon {
+	font-size: 16px;
+	line-height: 1;
+}
+
+.buttonLabel {
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+}
+
+.orderIcon {
+	font-size: 14px;
+}
+
+.orderLabel {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* === THEME CONTROLS === */
+.themeControls {
+	display: flex;
+	justify-content: center;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+	.dropdown {
+		right: -20px;
+		left: -20px;
+		min-width: unset;
+		max-width: unset;
+	}
+
+	.menuButton {
+		min-width: 120px;
+	}
+
+	.buttonGrid {
+		grid-template-columns: 1fr;
+	}
+
+	.sortButtons {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 480px) {
+	.dropdown {
+		right: -16px;
+		left: -16px;
+	}
+
+	.dropdownContent {
+		padding: 20px;
+		gap: 20px;
+	}
+
+	.menuButton {
+		min-width: 100px;
+		padding: 0 12px;
+	}
+
+	.stateText {
+		font-size: 12px;
+	}
+}
+
+/* === DARK MODE ADJUSTMENTS === */
+[data-theme="dark"] .menuButton {
+}
+
+[data-theme="dark"] .dropdown {
+}
+
+[data-theme="dark"] .filterButton,
+[data-theme="dark"] .sortButton,
+[data-theme="dark"] .orderButton {
+}
+
+[data-theme="dark"] .filterButton:hover,
+[data-theme="dark"] .sortButton:hover,
+[data-theme="dark"] .orderButton:hover {
+}

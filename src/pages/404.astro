@@ -3,20 +3,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout>
-  <div class="maximalist-404">
-    <div class="maximalist-404-number">404</div>
-    <div class="maximalist-404-message">
-      you goofed, or i did, but in all likelyhood it was probably you<br />
-      <span class="maximalist-404-sass">sorry not sorry</span>
-    </div>
-    <button
-      class="maximalist-404-back"
-      onclick="if(document.referrer){window.location=document.referrer;}else{window.location='/';}"
-      >Go Back</button
-    >
-  </div>
+	<div class="maximalist-404">
+		<div class="maximalist-404-number">404</div>
+		<div class="maximalist-404-message">
+			you goofed, or i did, but in all likelyhood it was probably you<br />
+			<span class="maximalist-404-sass">sorry not sorry</span>
+		</div>
+		<button
+			class="maximalist-404-back button"
+			onclick="if(document.referrer){window.location=document.referrer;}else{window.location='/';}"
+			>Go Back</button
+		>
+	</div>
 
-  <style>
-    /* Removed inline styles, consolidated into global.css */
-  </style>
+	<style>
+		/* Removed inline styles, consolidated into global.css */
+	</style>
 </BaseLayout>

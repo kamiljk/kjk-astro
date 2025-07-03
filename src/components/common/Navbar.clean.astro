@@ -1,0 +1,189 @@
+---
+import NavbarMenu from "../islands/NavbarMenu.jsx";
+import ThemeToggle from "../islands/ThemeToggle.redesign.jsx";
+const {
+	taxonomy = ["all", "read", "play", "about"],
+	type = "all",
+	sort = "newest",
+	currentPage = 1,
+} = Astro.props;
+---
+
+<header class="navbar site-header">
+	<div class="site-header-inner">
+		<div class="navbar-content-inner">
+			<div class="navbar-header-row">
+				<a
+					href="/"
+					class="nav__logo"
+				>
+					<img
+						src="/assets/k_blk_svg.svg"
+						alt="Logo"
+						class="nav__logo-img"
+					/>
+				</a>
+				<!-- Inline search bar -->
+				<div class="search-container-inline">
+					<div
+						id="pagefind-search-inline"
+						class="search-bar-inline"
+					>
+					</div>
+				</div>
+				<div class="navbar-menu-wrapper">
+					<NavbarMenu
+						taxonomy={taxonomy}
+						type={type}
+						sort={sort}
+						order="desc"
+						client:load
+					>
+						<ThemeToggle client:load />
+					</NavbarMenu>
+				</div>
+			</div>
+		</div>
+	</div>
+</header>
+
+<!-- Dropdown containers positioned outside navbar -->
+<div
+	class="dropdown-portal-container"
+	id="navbar-dropdown-portal"
+>
+</div>
+<div
+	class="search-portal-container"
+	id="navbar-search-portal"
+>
+</div>
+
+<!-- Import external stylesheets -->
+<link
+	rel="stylesheet"
+	href="/src/components/common/navbar-dropdowns.css"
+/>
+
+<style>
+	/* Core Navbar Styles */
+	.site-header {
+		position: fixed;
+		top: 1rem;
+		left: 50%;
+		transform: translateX(-50%);
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		margin: 0;
+		z-index: 10000;
+		background: var(--frosted-bg);
+		backdrop-filter: var(--frosted-blur);
+		-webkit-backdrop-filter: var(--frosted-blur);
+		border: var(--frosted-border);
+		border-radius: var(--radius-unified);
+		box-shadow: var(--frosted-shadow);
+		transition:
+			background 0.3s,
+			box-shadow 0.3s;
+	}
+
+	.site-header-inner {
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		margin: 0 auto;
+		padding-left: var(--fluid-space-s);
+		padding-right: var(--fluid-space-s);
+		box-sizing: border-box;
+	}
+
+	.navbar-content-inner,
+	.navbar-header-row {
+		width: 100%;
+		margin: 0;
+		box-sizing: border-box;
+	}
+
+	.navbar-header-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+		min-height: var(--navbar-height, 60px);
+		padding: var(--fluid-space-xs) 0;
+	}
+
+	/* Logo */
+	.nav__logo {
+		display: flex;
+		align-items: center;
+		text-decoration: none;
+		flex-shrink: 0;
+	}
+
+	.nav__logo-img {
+		height: clamp(1.75rem, 4vw, 2.25rem);
+		width: auto;
+		transition: opacity 0.3s ease;
+	}
+
+	.nav__logo:hover .nav__logo-img {
+		opacity: 0.8;
+	}
+
+	/* Search Container */
+	.search-container-inline {
+		flex: 1;
+		max-width: min(400px, 40vw);
+		margin: 0 clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-m));
+	}
+
+	.search-bar-inline {
+		width: 100%;
+		position: relative;
+	}
+
+	/* Navbar Menu */
+	.navbar-menu-wrapper {
+		color: var(--color-text);
+		position: relative;
+		flex-shrink: 0;
+		min-width: fit-content;
+	}
+
+	/* Dropdown Styles */
+	.dropdown-portal-container {
+		position: fixed;
+		top: calc(var(--navbar-height) + 1rem);
+		left: 50%;
+		transform: translateX(-50%);
+		max-width: var(--dropdown-max-width);
+		width: 100%;
+		z-index: var(--z-dropdown);
+		pointer-events: auto;
+		background: var(--frosted-bg);
+		border: var(--frosted-border);
+		border-radius: var(--radius-unified);
+		box-shadow: var(--frosted-shadow);
+		transition: all 0.3s ease;
+	}
+
+	/* Mobile adjustments */
+	@media (max-width: 768px) {
+		.search-container-inline {
+			max-width: min(300px, 35vw);
+		}
+	}
+
+	@media (max-width: 500px) {
+		.navbar-header-row {
+			gap: var(--fluid-space-2xs);
+		}
+
+		.search-container-inline {
+			max-width: min(200px, 30vw);
+		}
+	}
+</style>
+
+<!-- Import external JavaScript -->
+<script src="/src/components/common/navbar-manager.js"></script>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Button System Specimen</title>
+		<link
+			rel="stylesheet"
+			href="/styles/tokens.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/styles/unified-button-system.css"
+		/>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: var(--font-family-base, "Inter", sans-serif);
+				background: var(--color-bg, #f8f9fa);
+				color: var(--color-text, #333);
+				line-height: 1.6;
+				padding: 2rem;
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			.header {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+
+			.header h1 {
+				font-size: 2.5rem;
+				margin-bottom: 1rem;
+			}
+
+			.back-btn {
+				position: fixed;
+				top: 20px;
+				left: 20px;
+				background: var(--color-accent);
+				color: white;
+				padding: 0.75rem 1.5rem;
+				border-radius: var(--radius-btn);
+				text-decoration: none;
+				font-weight: 500;
+				transition: all 0.2s ease;
+				z-index: 1000;
+				border: none;
+			}
+
+			.button-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 2rem;
+				margin-bottom: 3rem;
+			}
+
+			.button-section {
+				background: var(--color-bg-subtle, white);
+				border: var(--border-unified);
+				border-radius: var(--radius-unified);
+				padding: 1.5rem;
+				box-shadow: var(--shadow-elevation-2);
+			}
+
+			.section-title {
+				font-size: 1.25rem;
+				font-weight: 600;
+				margin-bottom: 1rem;
+				color: var(--color-text);
+			}
+
+			.button-demo {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.button-row {
+				display: flex;
+				gap: 1rem;
+				flex-wrap: wrap;
+				align-items: center;
+			}
+
+			.button-label {
+				font-size: 0.9rem;
+				color: var(--color-text-muted);
+				margin-bottom: 0.5rem;
+				font-weight: 500;
+			}
+
+			/* Theme Toggle */
+			.theme-controls {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				display: flex;
+				gap: 0.5rem;
+				z-index: 1000;
+			}
+
+			.theme-btn {
+				padding: 0.5rem 1rem;
+				border: none;
+				border-radius: var(--radius-btn);
+				background: var(--color-accent);
+				color: white;
+				cursor: pointer;
+				font-size: 0.9rem;
+				transition: all 0.2s ease;
+			}
+
+			/* Interactive Demo */
+			.interactive-demo {
+				background: var(--color-bg);
+				border: 2px dashed var(--color-border);
+				border-radius: var(--radius-unified);
+				padding: 2rem;
+				text-align: center;
+				margin-top: 2rem;
+			}
+
+			.demo-counter {
+				font-size: 2rem;
+				font-weight: bold;
+				color: var(--color-accent);
+				margin-bottom: 1rem;
+			}
+		</style>
+	</head>
+	<body>
+		<a
+			href="index.html"
+			class="back-btn"
+			>← Back to Specimens</a
+		>
+
+		<div class="theme-controls">
+			<button
+				class="theme-btn"
+				onclick="setTheme('light')"
+			>
+				☀️ Light
+			</button>
+			<button
+				class="theme-btn"
+				onclick="setTheme('dark')"
+			>
+				🌙 Dark
+			</button>
+			<button
+				class="theme-btn"
+				onclick="setTheme('auto')"
+			>
+				🔄 Auto
+			</button>
+		</div>
+
+		<div class="container">
+			<header class="header">
+				<h1>🔘 Button System Specimen</h1>
+				<p>Unified button styles with HDR accent integration</p>
+			</header>
+
+			<div class="button-grid">
+				<!-- Primary Buttons -->
+				<div class="button-section">
+					<h3 class="section-title">Primary Buttons</h3>
+					<div class="button-demo">
+						<div class="button-label">Standard Buttons</div>
+						<div class="button-row">
+							<button class="btn">Default</button>
+							<button class="btn btn-primary">Primary</button>
+							<button class="btn btn-secondary">Secondary</button>
+						</div>
+
+						<div class="button-label">Button Sizes</div>
+						<div class="button-row">
+							<button class="btn btn-sm">Small</button>
+							<button class="btn">Medium</button>
+							<button class="btn btn-lg">Large</button>
+						</div>
+
+						<div class="button-label">Button States</div>
+						<div class="button-row">
+							<button class="btn">Normal</button>
+							<button
+								class="btn"
+								disabled
+							>
+								Disabled
+							</button>
+							<button class="btn btn-loading">Loading...</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pill Buttons -->
+				<div class="button-section">
+					<h3 class="section-title">Pill Buttons</h3>
+					<div class="button-demo">
+						<div class="button-label">Filter Pills</div>
+						<div class="button-row">
+							<button class="pill">All</button>
+							<button class="pill pill-active">Read</button>
+							<button class="pill">Play</button>
+							<button class="pill">About</button>
+						</div>
+
+						<div class="button-label">Sort Pills</div>
+						<div class="button-row">
+							<button class="pill">Latest</button>
+							<button class="pill pill-active">Popular</button>
+							<button class="pill">Random</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Special Buttons -->
+				<div class="button-section">
+					<h3 class="section-title">Special Buttons</h3>
+					<div class="button-demo">
+						<div class="button-label">Game Buttons</div>
+						<div class="button-row">
+							<button class="game-button">▶️ Play Game</button>
+							<button class="hero-play-btn">🎮 Hero Play</button>
+						</div>
+
+						<div class="button-label">CTA Buttons</div>
+						<div class="button-row">
+							<button class="feed-cta">Read More</button>
+							<button class="card-cta-banner">Learn More</button>
+						</div>
+
+						<div class="button-label">Action Buttons</div>
+						<div class="button-row">
+							<button class="close-btn">✕ Close</button>
+							<button class="card-action-btn">Action</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Dropdown Items -->
+				<div class="button-section">
+					<h3 class="section-title">Dropdown & Menu Items</h3>
+					<div class="button-demo">
+						<div class="button-label">Dropdown Items</div>
+						<div class="button-row">
+							<button class="dropdown-item">Home</button>
+							<button class="dropdown-item">Settings</button>
+							<button class="dropdown-item">Profile</button>
+						</div>
+
+						<div class="button-label">Menu Toggles</div>
+						<div class="button-row">
+							<button class="menu-toggle-btn">☰ Menu</button>
+							<button class="theme-toggle-btn">🌙 Theme</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Interactive Demo -->
+				<div class="button-section">
+					<h3 class="section-title">Interactive Demo</h3>
+					<div class="interactive-demo">
+						<div
+							class="demo-counter"
+							id="counter"
+						>
+							0
+						</div>
+						<div
+							class="button-row"
+							style="justify-content: center"
+						>
+							<button
+								class="btn"
+								onclick="changeCounter(-1)"
+							>
+								➖ Decrease
+							</button>
+							<button
+								class="btn btn-primary"
+								onclick="resetCounter()"
+							>
+								🔄 Reset
+							</button>
+							<button
+								class="btn"
+								onclick="changeCounter(1)"
+							>
+								➕ Increase
+							</button>
+						</div>
+						<p style="margin-top: 1rem; color: var(--color-text-muted)">
+							Test button interactions and hover states
+						</p>
+					</div>
+				</div>
+
+				<!-- Button Variants -->
+				<div class="button-section">
+					<h3 class="section-title">Button Variants</h3>
+					<div class="button-demo">
+						<div class="button-label">Outline Buttons</div>
+						<div class="button-row">
+							<button class="btn btn-outline">Outline</button>
+							<button class="btn btn-outline-primary">Outline Primary</button>
+						</div>
+
+						<div class="button-label">Ghost Buttons</div>
+						<div class="button-row">
+							<button class="btn btn-ghost">Ghost</button>
+							<button class="btn btn-ghost-primary">Ghost Primary</button>
+						</div>
+
+						<div class="button-label">Icon Buttons</div>
+						<div class="button-row">
+							<button class="btn">📁 Folder</button>
+							<button class="btn">🔍 Search</button>
+							<button class="btn">⚙️ Settings</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			let counter = 0;
+
+			function changeCounter(delta) {
+				counter += delta;
+				document.getElementById("counter").textContent = counter;
+
+				// Add visual feedback
+				const counterEl = document.getElementById("counter");
+				counterEl.style.transform = "scale(1.1)";
+				setTimeout(() => {
+					counterEl.style.transform = "scale(1)";
+				}, 150);
+			}
+
+			function resetCounter() {
+				counter = 0;
+				document.getElementById("counter").textContent = counter;
+
+				// Add spin animation
+				const counterEl = document.getElementById("counter");
+				counterEl.style.transform = "rotate(360deg) scale(1.2)";
+				setTimeout(() => {
+					counterEl.style.transform = "rotate(0deg) scale(1)";
+				}, 300);
+			}
+
+			function setTheme(theme) {
+				if (theme === "auto") {
+					localStorage.removeItem("theme");
+					document.documentElement.removeAttribute("data-theme");
+				} else {
+					localStorage.setItem("theme", theme);
+					document.documentElement.setAttribute("data-theme", theme);
+				}
+			}
+
+			// Load saved theme
+			const savedTheme = localStorage.getItem("theme");
+			if (savedTheme) {
+				document.documentElement.setAttribute("data-theme", savedTheme);
+			}
+
+			// Add click animations to all buttons
+			document.addEventListener("click", (e) => {
+				if (e.target.tagName === "BUTTON") {
+					e.target.style.transform = "scale(0.95)";
+					setTimeout(() => {
+						e.target.style.transform = "";
+					}, 100);
+				}
+			});
+		</script>
+	</body>
+</html>

@@ -10,67 +10,56 @@ let sort = searchParams.get("sort") || "created";
 if (sort === "newest") sort = "created";
 let order = searchParams.get("order");
 if (sort === "alpha") {
-  order = "asc";
+	order = "asc";
 } else {
-  order = order || "desc";
+	order = order || "desc";
 }
 
 const allPosts = await getCollection("posts");
 const visiblePosts = allPosts.filter((post) => post.data.show === true);
-const filteredPosts = type === "all"
-  ? visiblePosts
-  : visiblePosts.filter((post) => normalizeType(post.data.type) === type);
+const filteredPosts =
+	type === "all" ? visiblePosts : (
+		visiblePosts.filter(
+			(post) =>
+				normalizeType(post.data.type) === type ||
+				post.data.priority === "urgent"
+		)
+	);
 
 function getSortDate(post, field) {
-  if (field === "updated") {
-    return new Date(post.data.dateUpdated || post.data.dateCreated || 0).getTime();
-  }
-  return new Date(post.data.dateCreated || 0).getTime();
+	if (field === "updated") {
+		return new Date(
+			post.data.dateUpdated || post.data.dateCreated || 0
+		).getTime();
+	}
+	return new Date(post.data.dateCreated || 0).getTime();
 }
 
-let sortedPosts = filteredPosts;
-if (sort === "created") {
-  sortedPosts = [...filteredPosts].sort((a, b) =>
-    order === "asc"
-      ? getSortDate(a, "created") - getSortDate(b, "created")
-      : getSortDate(b, "created") - getSortDate(a, "created")
-  );
-} else if (sort === "updated") {
-  sortedPosts = [...filteredPosts].sort((a, b) =>
-    order === "asc"
-      ? getSortDate(a, "updated") - getSortDate(b, "updated")
-      : getSortDate(b, "updated") - getSortDate(a, "updated")
-  );
-} else if (sort === "alpha") {
-  sortedPosts = [...filteredPosts].sort((a, b) => {
-    const cmp = (a.data.title || "").localeCompare(
-      b.data.title || "",
-      undefined,
-      {
-        sensitivity: "base",
-        ignorePunctuation: true,
-      }
-    );
-    return cmp;
-  });
-} else {
-  // Default: created desc
-  sortedPosts = [...filteredPosts].sort(
-    (a, b) => getSortDate(b, "created") - getSortDate(a, "created")
-  );
-}
-
+let sortedPosts = filteredPosts.sort((a, b) => {
+	if (a.data.priority === "urgent" && b.data.priority !== "urgent") return -1;
+	if (b.data.priority === "urgent" && a.data.priority !== "urgent") return 1;
+	if (sort === "created") {
+		return order === "asc" ?
+				getSortDate(a, "created") - getSortDate(b, "created")
+			:	getSortDate(b, "created") - getSortDate(a, "created");
+	} else if (sort === "updated") {
+		return order === "asc" ?
+				getSortDate(a, "updated") - getSortDate(b, "updated")
+			:	getSortDate(b, "updated") - getSortDate(a, "updated");
+	}
+	return 0;
+});
 const paginatedPosts = sortedPosts.slice(0, PAGE_SIZE);
 const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
 const taxonomy = ["all", "read", "play", "about"];
 ---
 
 <BaseLayout
-  posts={paginatedPosts}
-  taxonomy={taxonomy}
-  currentPage={1}
-  totalPages={totalPages}
-  type={type}
-  sort={sort}
-  order={order}
+	posts={paginatedPosts}
+	taxonomy={taxonomy}
+	currentPage={1}
+	totalPages={totalPages}
+	type={type}
+	sort={sort}
+	order={order}
 />

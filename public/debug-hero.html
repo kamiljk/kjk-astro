@@ -1,4 +1,4 @@
-yes<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -17,6 +17,21 @@ yes<!DOCTYPE html>
 				padding: 10px 15px;
 				margin: 10px 0;
 				cursor: pointer;
+				transition: background-color 0.3s ease, color 0.3s ease,
+					box-shadow 0.3s ease;
+				border: none; /* Ensure border doesn't change */
+			}
+			button:hover {
+				background-color: #39ff14; /* Neon green */
+				color: #000; /* Black text for contrast */
+				box-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14; /* Neon glow effect */
+			}
+			button.pill {
+				border-radius: 50px; /* Pill shape */
+			}
+			button.active {
+				background-color: #333;
+				color: #fff;
 			}
 			.debug-panel {
 				margin-top: 20px;
@@ -64,13 +79,8 @@ yes<!DOCTYPE html>
 					</button>
 				</div>
 				<div class="hero-card-content">
-					<iframe
-						class="hero-iframe"
-						style="display: none"
-					></iframe>
 					<div class="hero-markdown">
 						<div class="loading-indicator">
-							<div class="loading-spinner"></div>
 							<p>Loading content...</p>
 						</div>
 					</div>
@@ -88,62 +98,29 @@ yes<!DOCTYPE html>
 
 					debugOutput.textContent = "Testing post content loading...";
 
-					// Try to fetch a post
 					fetch("/posts/autonomous-zones/")
 						.then((response) => {
 							debugOutput.textContent += `\nFetch status: ${response.status}`;
-							return response.text();
+							return response.ok
+								? response.text()
+								: Promise.reject("Failed to fetch content.");
 						})
 						.then((html) => {
-							debugOutput.textContent += `\nGot HTML content (${html.length} chars)`;
-
-							// Parse HTML
 							const parser = new DOMParser();
 							const doc = parser.parseFromString(html, "text/html");
-
-							// Try different selectors
-							const selectors = [
-								".post-content",
-								"article.post",
-								"main .content",
-								".post-page",
-								"article",
-							];
-							let content = null;
-
-							for (const selector of selectors) {
-								const element = doc.querySelector(selector);
-								if (element) {
-									content = element;
-									debugOutput.textContent += `\nFound content with selector: ${selector}`;
-									break;
-								}
-							}
+							const content = doc.querySelector(
+								".post-content, article.post, main .content, .post-page, article"
+							);
 
 							if (content) {
-								// Remove title elements
-								const titles = content.querySelectorAll("h1, #post-title");
-								titles.forEach((el) => {
-									debugOutput.textContent += `\nRemoving title element: ${el.textContent}`;
-									el.remove();
-								});
-
-								// Set content
-								heroMarkdown.innerHTML = `
-              <div class="post-content-wrapper">
-                ${content.innerHTML}
-              </div>
-            `;
-
-								debugOutput.textContent += `\nContent set to hero card.`;
+								content
+									.querySelectorAll("h1, #post-title")
+									.forEach((el) => el.remove());
+								heroMarkdown.innerHTML = `<div class="post-content-wrapper">${content.innerHTML}</div>`;
+								debugOutput.textContent += "\nContent set to hero card.";
 								heroCard.classList.add("active");
 							} else {
-								debugOutput.textContent += `\nERROR: Could not find content with any selector!`;
-								// Show HTML structure
-								debugOutput.textContent += `\n\nPage structure:\n${doc.body.innerHTML.substring(
-									0,
-									500
-								)}...`;
+								throw new Error("Content not found with any selector.");
 							}
 						})
 						.catch((error) => {

@@ -1,77 +1,125 @@
 import React, { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 
 export default function PagefindSearch() {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [pagefind, setPagefind] = useState(null);
-  const inputRef = useRef(null);
+    const containerRef = useRef(null);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [isClient, setIsClient] = useState(false);
+    const [portalTarget, setPortalTarget] = useState(null);
 
-  // Dynamically load Pagefind
-  useEffect(() => {
-    let cancelled = false;
-    if (!window.Pagefind) {
-      const script = document.createElement("script");
-      script.src = "/pagefind/pagefind.js";
-      script.async = true;
-      script.onload = () => {
-        if (!cancelled && window.Pagefind) setPagefind(window.Pagefind);
-      };
-      document.body.appendChild(script);
-      return () => {
-        cancelled = true;
-        document.body.removeChild(script);
-      };
-    } else {
-      setPagefind(window.Pagefind);
-    }
-  }, []);
+    useEffect(() => {
+        setIsClient(true);
+        const target = document.querySelector("#navbar-dropdown-portal");
+        if (target) {
+            setPortalTarget(target);
+        }
+    }, []);
 
-  // Perform search
-  useEffect(() => {
-    if (!pagefind || !query) {
-      setResults([]);
-      return;
-    }
-    setLoading(true);
-    pagefind.search(query).then((res) => {
-      if (!res || !res.results) {
-        setResults([]);
-        setLoading(false);
-        return;
-      }
-      Promise.all(res.results.slice(0, 10).map((r) => r.data())).then((data) => {
-        setResults(data);
-        setLoading(false);
-      });
-    });
-  }, [query, pagefind]);
+    useEffect(() => {
+        const initPagefind = () => {
+            if (window.Pagefind && containerRef.current) {
+                console.log("Pagefind initialized.");
+            } else {
+                console.error("Pagefind script not loaded.");
+            }
+        };
 
-  return (
-    <div className="pagefind-search-island">
-      <input
-        ref={inputRef}
-        type="search"
-        placeholder="Search..."
-        value={query}
-        onChange={e => setQuery(e.target.value)}
-        className="pagefind-search-input"
-        aria-label="Search site content"
-      />
-      {loading && <div className="pagefind-search-loading">Searching...</div>}
-      <ul className="pagefind-search-results">
-        {results.map((r, i) => (
-          <li key={r.url || i} className="pagefind-search-result-item">
-            <a href={r.url} className="pagefind-search-result-link">{r.meta?.title || r.url}</a>
-            {r.excerpt && (
-              <div className="pagefind-search-result-excerpt" dangerouslySetInnerHTML={{ __html: r.excerpt }} />
+        if (!window.Pagefind) {
+            console.log("Loading Pagefind script...");
+            const script = document.createElement("script");
+            script.type = "module";
+            script.src = "/pagefind.js"; // Reverted to previous path
+            script.onload = initPagefind;
+            script.onerror = () => console.error("Failed to load Pagefind script");
+            document.head.appendChild(script);
+        } else {
+            initPagefind();
+        }
+    }, []);
+
+    const handleSearch = async (value) => {
+        const hasValue = value.trim().length > 0;
+        setIsSearchOpen(hasValue);
+
+        if (!hasValue) {
+            setSearchResults([]);
+        } else {
+            console.log("Querying Pagefind index...");
+            try {
+                const results = await window.Pagefind.search(value);
+                console.log("Search results fetched:", results);
+                setSearchResults(results.results);
+            } catch (error) {
+                console.error("Failed to fetch search results:", error);
+            }
+        }
+    };
+
+    return (
+        <>
+            <div
+                className="search-results-container"
+                ref={containerRef}
+            ></div>
+
+            {isClient && portalTarget && isSearchOpen && searchResults.length > 0 && ReactDOM.createPortal(
+                <div
+                    id="search-results-dropdown"
+                    style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        width: '100%',
+                        background: 'var(--frosted-bg)',
+                        backdropFilter: 'var(--frosted-blur)',
+                        border: 'var(--frosted-border)',
+                        boxShadow: 'var(--shadow-elevation-3)',
+                        zIndex: 100,
+                        maxHeight: '400px',
+                        overflowY: 'auto',
+                        borderRadius: '0 0 var(--radius-unified) var(--radius-unified)',
+                        padding: 'var(--fluid-space-s)',
+                    }}
+                >
+                    <div style={{ marginBottom: 'var(--fluid-space-xs)', fontSize: '0.875rem', color: 'var(--color-desc)', fontWeight: '500' }}>
+                        {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{searchValue}"
+                    </div>
+                    {searchResults.map((result) => (
+                        <a
+                            key={result.id}
+                            href={result.url}
+                            style={{
+                                display: 'block',
+                                padding: 'var(--fluid-space-xs)',
+                                marginBottom: 'var(--fluid-space-xs)',
+                                borderRadius: 'var(--radius-unified)',
+                                textDecoration: 'none',
+                                color: 'var(--color-text)',
+                                background: 'transparent',
+                                transition: 'background 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = 'transparent';
+                            }}
+                        >
+                            <div style={{ fontWeight: '600', marginBottom: 'var(--fluid-space-2xs)', fontSize: '0.95rem' }}>
+                                {result.meta.title}
+                            </div>
+                            {result.meta.excerpt && (
+                                <div style={{ color: 'var(--color-desc)', fontSize: '0.875rem', lineHeight: '1.4' }}>
+                                    {result.meta.excerpt}
+                                </div>
+                            )}
+                        </a>
+                    ))}
+                </div>,
+                portalTarget
             )}
-          </li>
-        ))}
-      </ul>
-      {query && !loading && results.length === 0 && (
-        <div className="pagefind-search-no-results">No results found.</div>
-      )}
-    </div>
-  );
+        </>
+    );
 }

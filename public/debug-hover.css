@@ -1,0 +1,80 @@
+/* WORKING DROPDOWN HOVER STYLES */
+
+/* === DISABLE DROPDOWN CONTAINER HOVER EFFECTS === */
+/* Ensure no hover effects on the dropdown container itself */
+#filter-sort-menu,
+#filter-sort-menu:hover,
+.menu-container,
+.menu-container:hover,
+[class*="menu-container"],
+[class*="menu-container"]:hover {
+	background: var(--frosted-bg) !important;
+	transition: none !important;
+}
+
+/* Remove container hover background completely */
+#filter-sort-menu:hover,
+.menu-container:hover,
+[class*="menu-container"]:hover {
+	background: var(--frosted-bg) !important;
+	/* No hover effect, just static background */
+	/* DISABLED - These lines were breaking backdrop-filter:
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important; */
+}
+
+/* Only allow hover effects on buttons, not on the container */
+
+/* Normal button states - dark buttons */
+#filter-sort-menu button:not([class*="theme-toggle"]) {
+	background: #222 !important;
+	color: #fff !important;
+	border: none !important;
+	border-radius: var(--radius-btn) !important;
+	transition: all 0.15s ease !important;
+}
+
+/* Hover states - neon green without the upward nudge */
+#filter-sort-menu button:not([class*="theme-toggle"]):hover,
+#filter-sort-menu button:not([class*="theme-toggle"]):focus {
+	background: #39ff14 !important;
+	color: #111 !important;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Target by class patterns too - exclude pills-container */
+#filter-sort-menu [class*="pill"]:not([class*="pills-container"]) {
+	background: #222 !important;
+	color: #fff !important;
+}
+
+#filter-sort-menu [class*="pill"]:not([class*="pills-container"]):hover,
+#filter-sort-menu [class*="pill"]:not([class*="pills-container"]):focus {
+	background: #39ff14 !important;
+	color: #111 !important;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure pills-container never gets button styles */
+#filter-sort-menu [class*="pills-container"],
+#filter-sort-menu [class*="pills-container"]:hover,
+#filter-sort-menu [class*="pills-container"]:focus {
+	background: transparent !important;
+	box-shadow: none !important;
+	border: none !important;
+	transform: none !important;
+	color: inherit !important;
+}
+
+#filter-sort-menu button[class*="sort-arrow"]:not([class*="sort-arrows"]) {
+	background: #222 !important;
+	color: #fff !important;
+}
+
+#filter-sort-menu button[class*="sort-arrow"]:not([class*="sort-arrows"]):hover,
+#filter-sort-menu
+	button[class*="sort-arrow"]:not([class*="sort-arrows"]):focus {
+	background: #39ff14 !important;
+	color: #111 !important;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}

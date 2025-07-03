@@ -5,7 +5,6 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-	console.log("[card-nav.js] Initializing card navigation system v2");
 	initCardNavigation();
 });
 
@@ -118,9 +117,6 @@ function initCardNavigation() {
 		const isGame = learnButton.getAttribute("data-is-game") === "true";
 
 		if (!title || !slug || typeof window.activateHeroCard !== "function") {
-			console.error(
-				"Learn More button missing data or activateHeroCard not found."
-			);
 			return;
 		}
 
@@ -129,7 +125,6 @@ function initCardNavigation() {
 
 		if (isGame) {
 			// --- Handle Game Card "Learn More" ---
-			console.log(`[card-nav.js] Showing info for game: ${title}`);
 			const description = learnButton.getAttribute("data-description");
 			const gamePlayLink = learnButton.getAttribute("data-game-play-link");
 
@@ -138,7 +133,11 @@ function initCardNavigation() {
         <div class="game-info-content">
           <h4>About ${title}</h4>
           <p>${description || "No description available."}</p>
-          ${gamePlayLink ? `<a href="${gamePlayLink}" target="_blank" rel="noopener noreferrer" class="card-action-btn card-play-btn hero-play-btn">Play Now <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 14 9-14 9V3z" /></svg></a>` : ""}
+          ${
+						gamePlayLink
+							? `<a href="${gamePlayLink}" target="_blank" rel="noopener noreferrer" class="card-action-btn card-play-btn hero-play-btn">Play Now <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 14 9-14 9V3z" /></svg></a>`
+							: ""
+					}
         </div>
       `;
 
@@ -153,7 +152,6 @@ function initCardNavigation() {
 				learnButton.getAttribute("data-link") ||
 				learnButton.getAttribute("href");
 			if (!fetchUrl) {
-				console.error("Missing fetch URL for non-game card:", title);
 				window.activateHeroCard(
 					title,
 					'<p class="error-message">Error: Could not find content link.</p>',
@@ -161,10 +159,6 @@ function initCardNavigation() {
 				);
 				return;
 			}
-
-			console.log(
-				`[card-nav.js] Fetching content for: ${title} from ${fetchUrl}`
-			);
 
 			try {
 				const response = await fetch(fetchUrl);
@@ -247,8 +241,5 @@ function setupCloseHandlers() {
 
 // Ensure initialization runs even if DOMContentLoaded already fired
 if (document.readyState !== "loading") {
-	console.log(
-		"[card-nav.js] Document already loaded, initializing immediately"
-	);
 	initCardNavigation();
 }

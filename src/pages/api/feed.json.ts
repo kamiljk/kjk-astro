@@ -15,23 +15,29 @@ export const GET: APIRoute = async ({ url }) => {
   if (type === 'all') {
     allPosts = allPosts.filter(post => {
       const norm = normalizeType(post.data.type);
-      return norm === "read" || norm === "post" || norm === "play" || norm === "about";
+      return norm === "read" || norm === "post" || norm === "play" || norm === "about" || post.data.priority === "urgent";
     });
   } else {
-    allPosts = allPosts.filter(post => normalizeType(post.data.type) === type);
+    allPosts = allPosts.filter(post => normalizeType(post.data.type) === type || post.data.priority === "urgent");
   }
 
+  console.log('[feed.json.ts] All Posts:', allPosts.map(post => post.data));
+
   // Second: sorting
-  let sortedPosts = allPosts;
-  if (sort === 'created' || sort === 'newest') {
-    sortedPosts = allPosts.sort((a, b) => new Date(b.data.dateCreated || '').getTime() - new Date(a.data.dateCreated || '').getTime());
-  } else if (sort === 'updated') {
-    sortedPosts = allPosts.sort((a, b) => new Date(b.data.dateUpdated || b.data.dateCreated || '').getTime() - new Date(a.data.dateUpdated || a.data.dateCreated || '').getTime());
-  } else if (sort === 'oldest') {
-    sortedPosts = allPosts.sort((a, b) => new Date(a.data.dateCreated || '').getTime() - new Date(b.data.dateCreated || '').getTime());
-  } else if (sort === 'alpha') {
-    sortedPosts = allPosts.sort((a, b) => (a.data.title || '').localeCompare(b.data.title || ''));
-  }
+  let sortedPosts = allPosts.sort((a, b) => {
+    if (a.data.priority === "urgent" && b.data.priority !== "urgent") return -1;
+    if (b.data.priority === "urgent" && a.data.priority !== "urgent") return 1;
+    if (sort === 'created' || sort === 'newest') {
+      return new Date(b.data.dateCreated || '').getTime() - new Date(a.data.dateCreated || '').getTime();
+    } else if (sort === 'updated') {
+      return new Date(b.data.dateUpdated || b.data.dateCreated || '').getTime() - new Date(a.data.dateUpdated || a.data.dateCreated || '').getTime();
+    } else if (sort === 'oldest') {
+      return new Date(a.data.dateCreated || '').getTime() - new Date(b.data.dateCreated || '').getTime();
+    } else if (sort === 'alpha') {
+      return (a.data.title || '').localeCompare(b.data.title || '');
+    }
+    return 0;
+  });
 
   // Only enable infinite feed if enough content
   const start = (page - 1) * PAGE_SIZE;

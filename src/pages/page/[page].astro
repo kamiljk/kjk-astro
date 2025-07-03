@@ -10,70 +10,74 @@ const type = searchParams.get("type") || "all";
 
 const allPosts = await getCollection("posts");
 const filteredPosts =
-  type === "all"
-    ? allPosts
-    : allPosts.filter((post) => {
-        if (type === "read")
-          return post.data.type !== "about" && post.data.type !== "play";
-        if (type === "play") return post.data.type === "play";
-        if (type === "about") return post.data.type === "about";
-        return true;
-      });
-const sortedPosts = filteredPosts.sort(
-  (a, b) =>
-    new Date(b.data.dateCreated || "").getTime() -
-    new Date(a.data.dateCreated || "").getTime()
-);
+	type === "all" ? allPosts : (
+		allPosts.filter((post) => {
+			if (post.data.priority === "urgent") return true;
+			if (type === "read")
+				return post.data.type !== "about" && post.data.type !== "play";
+			if (type === "play") return post.data.type === "play";
+			if (type === "about") return post.data.type === "about";
+			return true;
+		})
+	);
+const sortedPosts = filteredPosts.sort((a, b) => {
+	if (a.data.priority === "urgent" && b.data.priority !== "urgent") return -1;
+	if (b.data.priority === "urgent" && a.data.priority !== "urgent") return 1;
+	return (
+		new Date(b.data.dateCreated || "").getTime() -
+		new Date(a.data.dateCreated || "").getTime()
+	);
+});
 const totalPages = Math.max(1, Math.ceil(sortedPosts.length / PAGE_SIZE));
 const paginatedPosts = sortedPosts.slice(
-  (currentPage - 1) * PAGE_SIZE,
-  currentPage * PAGE_SIZE
+	(currentPage - 1) * PAGE_SIZE,
+	currentPage * PAGE_SIZE
 );
 
 if (currentPage === 1) {
-  return Astro.redirect(type === "all" ? "/" : `/?type=${type}`);
+	return Astro.redirect(type === "all" ? "/" : `/?type=${type}`);
 }
 if (currentPage > totalPages) {
-  return Astro.redirect(
-    `/page/${totalPages}${type !== "all" ? `?type=${type}` : ""}`
-  );
+	return Astro.redirect(
+		`/page/${totalPages}${type !== "all" ? `?type=${type}` : ""}`
+	);
 }
 
 const taxonomy = ["all", "read", "play", "about"];
 
 export async function getStaticPaths() {
-  const PAGE_SIZE = 9;
-  const allPosts = await getCollection("posts");
-  const types = ["all", "read", "play", "about"];
-  let paths = [];
-  for (const type of types) {
-    let filtered =
-      type === "all"
-        ? allPosts
-        : allPosts.filter((post) => {
-            if (type === "read")
-              return post.data.type !== "about" && post.data.type !== "play";
-            if (type === "play") return post.data.type === "play";
-            if (type === "about") return post.data.type === "about";
-            return true;
-          });
-    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-    for (let i = 2; i <= totalPages; i++) {
-      paths.push({
-        params: { page: String(i) },
-        props: {},
-        url: type === "all" ? undefined : `/page/${i}?type=${type}`,
-      });
-    }
-  }
-  return paths;
+	const PAGE_SIZE = 9;
+	const allPosts = await getCollection("posts");
+	const types = ["all", "read", "play", "about"];
+	let paths = [];
+	for (const type of types) {
+		let filtered =
+			type === "all" ? allPosts : (
+				allPosts.filter((post) => {
+					if (type === "read")
+						return post.data.type !== "about" && post.data.type !== "play";
+					if (type === "play") return post.data.type === "play";
+					if (type === "about") return post.data.type === "about";
+					return true;
+				})
+			);
+		const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+		for (let i = 2; i <= totalPages; i++) {
+			paths.push({
+				params: { page: String(i) },
+				props: {},
+				url: type === "all" ? undefined : `/page/${i}?type=${type}`,
+			});
+		}
+	}
+	return paths;
 }
 ---
 
 <BaseLayout
-  posts={paginatedPosts}
-  taxonomy={taxonomy}
-  currentPage={currentPage}
-  totalPages={totalPages}
-  type={type}
+	posts={paginatedPosts}
+	taxonomy={taxonomy}
+	currentPage={currentPage}
+	totalPages={totalPages}
+	type={type}
 />

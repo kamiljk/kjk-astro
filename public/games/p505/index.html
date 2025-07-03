@@ -17,7 +17,8 @@
 				--color-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
 				/* These will be overridden by the site's accent color system */
-				--primary-color: #39ff14;
+				--color-accent: #39ff14;
+				--primary-color: #39ff14; /* Legacy compatibility */
 				--highlight-color: #39ff14;
 				--highlight-hover: rgb(88, 255, 69);
 				--highlight-active: rgb(29, 230, 0);
@@ -132,7 +133,8 @@
 				const root = document.documentElement;
 				const savedAccent = localStorage.getItem("accent-color");
 				if (savedAccent) {
-					root.style.setProperty("--primary-color", savedAccent);
+					root.style.setProperty("--color-accent", savedAccent);
+					root.style.setProperty("--primary-color", savedAccent); // Legacy compatibility
 					root.style.setProperty("--highlight-color", savedAccent);
 				}
 
@@ -191,7 +193,7 @@
 				const styles = getComputedStyle(document.documentElement);
 				bgColor = styles.getPropertyValue("--color-bg").trim();
 				textColor = styles.getPropertyValue("--color-text").trim();
-				primaryColor = styles.getPropertyValue("--primary-color").trim();
+				primaryColor = styles.getPropertyValue("--color-accent").trim();
 				secondaryBgColor = styles.getPropertyValue("--color-card-bg").trim();
 				descColor = styles.getPropertyValue("--color-desc").trim();
 				cardBorderColor = styles.getPropertyValue("--color-card-border").trim();

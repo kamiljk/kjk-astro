@@ -1,0 +1,215 @@
+@import "/styles/tokens.css";
+/* NavbarMenu.module.css - Layout Only */
+
+@font-face {
+	font-family: "Oswald";
+	src: url("/fonts/Oswald-VariableFont_wght.ttf") format("truetype");
+	font-weight: 200 700;
+	font-display: swap;
+}
+
+/* === LAYOUT ONLY - NO VISUAL STYLING ===
+   All visual styling (colors, backgrounds, borders, shadows, hover states) 
+   comes from the unified button system in /public/styles/unified-button-system.css
+   
+   This module only handles:
+   - Layout and positioning
+   - Sizing and spacing (responsive)
+   - Typography sizing and font families
+   - Structural properties
+   
+   DO NOT add color, background, border, or hover state overrides here!
+*/
+
+/* === NAVBAR WRAPPER === */
+.navbar-menu-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex: 1 1 0%;
+	position: relative;
+	height: 100%;
+	min-width: 0;
+	max-width: var(--navbar-max-width);
+	width: 100%;
+}
+
+/* === MENU BUTTON === */
+.menu-toggle-btn {
+	/* Layout and positioning only */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	z-index: 50;
+	margin: 0 var(--space-xs);
+
+	/* Responsive sizing */
+	height: clamp(32px, 7vw, 40px);
+	min-height: clamp(32px, 7vw, 40px);
+	font-size: clamp(0.75rem, 2vw, 0.875rem);
+	padding: 0 clamp(0.5rem, 2.5vw, 1rem);
+
+	/* Typography */
+	font-family: var(--font-family-base);
+	font-weight: 600;
+	text-transform: capitalize;
+	white-space: nowrap;
+
+	/* Interaction */
+	cursor: pointer;
+	user-select: none;
+	touch-action: manipulation;
+
+	/* Box model */
+	box-sizing: border-box;
+	flex-shrink: 0;
+	overflow: hidden;
+}
+
+/* === MENU ICON === */
+.menu-toggle-arrow {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	margin-left: 0.5em;
+	transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-toggle-arrow.open {
+	transform: rotate(180deg);
+}
+
+/* === DROPDOWN CONTAINER === */
+.menu-container {
+	/* Layout and positioning only */
+	position: fixed;
+	top: calc(var(--navbar-height) + 0.5rem);
+	left: 50%;
+	transform: translateX(-50%);
+	width: 100%;
+	max-width: var(--dropdown-max-width);
+	z-index: 1000;
+
+	/* Visibility states */
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+
+	/* Animation */
+	transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+}
+
+.menu-container.visible {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+/* === MENU CONTENT === */
+.menu-content {
+	/* Layout only */
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: var(--space-m);
+	box-sizing: border-box;
+	gap: var(--space-m);
+}
+
+/* === MENU SECTIONS === */
+.menu-section {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: clamp(var(--space-xs), 1.5vw, var(--space-s));
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+}
+
+/* === SECTION LABELS === */
+.section-label {
+	/* Typography only */
+	font-family: var(--font-family-base);
+	font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+	line-height: 1.2;
+
+	/* Layout */
+	margin-right: clamp(var(--space-xs), 1vw, var(--space-s));
+	margin-bottom: var(--space-2xs);
+	padding: 0;
+	display: inline-block;
+}
+
+/* === PILL GROUPS === */
+.pill-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-xs);
+	align-items: center;
+}
+
+/* === RESPONSIVE LAYOUT === */
+
+/* Medium viewports */
+@media (max-width: 830px) and (min-width: 481px) {
+	.menu-content {
+		flex-direction: column;
+		gap: var(--space-s);
+	}
+
+	.menu-section {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-xs);
+	}
+
+	.section-label {
+		margin-bottom: var(--space-2xs);
+	}
+}
+
+/* Small viewports */
+@media (max-width: 480px) {
+	.menu-container {
+		top: calc(var(--navbar-height) + 0.25rem);
+		max-width: calc(100vw - 1rem);
+	}
+
+	.menu-content {
+		padding: var(--space-s);
+		gap: var(--space-s);
+	}
+
+	.menu-section {
+		flex-direction: column;
+		align-items: stretch;
+		gap: var(--space-xs);
+	}
+
+	.pill-group {
+		justify-content: center;
+	}
+}
+
+/* Large viewports */
+@media (min-width: 1200px) {
+	.menu-content {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		gap: var(--space-l);
+	}
+
+	.menu-section {
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: nowrap;
+	}
+}

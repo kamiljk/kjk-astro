@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Button Inspection Test</title>
+		<link
+			rel="stylesheet"
+			href="/src/assets/global.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/styles/unified-button-system.css"
+		/>
+		<script
+			src="/scripts/random-theme-color.js"
+			type="module"
+		></script>
+	</head>
+	<body>
+		<h1>Button Inspection Test</h1>
+
+		<h2>Test 1: Direct Global Classes</h2>
+		<button class="menu-toggle-btn">Menu Toggle</button>
+		<button class="pill">Pill Button</button>
+		<button class="feed-cta">Feed CTA</button>
+
+		<h2>Test 2: Manual Button with Same Classes</h2>
+		<button
+			class="menu-toggle-btn"
+			style="margin: 10px"
+		>
+			Manual Menu
+		</button>
+		<button
+			class="pill"
+			style="margin: 10px"
+		>
+			Manual Pill
+		</button>
+		<button
+			class="feed-cta pill"
+			style="margin: 10px"
+		>
+			Manual Feed
+		</button>
+
+		<h2>Test 3: CSS Variables Check</h2>
+		<div id="css-vars"></div>
+
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const root = document.documentElement;
+				const accentColor =
+					getComputedStyle(root).getPropertyValue("--color-accent");
+				const accentRgb =
+					getComputedStyle(root).getPropertyValue("--color-accent-rgb");
+
+				document.getElementById("css-vars").innerHTML = `
+                <p>--color-accent: ${accentColor}</p>
+                <p>--color-accent-rgb: ${accentRgb}</p>
+            `;
+			});
+		</script>
+	</body>
+</html>

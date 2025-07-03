@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Backdrop Filter Debug</title>
+		<style>
+			body,
+			html {
+				height: 100%;
+				margin: 0;
+				font-family: sans-serif;
+			}
+
+			.background {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				z-index: 0;
+				background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ffe66d, #1a535c);
+				background-size: 200% 200%;
+				animation: movebg 10s ease-in-out infinite;
+			}
+
+			@keyframes movebg {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			.container {
+				position: relative;
+				z-index: 1;
+				padding: 2rem;
+				display: flex;
+				flex-direction: column;
+				gap: 2rem;
+			}
+
+			.test-card {
+				position: relative;
+				padding: 2rem;
+				border-radius: 12px;
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				margin: 1rem 0;
+				z-index: 10;
+			}
+
+			/* Test 1: Direct backdrop-filter */
+			.test1 {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px);
+				-webkit-backdrop-filter: blur(20px);
+			}
+
+			/* Test 2: With saturation */
+			.test2 {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px) saturate(150%);
+				-webkit-backdrop-filter: blur(20px) saturate(150%);
+			}
+
+			/* Test 3: Higher opacity background */
+			.test3 {
+				background: rgba(255, 255, 255, 0.3);
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+			}
+
+			/* Test 4: Dark background */
+			.test4 {
+				background: rgba(0, 0, 0, 0.2);
+				backdrop-filter: blur(15px) brightness(120%);
+				-webkit-backdrop-filter: blur(15px) brightness(120%);
+				color: white;
+			}
+
+			/* Test 5: With isolation */
+			.test5 {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px);
+				-webkit-backdrop-filter: blur(20px);
+				isolation: isolate;
+			}
+
+			/* Test 6: Forced stacking context */
+			.test6 {
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px);
+				-webkit-backdrop-filter: blur(20px);
+				transform: translateZ(0);
+				will-change: backdrop-filter;
+			}
+
+			h3 {
+				margin: 0 0 1rem 0;
+				color: #333;
+			}
+
+			.test4 h3 {
+				color: white;
+			}
+
+			.support-info {
+				position: fixed;
+				top: 10px;
+				right: 10px;
+				background: rgba(0, 0, 0, 0.8);
+				color: white;
+				padding: 1rem;
+				border-radius: 8px;
+				font-size: 0.9rem;
+				z-index: 100;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="background"></div>
+
+		<div
+			class="support-info"
+			id="supportInfo"
+		>
+			Checking backdrop-filter support...
+		</div>
+
+		<div class="container">
+			<div class="test-card test1">
+				<h3>Test 1: Basic blur(20px)</h3>
+				<p>This should show a blurred background with basic blur effect.</p>
+			</div>
+
+			<div class="test-card test2">
+				<h3>Test 2: blur(20px) + saturate(150%)</h3>
+				<p>This should show a blurred and saturated background.</p>
+			</div>
+
+			<div class="test-card test3">
+				<h3>Test 3: Higher opacity + blur(10px)</h3>
+				<p>This should show less blur but more opaque background.</p>
+			</div>
+
+			<div class="test-card test4">
+				<h3>Test 4: Dark background + brightness</h3>
+				<p>This should show a dark blurred background with brightness boost.</p>
+			</div>
+
+			<div class="test-card test5">
+				<h3>Test 5: With isolation: isolate</h3>
+				<p>This should show blur with proper stacking context isolation.</p>
+			</div>
+
+			<div class="test-card test6">
+				<h3>Test 6: Forced layer with transform</h3>
+				<p>This should show blur with forced GPU layer creation.</p>
+			</div>
+		</div>
+
+		<script>
+			// Check backdrop-filter support
+			function checkBackdropFilterSupport() {
+				const testElement = document.createElement("div");
+				const prefixes = ["backdropFilter", "webkitBackdropFilter"];
+
+				let supported = false;
+				let prefix = "";
+
+				for (let i = 0; i < prefixes.length; i++) {
+					if (prefixes[i] in testElement.style) {
+						supported = true;
+						prefix = prefixes[i];
+						break;
+					}
+				}
+
+				const supportInfo = document.getElementById("supportInfo");
+				if (supported) {
+					supportInfo.innerHTML = `
+                    ✅ backdrop-filter supported<br>
+                    Prefix: ${prefix}<br>
+                    Browser: ${navigator.userAgent.split(" ").pop()}
+                `;
+					supportInfo.style.background = "rgba(0, 128, 0, 0.8)";
+				} else {
+					supportInfo.innerHTML = `
+                    ❌ backdrop-filter NOT supported<br>
+                    Browser: ${navigator.userAgent.split(" ").pop()}
+                `;
+					supportInfo.style.background = "rgba(128, 0, 0, 0.8)";
+				}
+			}
+
+			// Check CSS.supports
+			function checkCSSSupports() {
+				if (window.CSS && CSS.supports) {
+					const tests = [
+						"backdrop-filter: blur(10px)",
+						"-webkit-backdrop-filter: blur(10px)",
+						"backdrop-filter: blur(10px) saturate(150%)",
+					];
+
+					tests.forEach((test, index) => {
+						const supported = CSS.supports(test);
+						console.log(`CSS.supports("${test}"): ${supported}`);
+					});
+				}
+			}
+
+			checkBackdropFilterSupport();
+			checkCSSSupports();
+
+			// Log computed styles for debugging
+			window.addEventListener("load", () => {
+				const testCards = document.querySelectorAll(".test-card");
+				testCards.forEach((card, index) => {
+					const computed = getComputedStyle(card);
+					console.log(
+						`Test ${index + 1} computed backdrop-filter:`,
+						computed.backdropFilter
+					);
+					console.log(
+						`Test ${index + 1} computed -webkit-backdrop-filter:`,
+						computed.webkitBackdropFilter
+					);
+				});
+			});
+		</script>
+	</body>
+</html>

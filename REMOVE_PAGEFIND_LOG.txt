@@ -1,0 +1,9 @@
+Removing all Pagefind-related code, assets, and config from the codebase as of 2025-06-19. This includes:
+- src/components/features/PagefindSearch.jsx
+- src/pages/test-search.astro
+- All Pagefind-related CSS in src/assets/global.css
+- Any references in astro.config.mjs, package.json, and documentation
+- Any test artifacts or logs referencing Pagefind
+
+This log is for traceability and project history.
+yeah let

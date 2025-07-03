@@ -1,0 +1,127 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PagefindSearch from "../components/features/PagefindSearch.jsx";
+
+const title = "Search";
+const description = "Search through all posts and content on this site.";
+---
+
+<BaseLayout>
+	<div class="search-page">
+		<header class="search-header">
+			<h1>Search</h1>
+			<p class="search-description">{description}</p>
+		</header>
+
+		<main class="search-main">
+			<div class="search-container-large">
+				<PagefindSearch client:load />
+			</div>
+
+			<section class="search-tips">
+				<h2>Search Tips</h2>
+				<ul>
+					<li>Search for specific terms or phrases</li>
+					<li>Results are updated as you type</li>
+					<li>Click on any result to navigate to that page</li>
+					<li>Use the search box in the navbar for quick access</li>
+				</ul>
+			</section>
+		</main>
+	</div>
+</BaseLayout>
+
+<style>
+	.search-page {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 0 var(--fluid-space-s);
+	}
+
+	.search-header {
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+
+	.search-header h1 {
+		font-size: var(--font-size-header-1);
+		color: var(--color-text);
+		margin-bottom: 1rem;
+	}
+
+	.search-description {
+		font-size: 1.1rem;
+		color: var(--color-desc);
+		max-width: 600px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
+
+	.search-main {
+		display: flex;
+		flex-direction: column;
+		gap: 3rem;
+	}
+
+	.search-container-large {
+		max-width: 600px;
+		margin: 0 auto;
+		width: 100%;
+	}
+
+	.search-tips {
+		background: var(--color-card-bg);
+		border: var(--border-unified);
+		border-radius: var(--radius-unified);
+		padding: 2rem;
+	}
+
+	.search-tips h2 {
+		color: var(--color-accent);
+		margin-bottom: 1.5rem;
+		font-size: 1.5rem;
+	}
+
+	.search-tips ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	.search-tips li {
+		padding: 0.75rem 0;
+		color: var(--color-desc);
+		border-bottom: 1px solid var(--color-border);
+		position: relative;
+		padding-left: 2rem;
+	}
+
+	.search-tips li:last-child {
+		border-bottom: none;
+	}
+
+	.search-tips li::before {
+		content: "→";
+		position: absolute;
+		left: 0;
+		color: var(--color-accent);
+		font-weight: bold;
+	}
+
+	@media (max-width: 768px) {
+		.search-page {
+			padding: 0 var(--fluid-space-xs);
+		}
+
+		.search-header {
+			margin-bottom: 2rem;
+		}
+
+		.search-tips {
+			padding: 1.5rem;
+		}
+
+		.search-main {
+			gap: 2rem;
+		}
+	}
+</style>

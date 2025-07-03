@@ -1,0 +1,258 @@
+/* Shared dropdown container styling - excluding search-results-container */
+.dropdown-container {
+	background: var(--frosted-bg);
+	backdrop-filter: var(--frosted-blur) var(--frosted-saturate);
+	-webkit-backdrop-filter: var(--frosted-blur) var(--frosted-saturate);
+	border: var(--frosted-border);
+	border-top: none;
+	border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+	box-shadow: var(--frosted-shadow);
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	margin: 0 auto;
+	box-sizing: border-box;
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Portal container positioning - slides down from navbar */
+.dropdown-portal-container {
+	position: fixed;
+	top: var(--navbar-height, 76px);
+	left: 50%;
+	transform: translateX(-50%) translateY(-100%);
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	z-index: 999;
+	pointer-events: auto;
+	background: transparent;
+	box-shadow: none;
+	border: none;
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	opacity: 0;
+	visibility: hidden;
+}
+
+.dropdown-portal-container.visible {
+	transform: translateX(-50%) translateY(0);
+	opacity: 1;
+	visibility: visible;
+}
+
+.search-portal-container {
+	position: fixed;
+	top: var(--navbar-height, 76px);
+	left: 50%;
+	transform: translateX(-50%) translateY(-100%);
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	z-index: 999;
+	pointer-events: auto;
+	background: transparent;
+	box-shadow: none;
+	border: none;
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	opacity: 0;
+	visibility: hidden;
+}
+
+.search-portal-container.visible {
+	transform: translateX(-50%) translateY(0);
+	opacity: 1;
+	visibility: visible;
+}
+
+/* Search results specific styling */
+#navbar-search-portal .pagefind-ui__results {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding: clamp(var(--fluid-space-s), 3vw, var(--fluid-space-m));
+	scrollbar-gutter: stable both-edges;
+}
+
+/* Apply dropdown container styles to search results */
+#navbar-search-portal .pagefind-ui__results {
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	margin: 0 auto;
+	background: var(--frosted-bg);
+	backdrop-filter: var(--frosted-blur);
+	-webkit-backdrop-filter: var(--frosted-blur);
+	border: var(--frosted-border);
+	border-top: none;
+	border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+	box-shadow: var(--frosted-shadow);
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	/* Ensure dropdown content is not clipped */
+	overflow-y: visible !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 500px) {
+	#navbar-search-portal .pagefind-ui__results {
+		border: var(--frosted-border);
+		border-radius: var(--radius-unified);
+	}
+
+	.dropdown-container {
+		border: var(--frosted-border);
+		border-radius: var(--radius-unified);
+	}
+
+	.dropdown-portal-container,
+	.search-portal-container {
+		left: var(--fluid-space-s);
+		right: var(--fluid-space-s);
+		transform: translateY(-100%);
+		max-width: none;
+		width: auto;
+	}
+
+	.dropdown-portal-container.visible,
+	.search-portal-container.visible {
+		transform: translateY(0);
+	}
+}
+
+/* Search result items */
+#navbar-search-portal .pagefind-ui__result {
+	border-bottom: var(--border-unified);
+	padding: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s)) 0;
+	transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#navbar-search-portal .pagefind-ui__result:last-child {
+	border-bottom: none;
+}
+
+#navbar-search-portal .pagefind-ui__result:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: var(--radius-btn);
+	padding-left: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+	padding-right: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+	transform: translateY(-1px);
+}
+
+#navbar-search-portal .pagefind-ui__result-title {
+	color: var(--color-text);
+	font-weight: var(--font-weight-bold);
+	font-size: clamp(0.875rem, 2vw, 1rem);
+	margin-bottom: clamp(var(--fluid-space-2xs), 1vw, var(--fluid-space-xs));
+	line-height: 1.3;
+}
+
+#navbar-search-portal .pagefind-ui__result-excerpt {
+	color: var(--color-text-muted);
+	font-size: clamp(0.8rem, 1.8vw, 0.875rem);
+	line-height: 1.4;
+	margin: 0;
+}
+
+#navbar-search-portal .pagefind-ui__result-link {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+}
+
+/* Dark theme overlay */
+@media (prefers-color-scheme: dark) {
+	.overlay-active {
+		background: rgba(0, 0, 0, 0.8);
+	}
+}
+
+/* Light theme overlay */
+@media (prefers-color-scheme: light) {
+	.overlay-active {
+		background: rgba(0, 0, 0, 0.6);
+	}
+}
+
+/* ===== DROPDOWN CONTAINER STYLING ONLY =====
+   NO BUTTON STYLING - All button styling comes from unified-button-system.css
+   This file only handles dropdown container layout and positioning.
+*/
+
+/* Dropdown menu container styles */
+#filter-sort-menu,
+.menu-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background: var(--frosted-bg);
+	backdrop-filter: var(--frosted-blur);
+	-webkit-backdrop-filter: var(--frosted-blur);
+	border: var(--frosted-border);
+	border-top: none;
+	border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+	box-shadow: var(--frosted-shadow);
+	max-width: var(--navbar-max-width) !important;
+	width: 100%;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* ===== REMOVED ALL BUTTON STYLING =====
+   All button styling (background, color, border, hover states) 
+   is now handled by /public/styles/unified-button-system.css
+   
+   DO NOT ADD BUTTON STYLING HERE!
+*/
+
+/* Wide dropdown for navbar and search */
+.dropdown-container--wide {
+	max-width: var(--navbar-max-width);
+	width: 100%;
+}
+
+/* Navbar dropdown portal positioning */
+#navbar-dropdown-portal {
+	position: fixed;
+	top: var(--navbar-height, 76px);
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	max-width: var(--navbar-max-width);
+	width: 100%;
+	z-index: 999;
+	pointer-events: none; /* Allow clicks to pass through when empty */
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+	isolation: isolate; /* Ensure stacking context for backdrop-filter */
+	/* Ensure backdrop filter inheritance works */
+	contain: layout style;
+	will-change: opacity, visibility;
+}
+
+#navbar-dropdown-portal.visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+#navbar-dropdown-portal > * {
+	pointer-events: auto; /* Re-enable clicks for actual content */
+	/* Ensure backdrop filter is applied to child elements */
+	isolation: isolate;
+}
+
+/* Mobile adjustments for dropdown portal */
+@media (max-width: 500px) {
+	#navbar-dropdown-portal {
+		left: var(--fluid-space-s);
+		right: var(--fluid-space-s);
+		transform: translateY(-100%);
+		max-width: none;
+		width: auto;
+	}
+
+	#navbar-dropdown-portal.visible {
+		transform: translateY(0);
+	}
+}

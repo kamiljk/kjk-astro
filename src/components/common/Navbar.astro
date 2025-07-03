@@ -1,6 +1,7 @@
 ---
 import NavbarMenu from "../islands/NavbarMenu.jsx";
 import ThemeToggle from "../islands/ThemeToggle.jsx";
+import PagefindSearch from "../features/PagefindSearch.jsx";
 const {
 	taxonomy = ["all", "read", "play", "about"],
 	type = "all",
@@ -13,276 +14,27 @@ const {
 	<div class="site-header-inner">
 		<div class="navbar-content-inner">
 			<div class="navbar-header-row">
-				<a
-					href="/"
-					class="nav__logo"
-				>
-					<img
-						src="/assets/k_blk_svg.svg"
-						alt="Logo"
-						class="nav__logo-img"
-					/>
-					<span>KJK</span>
+				<a href="/" class="nav__logo">
+					<img src="/assets/k_blk_svg.svg" alt="Logo" class="nav__logo-img" />
 				</a>
-				<div class="nav__search-stretch">
-					<input
-						type="text"
-						placeholder="Search (coming soon)"
-						class="nav__search-input"
-						disabled
-					/>
+				<div class="search-container-inline">
+					<div class="search-bar-inline">
+						<PagefindSearch client:load />
+					</div>
 				</div>
-				<div
-					class="navbar-menu-wrapper"
-					style="position:relative;"
-				>
+				<div class="navbar-menu-wrapper">
 					<NavbarMenu
 						taxonomy={taxonomy}
 						type={type}
 						sort={sort}
+						order="desc"
 						client:load
-					/>
+					>
+						<ThemeToggle client:load />
+					</NavbarMenu>
 				</div>
 			</div>
-			<!-- Remove the invalid NavbarMenu.Dropdown, and add a dropdown slot for the portal target -->
-			<!-- DROPDOWN SLOT REMOVED: now handled inline for CSS alignment -->
 		</div>
 	</div>
+	<div id="navbar-dropdown-portal"></div>
 </header>
-
-<script>
-	// Removed conflicting DOMContentLoaded event listener to avoid conflicts with menuOpen state in NavbarMenu.jsx
-</script>
-
-<style>
-	/* Navbar Styles */
-	.site-header {
-		position: fixed;
-		top: 1rem;
-		left: 50%;
-		transform: translateX(-50%);
-		max-width: var(--navbar-max-width);
-		width: 100%; /* If you want a fixed width, use width: var(--navbar-max-width); */
-		margin: 0;
-		z-index: 10000;
-		background: var(--frosted-bg);
-		backdrop-filter: var(--frosted-blur);
-		-webkit-backdrop-filter: var(--frosted-blur);
-		border-bottom: var(--frosted-border);
-		box-shadow: var(--frosted-shadow);
-		border-radius: 0 0 var(--radius-unified) var(--radius-unified);
-		transition:
-			background 0.3s,
-			box-shadow 0.3s;
-	}
-
-	.site-header-inner {
-		max-width: var(--navbar-max-width);
-		width: 100%;
-		margin: 0 auto;
-		padding-left: var(--fluid-space-s);
-		padding-right: var(--fluid-space-s);
-		box-sizing: border-box;
-	}
-
-	.navbar-content-inner,
-	.navbar-header-row {
-		width: 100%;
-		margin: 0;
-		box-sizing: border-box;
-	}
-
-	.navbar-header-row {
-		display: flex;
-		align-items: center;
-		justify-content: center; /* Center the navbar content */
-		gap: var(--fluid-space-s);
-		border-radius: var(--radius-unified);
-		border: var(--frosted-border);
-		background: transparent;
-		box-shadow: none;
-	}
-
-	.nav__logo {
-		color: var(--color-text);
-		font-family: var(--font-family-base);
-		font-weight: var(--font-weight-bold);
-		font-size: 1.2em;
-		letter-spacing: 0.04em;
-		display: flex;
-		align-items: center;
-		gap: 0.5em;
-		text-decoration: none;
-		background: none;
-	}
-
-	.nav__logo span {
-		color: var(--color-text);
-		font-weight: var(--font-weight-bold);
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); /* Subtle shadow for contrast */
-		letter-spacing: 0.04em;
-	}
-
-	.nav__logo-img {
-		height: 2.2em;
-		width: auto;
-		display: block;
-		filter: brightness(0.2); /* default for light mode */
-		transition: filter 0.2s;
-	}
-
-	[data-theme="dark"] .nav__logo-img,
-	.dark-theme .nav__logo-img {
-		filter: brightness(0) invert(1); /* white logo in dark mode */
-	}
-
-	.nav__search-stretch {
-		flex: 1;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		max-width: 240px; /* Adjusted to be more compact */
-	}
-
-	.nav__search-input {
-		color: var(--color-text);
-		background: var(--color-bg-alt);
-	}
-
-	.nav__menu-btn {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.3em 0.6em;
-		border-radius: 4px;
-		background: var(--color-bg-alt);
-		border: 1px solid var(--color-border);
-		cursor: pointer;
-		font-size: 0.85em;
-		color: var(--color-text);
-		transition: background 0.2s;
-	}
-
-	.nav__menu-btn:hover {
-		background: rgba(0, 0, 0, 0.05);
-	}
-
-	.nav__menu-btn select {
-		border: none;
-		background: transparent;
-		font-size: 0.85em;
-		color: var(--color-text);
-		cursor: pointer;
-	}
-
-	.nav__menu-btn select:focus {
-		outline: none;
-	}
-
-	.navbar-menu-wrapper {
-		color: var(--color-text);
-	}
-
-	/* Dropdown Styles */
-	:global(#filter-sort-menu),
-	:global(.menu-container) {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem;
-		background: var(--color-navbar-bg) !important;
-		border: 1px solid var(--color-border);
-		border-radius: 4px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		max-width: var(--content-max-width) !important;
-		width: 100%;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	:global(#filter-sort-menu button:hover),
-	:global(#filter-sort-menu .dropdown-item:hover),
-	:global(#filter-sort-menu button:focus),
-	:global(#filter-sort-menu .dropdown-item:focus) {
-		background: rgba(34, 34, 34, 0.08);
-		color: #111;
-	}
-
-	:global(#filter-sort-menu h2) {
-		font-family:
-			"Oswald", "Oswald-VariableFont_wght", Arial, sans-serif !important;
-		font-size: 1.02rem;
-		font-weight: 600;
-		letter-spacing: 0.04em;
-		color: #333;
-		margin: 0 0 0.5em 0;
-		padding: 0;
-		text-transform: uppercase;
-		color: var(--color-text) !important;
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-	}
-
-	/* Feed should start 1rem below navbar (robust for fixed header) */
-	.main-alignment-wrapper {
-		display: block; /* Remove any flex that might cause vertical centering */
-		/* Ensure proper centering for child elements */
-		width: 100%;
-		max-width: var(--content-max-width);
-		margin-left: auto;
-		margin-right: auto;
-		box-sizing: border-box;
-	}
-
-	@media (max-width: 768px) {
-		.menu-content {
-			flex-direction: column;
-			gap: 1rem;
-		}
-		.menu-section h2 {
-			margin-bottom: 0.3rem;
-			font-size: 0.75rem;
-		}
-		.pill {
-			padding: 0.25rem 0.6rem;
-			font-size: 0.85em;
-		}
-	}
-	@media (max-width: 480px) {
-		.pill-list {
-			gap: 0.3rem;
-		}
-		.pill {
-			padding: 0.2rem 0.5rem;
-			font-size: 0.8em;
-		}
-	}
-
-	.nav__menu-btn,
-	:global(#filter-sort-menu button),
-	:global(#filter-sort-menu .dropdown-item),
-	:global(#filter-sort-menu .pill),
-	:global(#filter-sort-menu .feed-cta) {
-		color: var(--color-text);
-		background: var(--color-bg-alt);
-		border: 1px solid var(--color-border);
-		font-weight: var(--font-weight-bold);
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-		transition:
-			background 0.18s,
-			color 0.18s,
-			border 0.18s,
-			box-shadow 0.18s;
-	}
-	[data-theme="dark"] .nav__menu-btn,
-	[data-theme="dark"] :global(#filter-sort-menu button),
-	[data-theme="dark"] :global(#filter-sort-menu .dropdown-item),
-	[data-theme="dark"] :global(#filter-sort-menu .pill),
-	[data-theme="dark"] :global(#filter-sort-menu .feed-cta) {
-		background: var(--color-bg-alt);
-		color: var(--color-text);
-		border: 1px solid var(--color-border);
-	}
-</style>

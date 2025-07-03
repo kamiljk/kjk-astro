@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Search Bar Debug</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				padding: 20px;
+				background: #1a1a1a;
+				color: white;
+			}
+			.debug-section {
+				margin-bottom: 30px;
+				padding: 20px;
+				background: #2a2a2a;
+				border-radius: 8px;
+			}
+			.debug-item {
+				margin: 10px 0;
+				padding: 10px;
+				background: #3a3a3a;
+				border-radius: 4px;
+			}
+			button {
+				margin: 5px;
+				padding: 8px 16px;
+				background: #4a4a4a;
+				border: none;
+				color: white;
+				cursor: pointer;
+			}
+			button:hover {
+				background: #5a5a5a;
+			}
+			.search-debug {
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				padding: 20px;
+				margin: 10px 0;
+			}
+			.highlight {
+				background: yellow !important;
+				color: black !important;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Search Bar Element Debug</h1>
+
+		<div class="debug-section">
+			<h2>Element Inspector</h2>
+			<button onclick="inspectSearchElements()">Inspect Search Elements</button>
+			<button onclick="highlightSearchBar()">Highlight Search Bar</button>
+			<button onclick="debugStyles()">Debug Styles</button>
+			<button onclick="clearHighlights()">Clear Highlights</button>
+			<div id="inspection-results"></div>
+		</div>
+
+		<div class="debug-section">
+			<h2>Style Debugging</h2>
+			<button onclick="removeAllBackgrounds()">Remove All Backgrounds</button>
+			<button onclick="removeAllBorders()">
+				Remove All Borders (except underline)
+			</button>
+			<button onclick="removeAllBorderRadius()">
+				Remove All Border Radius
+			</button>
+			<button onclick="fixClearButton()">Fix Clear Button</button>
+			<button onclick="fixSearchIcon()">Fix Search Icon</button>
+		</div>
+
+		<script>
+			function inspectSearchElements() {
+				const results = document.getElementById("inspection-results");
+				const container = parent.document.querySelector(
+					".search-results-container"
+				);
+				const form = parent.document.querySelector(
+					".pagefind-ui__form, form[data-pagefind-ui]"
+				);
+				const input = parent.document.querySelector(
+					".pagefind-ui__search-input, input[data-pagefind-ui]"
+				);
+				const clearBtn = parent.document.querySelector(
+					".pagefind-ui__search-clear, button[data-pagefind-ui]"
+				);
+
+				let html = '<div class="debug-item"><h3>Found Elements:</h3>';
+				html += `<p>Container: ${container ? "Found" : "Not found"} ${
+					container ? container.tagName : ""
+				}</p>`;
+				html += `<p>Form: ${form ? "Found" : "Not found"} ${
+					form ? form.tagName : ""
+				}</p>`;
+				html += `<p>Input: ${input ? "Found" : "Not found"} ${
+					input ? input.tagName : ""
+				}</p>`;
+				html += `<p>Clear Button: ${clearBtn ? "Found" : "Not found"} ${
+					clearBtn ? clearBtn.tagName : ""
+				}</p>`;
+
+				if (form) {
+					const computedStyles = parent.getComputedStyle(form);
+					html += `<h4>Form Computed Styles:</h4>`;
+					html += `<p>Background: ${computedStyles.background}</p>`;
+					html += `<p>Border: ${computedStyles.border}</p>`;
+					html += `<p>Border-radius: ${computedStyles.borderRadius}</p>`;
+					html += `<p>Box-shadow: ${computedStyles.boxShadow}</p>`;
+				}
+
+				if (input) {
+					const computedStyles = parent.getComputedStyle(input);
+					html += `<h4>Input Computed Styles:</h4>`;
+					html += `<p>Background: ${computedStyles.background}</p>`;
+					html += `<p>Border: ${computedStyles.border}</p>`;
+					html += `<p>Border-radius: ${computedStyles.borderRadius}</p>`;
+					html += `<p>Box-shadow: ${computedStyles.boxShadow}</p>`;
+				}
+
+				html += "</div>";
+				results.innerHTML = html;
+			}
+
+			function highlightSearchBar() {
+				clearHighlights();
+				const form = parent.document.querySelector(
+					".pagefind-ui__form, form[data-pagefind-ui]"
+				);
+				const input = parent.document.querySelector(
+					".pagefind-ui__search-input, input[data-pagefind-ui]"
+				);
+
+				if (form) {
+					form.style.outline = "3px solid red";
+					form.style.outlineOffset = "2px";
+				}
+				if (input) {
+					input.style.outline = "3px solid blue";
+					input.style.outlineOffset = "2px";
+				}
+			}
+
+			function clearHighlights() {
+				const form = parent.document.querySelector(
+					".pagefind-ui__form, form[data-pagefind-ui]"
+				);
+				const input = parent.document.querySelector(
+					".pagefind-ui__search-input, input[data-pagefind-ui]"
+				);
+
+				if (form) form.style.outline = "";
+				if (input) input.style.outline = "";
+			}
+
+			function debugStyles() {
+				const form = parent.document.querySelector(
+					".pagefind-ui__form, form[data-pagefind-ui]"
+				);
+				if (form) {
+					console.log("Form element:", form);
+					console.log("Form classes:", form.className);
+					console.log("Form computed styles:", parent.getComputedStyle(form));
+					console.log("Form inline styles:", form.style.cssText);
+				}
+			}
+
+			function removeAllBackgrounds() {
+				const elements = parent.document.querySelectorAll(
+					".pagefind-ui__form, .pagefind-ui__search-input, .pagefind-ui__search-wrapper, [data-pagefind-ui] *"
+				);
+				elements.forEach((el) => {
+					el.style.background = "transparent !important";
+					el.style.backgroundColor = "transparent !important";
+				});
+			}
+
+			function removeAllBorders() {
+				const elements = parent.document.querySelectorAll(
+					".pagefind-ui__form, .pagefind-ui__search-input, .pagefind-ui__search-wrapper, [data-pagefind-ui] *"
+				);
+				elements.forEach((el) => {
+					el.style.border = "none !important";
+					el.style.borderRadius = "0 !important";
+					el.style.boxShadow = "none !important";
+				});
+
+				// Add the underline to form only
+				const form = parent.document.querySelector(".pagefind-ui__form");
+				if (form) {
+					form.style.borderBottom =
+						"1px solid rgba(255, 255, 255, 0.2) !important";
+				}
+			}
+
+			function removeAllBorderRadius() {
+				const elements = parent.document.querySelectorAll(
+					"[data-pagefind-ui] *, .pagefind-ui__form, .pagefind-ui__search-input, .pagefind-ui__search-wrapper"
+				);
+				elements.forEach((el) => {
+					el.style.borderRadius = "0 !important";
+				});
+			}
+
+			function fixClearButton() {
+				const clearBtn = parent.document.querySelector(
+					".pagefind-ui__search-clear"
+				);
+				if (clearBtn) {
+					clearBtn.innerHTML = "✕";
+					clearBtn.style.cssText = `
+                    position: absolute !important;
+                    right: 0 !important;
+                    top: 50% !important;
+                    transform: translateY(-50%) !important;
+                    background: none !important;
+                    border: none !important;
+                    color: rgba(255, 255, 255, 0.5) !important;
+                    cursor: pointer !important;
+                    font-size: 14px !important;
+                    width: 24px !important;
+                    height: 24px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    opacity: 0.5 !important;
+                    border-radius: 0 !important;
+                    box-shadow: none !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    z-index: 10 !important;
+                `;
+
+					// Hide when empty
+					const input = parent.document.querySelector(
+						".pagefind-ui__search-input"
+					);
+					if (input) {
+						const updateVisibility = () => {
+							if (input.value.trim() === "") {
+								clearBtn.style.opacity = "0";
+								clearBtn.style.pointerEvents = "none";
+							} else {
+								clearBtn.style.opacity = "0.5";
+								clearBtn.style.pointerEvents = "auto";
+							}
+						};
+
+						input.addEventListener("input", updateVisibility);
+						updateVisibility();
+					}
+				}
+			}
+
+			function fixSearchIcon() {
+				const form = parent.document.querySelector(".pagefind-ui__form");
+				if (form) {
+					// Remove existing search icon
+					const existingIcon = form.querySelector(".custom-search-icon");
+					if (existingIcon) existingIcon.remove();
+
+					// Add new search icon
+					const searchIcon = parent.document.createElement("span");
+					searchIcon.className = "custom-search-icon";
+					searchIcon.innerHTML = "⌕";
+					searchIcon.style.cssText = `
+                    position: absolute !important;
+                    left: 0 !important;
+                    top: 50% !important;
+                    transform: translateY(-50%) !important;
+                    font-size: 16px !important;
+                    opacity: 0.5 !important;
+                    pointer-events: none !important;
+                    z-index: 5 !important;
+                    color: rgba(255, 255, 255, 0.5) !important;
+                `;
+					form.appendChild(searchIcon);
+				}
+			}
+		</script>
+	</body>
+</html>

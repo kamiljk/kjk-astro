@@ -1,7 +1,15 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const allPosts = await getCollection("posts");
+const sortedPosts = allPosts.sort((a, b) => {
+	if (a.data.priority === "urgent" && b.data.priority !== "urgent") return -1;
+	if (b.data.priority === "urgent" && a.data.priority !== "urgent") return 1;
+	return 0;
+});
 ---
 
 <BaseLayout>
-  <!-- You can add custom content for the games page here if needed -->
+	<!-- You can add custom content for the games page here if needed -->
 </BaseLayout>

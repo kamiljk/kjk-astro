@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Dropdown Grid Test</title>
+		<style>
+			/* Import basic design tokens */
+			:root {
+				--fluid-space-xs: clamp(0.25rem, 1vw, 0.5rem);
+				--fluid-space-s: clamp(0.5rem, 2vw, 0.75rem);
+				--fluid-space-m: clamp(0.75rem, 2.5vw, 1rem);
+				--fluid-space-l: clamp(1rem, 3vw, 1.5rem);
+				--fluid-space-2xs: clamp(0.125rem, 0.5vw, 0.25rem);
+				--color-text: #333;
+				--color-border: #ddd;
+				--color-accent: #39ff14;
+				--radius-btn: 6px;
+				--content-max-width: 1200px;
+				--dropdown-max-width: min(95vw, 1200px);
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					sans-serif;
+				margin: 0;
+				padding: 20px;
+				background: #f5f5f5;
+			}
+
+			.test-container {
+				max-width: 1400px;
+				margin: 0 auto;
+				background: white;
+				border-radius: 12px;
+				box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+			}
+
+			.test-header {
+				background: #333;
+				color: white;
+				padding: 1rem;
+				text-align: center;
+			}
+
+			/* Dropdown Container Styles */
+			.menu-container {
+				max-width: var(--dropdown-max-width);
+				width: 100%;
+				margin: 0 auto;
+				box-sizing: border-box;
+				border: 1px solid #ddd;
+				border-radius: 0 0 12px 12px;
+				background: rgba(255, 255, 255, 0.95);
+				backdrop-filter: blur(8px);
+				padding: var(--fluid-space-l) var(--fluid-space-m);
+			}
+			.menu-content {
+				max-width: var(--content-max-width);
+				width: 100%;
+				margin: 0 auto;
+				box-sizing: border-box;
+				padding: clamp(var(--fluid-space-s), 3vw, var(--fluid-space-m));
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: flex-start; /* Better control than space-between */
+				gap: clamp(var(--fluid-space-s), 4vw, var(--fluid-space-xl));
+				min-height: clamp(50px, 8vw, 70px);
+				flex-wrap: wrap;
+				transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+				container-type: inline-size;
+			}
+
+			/* Progressive responsive layout */
+			@media (max-width: 500px) {
+				.menu-content {
+					flex-direction: column;
+					align-items: stretch;
+					gap: var(--fluid-space-s);
+					min-height: auto;
+					justify-content: center;
+				}
+			}
+
+			/* Intermediate widths - intelligent distribution */
+			@media (min-width: 501px) and (max-width: 800px) {
+				.menu-content {
+					justify-content: space-evenly;
+					align-items: flex-start;
+					gap: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+				}
+			}
+
+			/* Wide screens - natural spacing */
+			@media (min-width: 801px) {
+				.menu-content {
+					justify-content: flex-start;
+					gap: clamp(var(--fluid-space-m), 3vw, var(--fluid-space-xl));
+				}
+			}
+
+			/* Fine-tune intermediate viewport spacing */
+			@media (min-width: 501px) and (max-width: 650px) {
+				.menu-content {
+					justify-content: center;
+					gap: var(--fluid-space-s);
+				}
+			}
+
+			@media (min-width: 651px) and (max-width: 800px) {
+				.menu-content {
+					justify-content: space-between;
+					gap: var(--fluid-space-m);
+				}
+			}
+
+			/* Section Styles - Fluid Flex */
+			.menu-section {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: clamp(var(--fluid-space-2xs), 1.5vw, var(--fluid-space-xs));
+				min-width: 0;
+				margin: 0;
+				padding: 0;
+				flex: 1 1 auto;
+				box-sizing: border-box;
+				transition: all 0.2s ease;
+			}
+
+			.filter-section {
+				justify-content: flex-start;
+				flex: 2 1 auto;
+				min-width: min(200px, 40vw);
+			}
+
+			.sort-section {
+				justify-content: center;
+				flex: 1.5 1 auto;
+				min-width: min(180px, 35vw);
+			}
+
+			.theme-toggle-section {
+				justify-content: flex-end;
+				flex: 0 0 auto;
+				min-width: min(80px, 15vw);
+			}
+
+			.section-label {
+				font-size: clamp(0.7rem, 1vw + 0.25rem, 0.8rem);
+				font-weight: 600;
+				color: var(--color-text);
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				opacity: 0.75;
+				margin-right: var(--fluid-space-xs);
+				white-space: nowrap;
+			}
+
+			.pills-container {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: var(--fluid-space-xs);
+				flex-wrap: wrap;
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+				justify-content: flex-start;
+				row-gap: var(--fluid-space-s);
+				background: none !important;
+				box-shadow: none !important;
+				border: none !important;
+			}
+
+			.pill,
+			.sort-arrow {
+				flex: 0 0 auto;
+				margin-right: var(--fluid-space-xs);
+				background: transparent;
+				color: var(--color-text);
+				border: 1px solid rgba(0, 0, 0, 0.08);
+				box-shadow: none;
+			}
+
+			.pill:last-child,
+			.sort-arrow:last-child {
+				margin-right: 0;
+			}
+
+			.pill.active,
+			.sort-arrow.active {
+				background: var(--color-accent);
+				color: #111;
+				border-color: var(--color-accent);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+			}
+
+			.pill:hover,
+			.sort-arrow:hover {
+				background: rgba(57, 255, 20, 0.18);
+				border-color: var(--color-accent);
+				color: #111;
+				transform: translateY(-1px);
+				box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+			}
+
+			.sort-item {
+				display: flex;
+				align-items: center;
+				gap: var(--fluid-space-2xs);
+				min-height: 36px;
+				line-height: 1.3;
+			}
+
+			.sort-arrows {
+				display: inline-flex;
+				flex-direction: row;
+				gap: 4px;
+				margin-left: var(--fluid-space-xs);
+				align-items: center;
+				flex-shrink: 0;
+			}
+
+			.theme-button {
+				background: var(--color-accent);
+				color: #111;
+				border: 1px solid var(--color-accent);
+				border-radius: var(--radius-btn);
+				padding: var(--fluid-space-xs) var(--fluid-space-s);
+				font-weight: 500;
+				cursor: pointer;
+			}
+
+			/* Fluid responsive section adjustments */
+			@media (max-width: 600px) {
+				.filter-section,
+				.sort-section,
+				.theme-toggle-section {
+					justify-content: center;
+					flex: 1 1 100%;
+					min-width: 100%;
+				}
+
+				.theme-toggle-section {
+					border-top: 1px solid var(--color-border);
+					padding-top: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+					margin-top: clamp(var(--fluid-space-2xs), 1vw, var(--fluid-space-xs));
+				}
+			}
+
+			@media (min-width: 601px) and (max-width: 900px) {
+				.filter-section {
+					flex: 1.5 1 auto;
+				}
+
+				.sort-section {
+					flex: 1 1 auto;
+					justify-content: center;
+				}
+
+				.theme-toggle-section {
+					flex: 0 0 auto;
+					justify-content: flex-end;
+				}
+			}
+
+			@media (min-width: 901px) {
+				.filter-section {
+					flex: 2 1 auto;
+					justify-content: flex-start;
+				}
+
+				.sort-section {
+					flex: 1.5 1 auto;
+					justify-content: center;
+				}
+
+				.theme-toggle-section {
+					flex: 0 0 auto;
+					justify-content: flex-end;
+				}
+			}
+
+			/* Test info styles */
+			.viewport-info {
+				position: fixed;
+				top: 10px;
+				right: 10px;
+				background: rgba(0, 0, 0, 0.8);
+				color: white;
+				padding: 8px 12px;
+				border-radius: 4px;
+				font-size: 12px;
+				z-index: 1000;
+			}
+		</style>
+	</head>
+	<body>
+		<div
+			class="viewport-info"
+			id="viewport-info"
+		>
+			Viewport: <span id="viewport-size"></span>
+		</div>
+
+		<div class="test-container">
+			<div class="test-header">
+				<h1>Dropdown Grid Layout Test</h1>
+				<p>Resize your browser window to test responsiveness</p>
+			</div>
+
+			<div class="menu-container">
+				<div class="menu-content">
+					<div class="menu-section filter-section">
+						<div class="section-label">Filter</div>
+						<div class="pills-container">
+							<button class="pill active">All</button>
+							<button class="pill">Read</button>
+							<button class="pill">Play</button>
+							<button class="pill">About</button>
+						</div>
+					</div>
+
+					<div class="menu-section sort-section">
+						<div class="section-label">Sort</div>
+						<div class="pills-container">
+							<div class="sort-item">
+								<button class="pill active">Updated</button>
+								<span class="sort-arrows">
+									<button class="sort-arrow">▲</button>
+									<button class="sort-arrow active">▼</button>
+								</span>
+							</div>
+							<div class="sort-item">
+								<button class="pill">Created</button>
+							</div>
+							<div class="sort-item">
+								<button class="pill">A-Z</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="menu-section theme-toggle-section">
+						<button class="theme-button">🌙 Light</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function updateViewportInfo() {
+				const width = window.innerWidth;
+				const height = window.innerHeight;
+				document.getElementById(
+					"viewport-size"
+				).textContent = `${width} × ${height}px`;
+
+				// Add layout info
+				let layout = "";
+				if (width <= 480) {
+					layout = " (Mobile: 1 column)";
+				} else if (width <= 768) {
+					layout = " (Tablet: 2 columns)";
+				} else {
+					layout = " (Desktop: 3 columns)";
+				}
+				document.getElementById(
+					"viewport-info"
+				).innerHTML = `Viewport: <span id="viewport-size">${width} × ${height}px</span>${layout}`;
+			}
+
+			window.addEventListener("resize", updateViewportInfo);
+			updateViewportInfo();
+		</script>
+	</body>
+</html>

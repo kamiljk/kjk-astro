@@ -1,0 +1,372 @@
+import React, { useEffect, useRef, useState } from "react";
+
+export default function PagefindSearch() {
+	const containerRef = useRef(null);
+	const [isSearchOpen, setIsSearchOpen] = useState(false);
+	const [searchValue, setSearchValue] = useState("");
+
+	// Function to inject styles and set up listeners
+	const applyCustomizations = () => {
+		const existingStyle = document.getElementById('pagefind-override-styles');
+		if (!existingStyle) {
+			const globalStyle = document.createElement('style');
+			globalStyle.id = 'pagefind-override-styles';
+			globalStyle.textContent = `
+				/* === SEARCH INPUT STYLING === */
+				body .search-results-container .pagefind-ui__form {
+					width: 100% !important;
+					background: transparent !important;
+					border: none !important;
+					border-bottom: 1px solid var(--color-border) !important;
+					border-radius: 0 !important;
+					box-shadow: none !important;
+					height: 40px !important;
+					position: relative !important;
+				}
+				
+				body .search-results-container .pagefind-ui__search-input {
+					background: transparent !important;
+					border: none !important;
+					outline: none !important;
+					padding: 10px 30px 10px 25px !important;
+					height: 40px !important;
+					color: var(--color-text) !important;
+					font-size: 14px !important;
+					font-family: inherit !important;
+				}
+				
+				body .search-results-container .pagefind-ui__form::before {
+					content: "⌕";
+					position: absolute;
+					left: 8px;
+					top: 50%;
+					transform: translateY(-50%);
+					font-size: 16px;
+					opacity: 0.5;
+					pointer-events: none;
+					color: var(--color-text);
+				}
+				
+				/* === SEARCH RESULTS DROPDOWN POSITIONING === */
+				body .search-results-container .pagefind-ui__drawer {
+					position: fixed !important;
+					top: var(--navbar-height, 76px) !important;
+					left: 0 !important;
+					right: 0 !important;
+					width: 90vw !important;
+					max-width: var(--navbar-max-width, 1200px) !important;
+					margin: 0 auto !important;
+					z-index: 2147483647 !important; /* Maximum z-index value */
+					border-radius: 0 0 12px 12px !important;
+					border-top: none !important;
+					max-height: 400px !important;
+					overflow-y: auto !important;
+					padding: 0 !important;
+					box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+					/* Ensure proper stacking context */
+					isolation: isolate !important;
+					transform: translateZ(0) !important;
+				}
+				
+				/* === RESULT STYLING === */
+				body .search-results-container .pagefind-ui__result {
+					padding: 12px !important;
+					border-radius: 8px !important;
+					background: transparent !important;
+					border: none !important;
+					margin: 0 0 8px 0 !important;
+				}
+				
+				body .search-results-container .pagefind-ui__result:hover {
+					background: rgba(255, 255, 255, 0.1) !important;
+				}
+				
+				body .search-results-container .pagefind-ui__result-link {
+					color: var(--color-text) !important;
+					text-decoration: none !important;
+				}
+				
+				body .search-results-container .pagefind-ui__result-title {
+					font-weight: 600 !important;
+					color: var(--color-text) !important;
+				}
+				
+				body .search-results-container .pagefind-ui__result-excerpt {
+					color: var(--color-desc) !important;
+					font-size: 0.9em !important;
+				}
+				
+				/* === CLEAR BUTTON === */
+				body .search-results-container .pagefind-ui__search-clear {
+					position: absolute !important;
+					right: 8px !important;
+					top: 50% !important;
+					transform: translateY(-50%) !important;
+					background: none !important;
+					border: none !important;
+					color: var(--color-desc) !important;
+				}
+			`;
+			document.head.appendChild(globalStyle);
+		}
+
+		// Calculate and set navbar height for proper positioning
+		const setNavbarHeight = () => {
+			const navbar = document.querySelector('nav') || document.querySelector('[data-navbar]') || document.querySelector('.navbar');
+			if (navbar) {
+				const navbarHeight = navbar.getBoundingClientRect().height;
+				document.documentElement.style.setProperty('--navbar-height', `${navbarHeight}px`);
+			}
+		};
+		
+		// Set initial navbar height
+		setNavbarHeight();
+		
+		// Update navbar height on resize
+		window.addEventListener('resize', setNavbarHeight);
+		
+		// Set up search event listeners
+		const searchInput = containerRef.current?.querySelector('input[type="search"]');
+		
+		if (searchInput) {
+			// Handle search input changes
+			const handleInput = (e) => {
+				setSearchValue(e.target.value);
+				const hasValue = e.target.value.trim().length > 0;
+				setIsSearchOpen(hasValue);
+				
+				// Update global state
+				if (typeof window !== "undefined" && window.navbarState) {
+					window.navbarState.searchOpen = hasValue;
+				}
+			};
+			
+			// Handle search focus
+			const handleFocus = () => {
+				// Close menu dropdown if open
+				if (typeof window !== "undefined" && window.navbarState?.menuOpen && window.navbarState?.closeMenu) {
+					window.navbarState.closeMenu();
+				}
+				
+				// Show results if there's a search value
+				if (searchValue.trim().length > 0) {
+					setIsSearchOpen(true);
+					if (typeof window !== "undefined" && window.navbarState) {
+						window.navbarState.searchOpen = true;
+					}
+				}
+			};
+			
+			searchInput.addEventListener("input", handleInput);
+			searchInput.addEventListener("focus", handleFocus);
+		}
+		
+		// Handle clicks outside search to close results
+		const handleClickOutside = (e) => {
+			if (containerRef.current && !containerRef.current.contains(e.target)) {
+				setIsSearchOpen(false);
+				if (typeof window !== "undefined" && window.navbarState) {
+					window.navbarState.searchOpen = false;
+				}
+			}
+		};
+		
+		// Handle escape key to close search
+		const handleEscape = (e) => {
+			if (e.key === 'Escape' && isSearchOpen) {
+				setIsSearchOpen(false);
+				if (typeof window !== "undefined" && window.navbarState) {
+					window.navbarState.searchOpen = false;
+				}
+				// Keep focus on search input
+				const searchInput = containerRef.current?.querySelector('input[type="search"]');
+				if (searchInput) {
+					searchInput.focus();
+				}
+			}
+		};
+		
+		document.addEventListener("click", handleClickOutside);
+		document.addEventListener("keydown", handleEscape);
+		
+		// Add class to body when search is active
+		if (isSearchOpen) {
+			document.body.classList.add("search-active");
+		} else {
+			document.body.classList.remove("search-active");
+		}
+	};
+
+	useEffect(() => {
+		const initPagefindUI = () => {
+			console.log('initPagefindUI called, window.PagefindUI:', !!window.PagefindUI, 'containerRef.current:', !!containerRef.current);
+			if (window.PagefindUI && containerRef.current) {
+				try {
+					console.log('Creating PagefindUI instance...');
+					new window.PagefindUI({
+						element: containerRef.current,
+						rootUrl: "/pagefind/",
+						showImages: false,
+						showSubResults: true,
+					});
+					console.log('PagefindUI instance created successfully');
+
+					if (typeof window !== "undefined") {
+						if (!window.navbarState) {
+							window.navbarState = {
+								searchOpen: false,
+								menuOpen: false,
+								closeSearch: null,
+								closeMenu: null
+							};
+						}
+						window.navbarState.closeSearch = () => setIsSearchOpen(false);
+						window.navbarState.searchOpen = isSearchOpen;
+					}
+
+					// Simple timeout approach to apply customizations
+					setTimeout(() => {
+						console.log('Applying customizations...');
+						const drawer = containerRef.current?.querySelector('.pagefind-ui__drawer');
+						console.log('Found drawer:', !!drawer);
+						if (drawer) {
+							// Check current drawer styles
+							const computedStyle = window.getComputedStyle(drawer);
+							console.log('Drawer visibility:', computedStyle.visibility);
+							console.log('Drawer display:', computedStyle.display);
+							console.log('Drawer opacity:', computedStyle.opacity);
+							console.log('Drawer position:', computedStyle.position);
+							console.log('Drawer top:', computedStyle.top);
+							console.log('Drawer z-index:', computedStyle.zIndex);
+							
+							// Apply frosted glass effect
+							const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+							drawer.style.setProperty('background', isDarkMode ? 'rgba(26, 26, 26, 0.2)' : 'rgba(255, 255, 255, 0.2)', 'important');
+							drawer.style.setProperty('backdrop-filter', 'blur(20px) saturate(180%)', 'important');
+							drawer.style.setProperty('-webkit-backdrop-filter', 'blur(20px) saturate(180%)', 'important');
+							console.log('Applied frosted glass effect');
+						}
+						
+						// Also check the search input
+						const searchInput = containerRef.current?.querySelector('.pagefind-ui__search-input');
+						console.log('Found search input:', !!searchInput);
+						if (searchInput) {
+							console.log('Search input placeholder:', searchInput.placeholder);
+							// Add event listener to monitor search
+							searchInput.addEventListener('input', (e) => {
+								console.log('Search input changed:', e.target.value);
+								
+								// Force check for results after typing
+								setTimeout(() => {
+									const results = containerRef.current?.querySelector('.pagefind-ui__results');
+									const message = containerRef.current?.querySelector('.pagefind-ui__message');
+									const drawer = containerRef.current?.querySelector('.pagefind-ui__drawer');
+									
+									console.log('Results found:', !!results);
+									console.log('Message found:', !!message);
+									console.log('Drawer found:', !!drawer);
+									
+									if (results) {
+										console.log('Results children count:', results.children.length);
+										
+										// FORCE DRAWER TO BE VISIBLE when results exist
+										if (results.children.length > 0 && drawer) {
+											console.log('Forcing drawer visibility...');
+											drawer.style.setProperty('visibility', 'visible', 'important');
+											drawer.style.setProperty('opacity', '1', 'important');
+											drawer.style.setProperty('display', 'block', 'important');
+											console.log('Drawer forced visible');
+										} else if (drawer && results.children.length === 0) {
+											console.log('No results, hiding drawer...');
+											drawer.style.setProperty('visibility', 'hidden', 'important');
+											drawer.style.setProperty('opacity', '0', 'important');
+										}
+									}
+									if (message) {
+										console.log('Message text:', message.textContent);
+									}
+								}, 500);
+							});
+							
+							// Also add a MutationObserver to catch any changes to the results
+							const observer = new MutationObserver((mutations) => {
+								mutations.forEach((mutation) => {
+									if (mutation.type === 'childList' || mutation.type === 'attributes') {
+										const results = containerRef.current?.querySelector('.pagefind-ui__results');
+										const drawer = containerRef.current?.querySelector('.pagefind-ui__drawer');
+										
+										if (results && drawer && results.children.length > 0) {
+											console.log('MutationObserver: Forcing drawer visible...');
+											drawer.style.setProperty('visibility', 'visible', 'important');
+											drawer.style.setProperty('opacity', '1', 'important');
+											drawer.style.setProperty('display', 'block', 'important');
+										}
+									}
+								});
+							});
+							
+							// Start observing the entire container for changes
+							if (containerRef.current) {
+								observer.observe(containerRef.current, {
+									childList: true,
+									subtree: true,
+									attributes: true,
+									attributeFilter: ['style', 'class']
+								});
+							}
+						}
+						
+						applyCustomizations();
+					}, 100);
+
+				} catch (error) {
+					console.error("Error initializing Pagefind UI:", error);
+				}
+			} else {
+				console.log('PagefindUI not ready - window.PagefindUI:', !!window.PagefindUI, 'containerRef.current:', !!containerRef.current);
+			}
+		};
+
+		if (!window.PagefindUI) {
+			console.log('Loading Pagefind UI script...');
+			const script = document.createElement("script");
+			script.type = "module";
+			script.src = "/pagefind/pagefind-ui.js";
+			script.onload = () => {
+				console.log('Pagefind UI script loaded successfully');
+				initPagefindUI();
+			};
+			script.onerror = () => {
+				console.error("Failed to load Pagefind UI script");
+			};
+			document.head.appendChild(script);
+		} else {
+			console.log('Pagefind UI already available, initializing...');
+			initPagefindUI();
+		}
+
+		return () => {
+			const existingStyle = document.getElementById('pagefind-override-styles');
+			if (existingStyle) {
+				existingStyle.remove();
+			}
+			document.body.classList.remove("search-active");
+		};
+	}, []); // Run this effect only once on mount
+
+	// Update body class when search state changes
+	useEffect(() => {
+		if (isSearchOpen) {
+			document.body.classList.add("search-active");
+		} else {
+			document.body.classList.remove("search-active");
+		}
+	}, [isSearchOpen]);
+
+	return (
+		<div
+			className="search-results-container"
+			ref={containerRef}
+		></div>
+	);
+}

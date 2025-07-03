@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Comprehensive Backdrop Filter Test</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				min-height: 100vh;
+				background: linear-gradient(
+					45deg,
+					#ff6b6b,
+					#4ecdc4,
+					#45b7d1,
+					#96ceb4,
+					#ffeaa7,
+					#dda0dd
+				);
+				background-size: 400% 400%;
+				animation: gradientShift 10s ease infinite;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					sans-serif;
+				padding: 100px 20px;
+			}
+
+			@keyframes gradientShift {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			.test-container {
+				display: flex;
+				flex-direction: column;
+				gap: 20px;
+				align-items: center;
+			}
+
+			.test-box {
+				width: 300px;
+				height: 100px;
+				padding: 20px;
+				border-radius: 12px;
+				color: #333;
+				text-align: center;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: bold;
+			}
+
+			/* Test 1: Basic backdrop filter */
+			.test-1 {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+			}
+
+			/* Test 2: Stronger blur */
+			.test-2 {
+				background: rgba(255, 255, 255, 0.6);
+				backdrop-filter: blur(20px) saturate(180%);
+				-webkit-backdrop-filter: blur(20px) saturate(180%);
+			}
+
+			/* Test 3: Dark background */
+			.test-3 {
+				background: rgba(0, 0, 0, 0.7);
+				backdrop-filter: blur(15px);
+				-webkit-backdrop-filter: blur(15px);
+				color: white;
+			}
+
+			/* Test 4: Fixed positioning (like search dropdown) */
+			.test-4 {
+				position: fixed;
+				top: 50px;
+				right: 20px;
+				background: rgba(255, 255, 255, 0.8);
+				backdrop-filter: blur(18px) saturate(180%);
+				-webkit-backdrop-filter: blur(18px) saturate(180%);
+				z-index: 1000;
+			}
+
+			/* Test 5: With transform (potential issue) */
+			.test-5 {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				transform: translateX(0);
+			}
+
+			/* Test 6: With isolation */
+			.test-6 {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				isolation: isolate;
+			}
+
+			/* Test 7: High z-index */
+			.test-7 {
+				background: rgba(255, 255, 255, 0.7);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				z-index: 99999;
+				position: relative;
+			}
+
+			.info {
+				background: rgba(0, 0, 0, 0.8);
+				color: white;
+				padding: 20px;
+				border-radius: 10px;
+				margin-bottom: 30px;
+				max-width: 600px;
+			}
+
+			.toggle-btn {
+				background: rgba(255, 255, 255, 0.2);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				color: white;
+				padding: 10px 20px;
+				border-radius: 8px;
+				cursor: pointer;
+				margin: 5px;
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+			}
+
+			.toggle-btn:hover {
+				background: rgba(255, 255, 255, 0.3);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="test-container">
+			<div class="info">
+				<h2>Comprehensive Backdrop Filter Test</h2>
+				<p>
+					This page tests various backdrop-filter scenarios to identify what
+					works and what doesn't.
+				</p>
+				<p>
+					<strong>Expected:</strong> All boxes below should have a blurred
+					background effect.
+				</p>
+				<div id="browser-info"></div>
+			</div>
+
+			<div class="test-box test-1">Test 1: Basic blur(10px)</div>
+
+			<div class="test-box test-2">Test 2: blur(20px) + saturate(180%)</div>
+
+			<div class="test-box test-3">Test 3: Dark background + blur</div>
+
+			<div class="test-box test-5">Test 5: With transform</div>
+
+			<div class="test-box test-6">Test 6: With isolation</div>
+
+			<div class="test-box test-7">Test 7: High z-index</div>
+
+			<div class="info">
+				<button
+					class="toggle-btn"
+					onclick="toggleFixed()"
+				>
+					Toggle Fixed Position Test
+				</button>
+				<button
+					class="toggle-btn"
+					onclick="runDiagnostics()"
+				>
+					Run Diagnostics
+				</button>
+				<button
+					class="toggle-btn"
+					onclick="testPagefindScenario()"
+				>
+					Test Pagefind Scenario
+				</button>
+			</div>
+
+			<div id="results"></div>
+		</div>
+
+		<div
+			class="test-box test-4"
+			id="fixed-test"
+			style="display: none"
+		>
+			Test 4: Fixed positioning
+		</div>
+
+		<script>
+			function toggleFixed() {
+				const el = document.getElementById("fixed-test");
+				el.style.display = el.style.display === "none" ? "block" : "none";
+			}
+
+			function runDiagnostics() {
+				const results = document.getElementById("results");
+				const info = document.getElementById("browser-info");
+
+				// Browser support
+				const supportsBackdrop = CSS.supports("backdrop-filter", "blur(1px)");
+				const supportsWebkitBackdrop = CSS.supports(
+					"-webkit-backdrop-filter",
+					"blur(1px)"
+				);
+
+				// Test each element
+				const tests = document.querySelectorAll(".test-box");
+				let diagnostics = "<h3>Diagnostics Results:</h3>";
+
+				tests.forEach((test, index) => {
+					const style = getComputedStyle(test);
+					const backdropFilter = style.backdropFilter;
+					const webkitBackdropFilter = style.webkitBackdropFilter;
+
+					diagnostics += `
+                    <p><strong>Test ${index + 1}:</strong><br>
+                    backdrop-filter: "${backdropFilter}"<br>
+                    -webkit-backdrop-filter: "${webkitBackdropFilter}"</p>
+                `;
+				});
+
+				info.innerHTML = `
+                <p><strong>Browser:</strong> ${navigator.userAgent}</p>
+                <p><strong>backdrop-filter support:</strong> ${
+									supportsBackdrop ? "✅ YES" : "❌ NO"
+								}</p>
+                <p><strong>-webkit-backdrop-filter support:</strong> ${
+									supportsWebkitBackdrop ? "✅ YES" : "❌ NO"
+								}</p>
+            `;
+
+				results.innerHTML = `
+                <div style="background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    ${diagnostics}
+                </div>
+            `;
+			}
+
+			function testPagefindScenario() {
+				// Create a test element that mimics the exact Pagefind search scenario
+				const existingTest = document.getElementById("pagefind-test");
+				if (existingTest) {
+					existingTest.remove();
+				}
+
+				const test = document.createElement("div");
+				test.id = "pagefind-test";
+				test.innerHTML = `
+                <div class="search-results-container">
+                    <div class="pagefind-ui__drawer">
+                        <div class="pagefind-ui__results">
+                            <div class="pagefind-ui__result">
+                                <h4>Test Search Result</h4>
+                                <p>This mimics the exact structure of Pagefind search results</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+				test.style.cssText = `
+                position: fixed;
+                top: 200px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90vw;
+                max-width: 400px;
+                z-index: 10000;
+            `;
+
+				const drawer = test.querySelector(".pagefind-ui__drawer");
+				drawer.style.cssText = `
+                background: rgba(255, 255, 255, 0.8) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                border-radius: 12px !important;
+                padding: 20px !important;
+                color: #333 !important;
+                isolation: isolate !important;
+            `;
+
+				document.body.appendChild(test);
+
+				// Check the computed styles
+				setTimeout(() => {
+					const computedStyle = getComputedStyle(drawer);
+					alert(`Pagefind Test Element:
+backdrop-filter: "${computedStyle.backdropFilter}"
+-webkit-backdrop-filter: "${computedStyle.webkitBackdropFilter}"
+background: "${computedStyle.background}"`);
+
+					// Remove after 5 seconds
+					setTimeout(() => {
+						if (test.parentNode) {
+							test.parentNode.removeChild(test);
+						}
+					}, 5000);
+				}, 100);
+			}
+
+			// Auto-run diagnostics on load
+			setTimeout(() => {
+				runDiagnostics();
+			}, 1000);
+		</script>
+	</body>
+</html>

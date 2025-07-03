@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Final Button Unification Test</title>
+		<link
+			rel="stylesheet"
+			href="/styles/tokens.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/assets/styles.css"
+		/>
+		<style>
+			body {
+				padding: 2rem;
+				background: var(--color-bg);
+				color: var(--color-text);
+				font-family: var(--font-family-base);
+				line-height: 1.6;
+			}
+			.test-section {
+				margin: 2rem 0;
+				padding: 1.5rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-card);
+				background: var(--color-card-bg);
+			}
+			.button-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				gap: 1rem;
+				margin: 1rem 0;
+			}
+			.button-demo {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 1rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-btn);
+				background: var(--color-bg);
+			}
+			.button-demo h4 {
+				margin: 0 0 0.5rem 0;
+				font-size: 0.875rem;
+				color: var(--color-text-muted);
+			}
+			.test-results {
+				background: var(--color-card-bg);
+				padding: 1.5rem;
+				margin: 1rem 0;
+				border-radius: var(--radius-btn);
+				border: 1px solid var(--color-border);
+				white-space: pre-wrap;
+				font-family: monospace;
+				max-height: 400px;
+				overflow-y: auto;
+				font-size: 0.875rem;
+			}
+			.success {
+				color: #22c55e;
+			}
+			.error {
+				color: #ef4444;
+			}
+			.warning {
+				color: #f59e0b;
+			}
+			.navbar-demo {
+				background: var(--frosted-bg, rgba(255, 255, 255, 0.8));
+				border: var(--frosted-border, 1px solid rgba(255, 255, 255, 0.2));
+				border-radius: var(--radius-unified);
+				padding: 1rem;
+				margin: 1rem 0;
+				backdrop-filter: blur(10px);
+			}
+			.dropdown-demo {
+				background: var(--frosted-bg, rgba(255, 255, 255, 0.9));
+				border: var(--frosted-border, 1px solid rgba(255, 255, 255, 0.2));
+				border-radius: var(--radius-unified);
+				padding: 1rem;
+				margin: 1rem 0;
+				backdrop-filter: blur(10px);
+			}
+			.pills-container {
+				display: flex;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>🎯 Final Button Unification Test</h1>
+		<p>
+			Testing that all buttons, CTAs, pills, and dropdown items use the unified
+			accent color system consistently.
+		</p>
+
+		<div class="test-section">
+			<h2>📋 Expected Behavior</h2>
+			<ul>
+				<li>
+					<strong>Default state:</strong> Transparent background, accent border
+					and text
+				</li>
+				<li>
+					<strong>Hover state:</strong> Accent background, contrasting text,
+					subtle lift effect
+				</li>
+				<li>
+					<strong>Active state:</strong> Accent background, contrasting text,
+					pressed down
+				</li>
+				<li><strong>Focus state:</strong> Same as hover + focus ring</li>
+				<li>
+					<strong>Active/Selected:</strong> Filled with accent color (for
+					current filter/sort)
+				</li>
+			</ul>
+		</div>
+
+		<div class="test-section">
+			<h2>🔍 Core Button Types</h2>
+			<div class="button-grid">
+				<div class="button-demo">
+					<h4>Standard Button</h4>
+					<button class="button">Click Me</button>
+				</div>
+				<div class="button-demo">
+					<h4>Pill Button</h4>
+					<button class="pill">Filter</button>
+				</div>
+				<div class="button-demo">
+					<h4>Feed CTA</h4>
+					<button class="feed-cta">Read More</button>
+				</div>
+				<div class="button-demo">
+					<h4>Active Pill</h4>
+					<button class="pill active">All</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>🎮 Card Action Buttons</h2>
+			<div class="button-grid">
+				<div class="button-demo">
+					<h4>Card Action</h4>
+					<button class="card-action-btn">View Details</button>
+				</div>
+				<div class="button-demo">
+					<h4>Card Play</h4>
+					<button class="card-play-btn">Play Now</button>
+				</div>
+				<div class="button-demo">
+					<h4>Hero Play</h4>
+					<button class="hero-play-btn">Start Game</button>
+				</div>
+				<div class="button-demo">
+					<h4>CTA Banner</h4>
+					<button class="card-cta-banner">Learn More</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>📱 Navbar Simulation</h2>
+			<div class="navbar-demo">
+				<h4>Navbar Menu Button</h4>
+				<button class="button nav__menu-btn">Menu ▼</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>📋 Dropdown Simulation</h2>
+			<div class="dropdown-demo">
+				<h4>Filter Pills</h4>
+				<div class="pills-container">
+					<button class="pill active">All</button>
+					<button class="pill">Read</button>
+					<button class="pill">Play</button>
+					<button class="pill">About</button>
+				</div>
+				<h4 style="margin-top: 1rem">Sort Pills</h4>
+				<div class="pills-container">
+					<button class="pill active">Updated</button>
+					<button class="pill">Created</button>
+					<button class="pill">A-Z</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>⭐ Primary Variants</h2>
+			<div class="button-grid">
+				<div class="button-demo">
+					<h4>Primary Button</h4>
+					<button class="button button--primary">Primary Action</button>
+				</div>
+				<div class="button-demo">
+					<h4>Primary Pill</h4>
+					<button class="pill pill--primary">Primary Filter</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>🧪 Test Controls</h2>
+			<button
+				onclick="runDetailedTests()"
+				class="button"
+			>
+				Run Detailed Tests
+			</button>
+			<button
+				onclick="testInteractiveBehavior()"
+				class="button"
+			>
+				Test Interactive Behavior
+			</button>
+			<button
+				onclick="checkAccentColorConsistency()"
+				class="button"
+			>
+				Check Accent Color
+			</button>
+			<div
+				class="test-results"
+				id="test-results"
+			>
+				Click a test button to see results...
+			</div>
+		</div>
+
+		<script>
+			// Capture console output for display
+			const resultsDiv = document.getElementById("test-results");
+			const originalLog = console.log;
+
+			function clearResults() {
+				resultsDiv.textContent = "";
+			}
+
+			function log(message, type = "info") {
+				originalLog(message);
+				const span = document.createElement("span");
+				span.textContent = message + "\n";
+				span.className = type;
+				resultsDiv.appendChild(span);
+				resultsDiv.scrollTop = resultsDiv.scrollHeight;
+			}
+
+			// Test 1: Detailed button consistency
+			function runDetailedTests() {
+				clearResults();
+				log("🔍 Running detailed button consistency tests...", "info");
+
+				const buttonSelectors = [
+					".button",
+					".pill",
+					".feed-cta",
+					".card-action-btn",
+					".card-play-btn",
+					".hero-play-btn",
+					".card-cta-banner",
+					".hero-game-cta-banner",
+				];
+
+				let totalButtons = 0;
+				let consistentButtons = 0;
+				const issues = [];
+
+				buttonSelectors.forEach((selector) => {
+					const elements = document.querySelectorAll(selector);
+
+					elements.forEach((btn, index) => {
+						totalButtons++;
+						const styles = getComputedStyle(btn);
+						const bg = styles.backgroundColor;
+						const border = styles.borderColor;
+						const color = styles.color;
+
+						log(`${selector}[${index}]: bg=${bg}, border=${border}`, "info");
+
+						// Check if follows unified pattern
+						const isTransparent =
+							bg === "rgba(0, 0, 0, 0)" || bg === "transparent";
+						const hasAccentBorder = border.includes("57, 255, 20"); // accent color RGB
+						const hasAccentText = color.includes("57, 255, 20");
+
+						if (
+							btn.classList.contains("active") ||
+							btn.classList.contains("button--primary") ||
+							btn.classList.contains("pill--primary")
+						) {
+							// Active/primary buttons should be filled
+							const hasFill = bg.includes("57, 255, 20");
+							if (hasFill) {
+								consistentButtons++;
+								log(
+									`✅ ${selector}[${index}]: Correct active/primary state`,
+									"success"
+								);
+							} else {
+								issues.push(
+									`${selector}[${index}]: Active/primary should be filled with accent`
+								);
+								log(
+									`❌ ${selector}[${index}]: Should be filled with accent`,
+									"error"
+								);
+							}
+						} else {
+							// Regular buttons should be transparent with accent border
+							if (isTransparent && (hasAccentBorder || hasAccentText)) {
+								consistentButtons++;
+								log(
+									`✅ ${selector}[${index}]: Correct transparent state`,
+									"success"
+								);
+							} else {
+								issues.push(
+									`${selector}[${index}]: Should be transparent with accent border/text`
+								);
+								log(
+									`❌ ${selector}[${index}]: Should be transparent with accent`,
+									"error"
+								);
+							}
+						}
+					});
+				});
+
+				log(`\n📊 Summary:`, "info");
+				log(`Total buttons tested: ${totalButtons}`, "info");
+				log(`Consistent buttons: ${consistentButtons}`, "info");
+				log(
+					`Consistency rate: ${Math.round(
+						(consistentButtons / totalButtons) * 100
+					)}%`,
+					"info"
+				);
+
+				if (issues.length === 0) {
+					log(`\n🎉 All buttons are consistent!`, "success");
+				} else {
+					log(`\n⚠️ Found ${issues.length} inconsistencies:`, "warning");
+					issues.forEach((issue) => log(`  • ${issue}`, "error"));
+				}
+			}
+
+			// Test 2: Interactive behavior
+			function testInteractiveBehavior() {
+				clearResults();
+				log("🖱️ Testing interactive behavior...", "info");
+
+				const testButton =
+					document.querySelector(".pill:not(.active)") ||
+					document.querySelector(".button:not(.button--primary)");
+
+				if (!testButton) {
+					log("❌ No suitable test button found", "error");
+					return;
+				}
+
+				log(`Testing button: ${testButton.className}`, "info");
+
+				// Get default state
+				const defaultStyles = getComputedStyle(testButton);
+				log(`Default state: bg=${defaultStyles.backgroundColor}`, "info");
+
+				// Test hover
+				testButton.dispatchEvent(
+					new MouseEvent("mouseenter", { bubbles: true })
+				);
+
+				setTimeout(() => {
+					const hoverStyles = getComputedStyle(testButton);
+					const hoverBgChanged =
+						hoverStyles.backgroundColor !== defaultStyles.backgroundColor;
+					const hasTransform = hoverStyles.transform !== "none";
+
+					log(`Hover state: bg=${hoverStyles.backgroundColor}`, "info");
+					log(`Transform: ${hoverStyles.transform}`, "info");
+
+					if (hoverBgChanged) {
+						log("✅ Hover background changes correctly", "success");
+					} else {
+						log("❌ Hover background should change", "error");
+					}
+
+					if (hasTransform) {
+						log("✅ Hover transform effect works", "success");
+					} else {
+						log("⚠️ No hover transform detected", "warning");
+					}
+
+					// Reset hover
+					testButton.dispatchEvent(
+						new MouseEvent("mouseleave", { bubbles: true })
+					);
+				}, 200);
+			}
+
+			// Test 3: Accent color consistency
+			function checkAccentColorConsistency() {
+				clearResults();
+				log("🎨 Checking accent color consistency...", "info");
+
+				const rootStyles = getComputedStyle(document.documentElement);
+				const accentColor = rootStyles.getPropertyValue("--color-accent");
+				const accentText = rootStyles.getPropertyValue("--color-accent-text");
+				const accentRgb = rootStyles.getPropertyValue("--color-accent-rgb");
+
+				log(`CSS Variables:`, "info");
+				log(`  --color-accent: ${accentColor}`, "info");
+				log(`  --color-accent-text: ${accentText}`, "info");
+				log(`  --color-accent-rgb: ${accentRgb}`, "info");
+
+				if (accentColor.trim()) {
+					log("✅ --color-accent is defined", "success");
+				} else {
+					log("❌ --color-accent is not defined", "error");
+				}
+
+				// Check if buttons are using these variables
+				const activeButton = document.querySelector(".active");
+				if (activeButton) {
+					const styles = getComputedStyle(activeButton);
+					const bgColor = styles.backgroundColor;
+
+					if (bgColor.includes("57, 255, 20")) {
+						log("✅ Active buttons use accent color", "success");
+					} else {
+						log(`❌ Active button background: ${bgColor}`, "error");
+					}
+				}
+			}
+
+			// Auto-run basic test on load
+			setTimeout(() => {
+				log("🚀 Page loaded, running basic consistency check...", "info");
+				setTimeout(runDetailedTests, 500);
+			}, 1000);
+		</script>
+	</body>
+</html>

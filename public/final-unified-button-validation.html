@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Final Button Validation</title>
+
+		<!-- Load stylesheets in the same order as the main site -->
+		<link
+			rel="stylesheet"
+			href="/src/assets/global.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/styles/navbar-dropdowns.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/styles/unified-button-system.css"
+		/>
+
+		<!-- Load the random theme color script -->
+		<script
+			src="/scripts/random-theme-color.js"
+			type="module"
+		></script>
+	</head>
+	<body>
+		<h1>Final Button Validation Test</h1>
+
+		<h2>All buttons should look identical in their default state</h2>
+
+		<div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 2rem 0">
+			<!-- Dropdown button (from navbar) -->
+			<div>
+				<p>Dropdown Button:</p>
+				<button class="menu-toggle-btn">Menu ▼</button>
+			</div>
+
+			<!-- Dropdown menu items -->
+			<div>
+				<p>Dropdown Items:</p>
+				<button class="pill">All</button>
+				<button class="pill">Read</button>
+				<button class="pill">Play</button>
+				<button class="pill">About</button>
+			</div>
+
+			<!-- Feed buttons -->
+			<div>
+				<p>Feed Buttons:</p>
+				<button class="feed-cta pill">READ</button>
+				<button class="feed-cta pill">DIVE IN</button>
+			</div>
+
+			<!-- Theme button -->
+			<div>
+				<p>Theme Button:</p>
+				<button class="theme-toggle-btn">Dark</button>
+			</div>
+		</div>
+
+		<h2>Expected Behavior:</h2>
+		<ul>
+			<li>
+				✅ All buttons have transparent background with neon border in default
+				state
+			</li>
+			<li>✅ All buttons fill with neon color when hovered</li>
+			<li>
+				✅ All buttons use the same border radius, padding, and typography
+			</li>
+			<li>✅ All buttons have consistent spacing and alignment</li>
+		</ul>
+
+		<div
+			id="validation-results"
+			style="
+				margin-top: 2rem;
+				padding: 1rem;
+				background: #f0f0f0;
+				border-radius: 8px;
+			"
+		>
+			<h3>Validation Results:</h3>
+			<div id="results"></div>
+		</div>
+
+		<script>
+			function validateButtonConsistency() {
+				const results = document.getElementById("results");
+
+				// Get all buttons
+				const buttons = document.querySelectorAll(
+					".menu-toggle-btn, .pill, .feed-cta, .theme-toggle-btn"
+				);
+
+				if (buttons.length === 0) {
+					results.innerHTML = "❌ No buttons found with unified classes";
+					return;
+				}
+
+				let resultHTML = `<p>✅ Found ${buttons.length} buttons with unified classes</p>`;
+
+				// Check each button's computed styles
+				const firstButton = buttons[0];
+				const firstStyles = window.getComputedStyle(firstButton);
+
+				const criticalProperties = [
+					"backgroundColor",
+					"borderColor",
+					"borderWidth",
+					"borderStyle",
+					"borderRadius",
+					"color",
+				];
+
+				let allConsistent = true;
+
+				buttons.forEach((button, index) => {
+					const styles = window.getComputedStyle(button);
+					resultHTML += `<h4>Button ${index + 1}: ${button.textContent} (.${
+						button.className
+					})</h4>`;
+
+					criticalProperties.forEach((prop) => {
+						const value = styles[prop];
+						const firstValue = firstStyles[prop];
+						const isConsistent = value === firstValue;
+
+						if (!isConsistent) allConsistent = false;
+
+						resultHTML += `<div style="margin-left: 1rem;">
+                        ${isConsistent ? "✅" : "❌"} ${prop}: ${value}
+                    </div>`;
+					});
+
+					resultHTML += "<br>";
+				});
+
+				if (allConsistent) {
+					resultHTML =
+						`<div style="color: green; font-weight: bold;">🎉 ALL BUTTONS ARE PERFECTLY UNIFIED! 🎉</div>` +
+						resultHTML;
+				} else {
+					resultHTML =
+						`<div style="color: red; font-weight: bold;">❌ BUTTONS STILL HAVE INCONSISTENCIES</div>` +
+						resultHTML;
+				}
+
+				results.innerHTML = resultHTML;
+			}
+
+			// Wait for styles to load
+			window.addEventListener("load", () => {
+				setTimeout(validateButtonConsistency, 1000);
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,840 @@
+---
+import NavbarMenu from "../islands/NavbarMenu.jsx";
+import ThemeToggle from "../islands/ThemeToggle.redesign.jsx";
+const {
+	taxonomy = ["all", "read", "play", "about"],
+	type = "all",
+	sort = "newest",
+	currentPage = 1,
+} = Astro.props;
+---
+
+<header class="navbar site-header">
+	<div class="site-header-inner">
+		<div class="navbar-content-inner">
+			<div class="navbar-header-row">
+				<a
+					href="/"
+					class="nav__logo"
+				>
+					<img
+						src="/assets/k_blk_svg.svg"
+						alt="Logo"
+						class="nav__logo-img"
+					/>
+				</a>
+				<!-- Inline search bar -->
+				<div class="search-container-inline">
+					<div
+						id="pagefind-search-inline"
+						class="search-bar-inline"
+					>
+					</div>
+				</div>
+				<div class="navbar-menu-wrapper">
+					<NavbarMenu
+						taxonomy={taxonomy}
+						type={type}
+						sort={sort}
+						order="desc"
+						client:load
+					>
+						<ThemeToggle client:load />
+					</NavbarMenu>
+				</div>
+			</div>
+		</div>
+	</div>
+</header>
+
+<!-- Dropdown containers positioned outside navbar -->
+<div
+	class="dropdown-portal-container"
+	id="navbar-dropdown-portal"
+>
+</div>
+<div
+	class="search-portal-container"
+	id="navbar-search-portal"
+>
+</div>
+
+<!-- Import external stylesheets -->
+<link rel="stylesheet" href="/src/components/common/navbar-dropdowns.css">
+
+<style>
+	/* Core Navbar Styles */
+	.site-header {
+		position: fixed;
+		top: 1rem;
+		left: 50%;
+		transform: translateX(-50%);
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		margin: 0;
+		z-index: 10000;
+		background: var(--frosted-bg);
+		backdrop-filter: var(--frosted-blur);
+		-webkit-backdrop-filter: var(--frosted-blur);
+		border: var(--frosted-border);
+		border-radius: var(--radius-unified);
+		box-shadow: var(--frosted-shadow);
+		transition: background 0.3s, box-shadow 0.3s;
+	}
+
+	.site-header-inner {
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		margin: 0 auto;
+		padding-left: var(--fluid-space-s);
+		padding-right: var(--fluid-space-s);
+		box-sizing: border-box;
+	}
+
+	.navbar-content-inner,
+	.navbar-header-row {
+		width: 100%;
+		margin: 0;
+		box-sizing: border-box;
+	}
+
+	.navbar-header-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+		min-height: var(--navbar-height, 60px);
+		padding: var(--fluid-space-xs) 0;
+	}
+
+	/* Logo */
+	.nav__logo {
+		display: flex;
+		align-items: center;
+		text-decoration: none;
+		flex-shrink: 0;
+	}
+
+	.nav__logo-img {
+		height: clamp(1.75rem, 4vw, 2.25rem);
+		width: auto;
+		transition: opacity 0.3s ease;
+	}
+
+	.nav__logo:hover .nav__logo-img {
+		opacity: 0.8;
+	}
+
+	/* Search Container */
+	.search-container-inline {
+		flex: 1;
+		max-width: min(400px, 40vw);
+		margin: 0 clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-m));
+	}
+
+	.search-bar-inline {
+		width: 100%;
+		position: relative;
+	}
+
+	/* Navbar Menu */
+	.navbar-menu-wrapper {
+		color: var(--color-text);
+		position: relative;
+		flex-shrink: 0;
+		min-width: fit-content;
+	}
+
+	/* Mobile adjustments */
+	@media (max-width: 768px) {
+		.search-container-inline {
+			max-width: min(300px, 35vw);
+		}
+	}
+
+	@media (max-width: 500px) {
+		.navbar-header-row {
+			gap: var(--fluid-space-2xs);
+		}
+		
+		.search-container-inline {
+			max-width: min(200px, 30vw);
+		}
+	}
+</style>
+
+<!-- Import external JavaScript -->
+<script src="/src/components/common/navbar-manager.js"></script>
+
+	.nav__search-input {
+		color: var(--color-text);
+		background: var(--color-bg-alt);
+	}
+
+	.nav__menu-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0;
+		border-radius: var(--radius-btn);
+		background: var(--color-bg-alt);
+		border: var(--border-unified);
+		cursor: pointer;
+		font-size: 0.85em;
+		color: var(--color-text);
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		height: 40px;
+		width: 40px;
+		position: relative;
+		overflow: hidden;
+		box-shadow: var(--shadow-elevation-1);
+	}
+
+	.nav__menu-btn::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(
+			135deg,
+			transparent 0%,
+			rgba(255, 255, 255, 0.1) 50%,
+			transparent 100%
+		);
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.nav__menu-btn:hover {
+		background: var(--color-bg-alt);
+		box-shadow: var(--shadow-elevation-3);
+		transform: translateY(-1px);
+		border-color: var(--color-accent, #39ff14);
+	}
+
+	.nav__menu-btn:hover::before {
+		opacity: 1;
+	}
+
+	.nav__menu-btn:active {
+		transform: translateY(0);
+		box-shadow: var(--shadow-elevation-1);
+	}
+
+	.nav__menu-btn.open {
+		background: var(--color-accent, #39ff14);
+		color: var(--color-text-inverse, #111);
+		border-color: var(--color-accent, #39ff14);
+		box-shadow: var(--shadow-elevation-2);
+	}
+
+	.nav__menu-btn select {
+		border: none;
+		background: transparent;
+		font-size: 0.85em;
+		color: var(--color-text);
+		cursor: pointer;
+	}
+
+	.nav__menu-btn select:focus {
+		outline: none;
+	}
+
+	.navbar-menu-wrapper {
+		color: var(--color-text);
+		position: relative;
+		flex-shrink: 0; /* Prevent shrinking */
+		min-width: fit-content;
+	}
+
+	/* Dropdown portal container - positioned below navbar */
+	.dropdown-portal-container {
+		position: fixed;
+		top: calc(
+			1rem + var(--navbar-height, 60px) - 1px
+		); /* Connect directly to navbar bottom */
+		left: 50%;
+		transform: translateX(-50%);
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		z-index: 99999; /* Much higher to ensure it's above all content */
+		pointer-events: auto; /* Enable pointer events for dropdown content */
+		background: transparent !important;
+		box-shadow: none !important;
+		border: none !important;
+	}
+
+	/* Mobile-specific positioning for dropdown */
+	@media (max-width: 500px) {
+		.dropdown-portal-container {
+			left: var(--fluid-space-s);
+			right: var(--fluid-space-s);
+			transform: none;
+			max-width: none;
+			width: auto;
+		}
+	}
+
+	.dropdown-portal-container:empty {
+		pointer-events: none; /* Only disable when empty */
+	}
+
+	/* Search portal container - positioned below navbar */
+	.search-portal-container {
+		position: fixed;
+		top: calc(1rem + var(--navbar-height, 60px) - 1px); /* Connect directly to navbar bottom like dropdown */
+		left: 50%;
+		transform: translateX(-50%);
+		max-width: var(--navbar-max-width);
+		width: 100%;
+		z-index: 99998; /* High z-index but below dropdown */
+		pointer-events: auto; /* Enable pointer events for search content */
+		background: transparent !important;
+		box-shadow: none !important;
+		border: none !important;
+	}
+
+	/* Mobile-specific positioning for search portal */
+	@media (max-width: 500px) {
+		.search-portal-container {
+			left: var(--fluid-space-s);
+			right: var(--fluid-space-s);
+			transform: none;
+			max-width: none;
+			width: auto;
+		}
+	}
+
+	.search-portal-container:empty {
+		pointer-events: none; /* Only disable when empty */
+	}
+
+	/* Search container styling */
+	.search-container-inline {
+		flex: 1 1 0; /* Allow it to grow and shrink freely */
+		display: flex;
+		justify-content: stretch;
+		align-items: center;
+		max-width: none; /* Remove max-width constraint */
+		min-width: 150px;
+		margin: 0 0.75rem; /* Reduce margins to give more space */
+		position: relative;
+		width: 100%;
+	}
+
+	.pagefind-search {
+		width: 100%;
+		max-width: none; /* Remove max-width constraint */
+		flex: 1 1 0;
+	}
+
+	.search-bar-inline {
+		width: 100%;
+		display: flex;
+		flex: 1 1 0; /* Changed to allow more aggressive stretching */
+	}
+
+	/* Force search bar to fill available space */
+	:global(#pagefind-search-inline),
+	:global(.search-bar-inline),
+	:global(.pagefind-ui),
+	:global(.pagefind-ui--reset) {
+		width: 100% !important;
+		max-width: none !important;
+		flex: 1 1 0 !important;
+		display: flex !important;
+	}
+
+	:global(.pagefind-ui__form) {
+		width: 100% !important;
+		max-width: none !important;
+		flex: 1 1 0 !important;
+		display: flex !important;
+		position: relative !important;
+	}
+
+	:global(.pagefind-ui__search-input) {
+		width: 100% !important;
+		max-width: none !important;
+		flex: 1 1 0 !important;
+		padding: 0.75rem 3rem 0.75rem 2.5rem !important;
+		background: var(--color-bg-alt) !important;
+		border: var(--border-unified) !important;
+		border-radius: var(--radius-unified) !important;
+		color: var(--color-text) !important;
+		font-size: 0.95rem !important;
+		box-sizing: border-box !important;
+	}
+
+	/* Custom clear button styling */
+	:global(.pagefind-ui__search-clear) {
+		background: transparent !important;
+		border: none !important;
+		color: var(--color-text-muted) !important;
+		font-size: 1.2rem !important;
+		padding: 0.5rem !important;
+		cursor: pointer !important;
+		opacity: 0.3 !important;
+		transition:
+			opacity 0.2s ease,
+			color 0.2s ease !important;
+		border-radius: 50% !important;
+		width: 2rem !important;
+		height: 2rem !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		position: absolute !important;
+		right: 0.5rem !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		pointer-events: none !important;
+	}
+
+	/* Show clear button when input has content */
+	:global(.pagefind-ui__search-input:not(:placeholder-shown))
+		+ :global(.pagefind-ui__search-clear),
+	:global(.pagefind-ui__search-input[value]:not([value=""]))
+		+ :global(.pagefind-ui__search-clear) {
+		opacity: 0.7 !important;
+		pointer-events: auto !important;
+	}
+
+	:global(.pagefind-ui__search-clear:hover) {
+		opacity: 1 !important;
+		color: var(--color-text) !important;
+		background: var(--color-bg-alt) !important;
+	}
+
+	/* Hide the default clear button text and replace with X */
+	:global(.pagefind-ui__search-clear::before) {
+		content: "×" !important;
+		font-size: 1.4rem !important;
+		line-height: 1 !important;
+	}
+
+	:global(.pagefind-ui__search-clear) {
+		font-size: 0 !important; /* Hide the original text */
+	}
+
+	/* Base dropdown container style - shared between menu and search */
+	.dropdown-container {
+		max-width: var(--content-max-width);
+		width: 100%;
+		margin: 0 auto;
+		background: var(--frosted-bg);
+		backdrop-filter: var(--frosted-blur);
+		-webkit-backdrop-filter: var(--frosted-blur);
+		border: var(--frosted-border);
+		border-top: none;
+		border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+		box-shadow: var(--frosted-shadow);
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	/* Mobile adjustments for dropdown containers */
+	@media (max-width: 500px) {
+		.dropdown-container {
+			border: var(--frosted-border);
+			border-radius: var(--radius-unified);
+		}
+	}
+
+	/* Hide default search results */
+	:global(.pagefind-ui__results) {
+		display: none;
+	}
+
+	/* Search results container */
+	:global(#navbar-search-portal .pagefind-ui__results) {
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		max-height: 60vh;
+		overflow-y: auto;
+		padding: clamp(var(--fluid-space-s), 3vw, var(--fluid-space-m));
+		scrollbar-gutter: stable both-edges;
+	}
+
+	/* Apply dropdown container styles to search results */
+	:global(#navbar-search-portal .pagefind-ui__results) {
+		max-width: var(--content-max-width);
+		width: 100%;
+		margin: 0 auto;
+		background: var(--frosted-bg);
+		backdrop-filter: var(--frosted-blur);
+		-webkit-backdrop-filter: var(--frosted-blur);
+		border: var(--frosted-border);
+		border-top: none;
+		border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+		box-shadow: var(--frosted-shadow);
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	@media (max-width: 500px) {
+		:global(#navbar-search-portal .pagefind-ui__results) {
+			border: var(--frosted-border);
+			border-radius: var(--radius-unified);
+		}
+	}
+
+	/* Search result items */
+	:global(#navbar-search-portal .pagefind-ui__result) {
+		border-bottom: var(--border-unified);
+		padding: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s)) 0;
+		transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	:global(#navbar-search-portal .pagefind-ui__result:last-child) {
+		border-bottom: none;
+	}
+
+	:global(#navbar-search-portal .pagefind-ui__result:hover) {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: var(--radius-btn);
+		padding-left: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+		padding-right: clamp(var(--fluid-space-xs), 2vw, var(--fluid-space-s));
+		transform: translateY(-1px);
+	}
+
+	:global(#navbar-search-portal .pagefind-ui__result-title) {
+		color: var(--color-text);
+		font-weight: var(--font-weight-bold);
+		font-size: clamp(0.875rem, 2vw, 1rem);
+		margin-bottom: clamp(var(--fluid-space-2xs), 1vw, var(--fluid-space-xs));
+		line-height: 1.3;
+	}
+
+	:global(#navbar-search-portal .pagefind-ui__result-excerpt) {
+		color: var(--color-text-muted);
+		font-size: clamp(0.8rem, 1.8vw, 0.875rem);
+		line-height: 1.4;
+		margin: 0;
+	}
+
+	:global(#navbar-search-portal .pagefind-ui__result-link) {
+		text-decoration: none;
+		color: inherit;
+		display: block;
+	}
+
+	/* Apply dropdown container styles to menu */
+	:global(#filter-sort-menu),
+	:global(.menu-container) {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem;
+		list-style: none;
+		margin: 0;
+	}
+
+	/* Apply shared dropdown styles to menu */
+	:global(#filter-sort-menu) {
+		max-width: var(--content-max-width);
+		width: 100%;
+		margin: 0 auto;
+		background: var(--frosted-bg);
+		backdrop-filter: var(--frosted-blur);
+		-webkit-backdrop-filter: var(--frosted-blur);
+		border: var(--frosted-border);
+		border-top: none;
+		border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+		box-shadow: var(--frosted-shadow);
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	@media (max-width: 500px) {
+		:global(#filter-sort-menu) {
+			border: var(--frosted-border);
+			border-radius: var(--radius-unified);
+		}
+	}
+
+	/* Global button styles for dropdown menu */
+	:global(#filter-sort-menu button:not(.theme-toggle-btn)),
+	:global(#filter-sort-menu .dropdown-item),
+	:global(#filter-sort-menu .pill) {
+		background: #222 !important;
+		color: #fff !important;
+		border: none !important;
+		border-radius: var(--radius-btn);
+		font-weight: 600 !important;
+		font-size: clamp(0.75rem, 2vw, 0.875rem) !important;
+		padding: 0 clamp(var(--fluid-space-xs), 2.5vw, var(--fluid-space-s)) !important;
+		height: clamp(32px, 7vw, 40px) !important;
+		min-height: clamp(32px, 7vw, 40px) !important;
+		line-height: 1.2 !important;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+		text-transform: capitalize !important;
+		white-space: nowrap !important;
+		cursor: pointer !important;
+		box-shadow: var(--shadow-elevation-2) !important;
+	}
+
+	/* Global hover styles for dropdown buttons (excluding pills-container) */
+	:global(#filter-sort-menu button:hover:not([class*="pills-container"])),
+	:global(#filter-sort-menu .dropdown-item:hover),
+	:global(#filter-sort-menu button:focus:not([class*="pills-container"])),
+	:global(#filter-sort-menu .dropdown-item:focus),
+	:global(#filter-sort-menu .pill:hover),
+	:global(#filter-sort-menu .pill:focus),
+	:global(#filter-sort-menu .theme-toggle-btn:hover),
+	:global(#filter-sort-menu .theme-toggle-btn:focus) {
+		background: #39ff14 !important;
+		color: #111 !important;
+		transform: translateY(-1px) !important;
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+	}
+
+	/* Theme toggle button styling */
+	:global(#filter-sort-menu .theme-toggle-btn) {
+		background: #222 !important;
+		color: #fff !important;
+		border: none !important;
+		border-radius: var(--radius-btn);
+		font-weight: 600 !important;
+		font-size: clamp(0.75rem, 2vw, 0.875rem) !important;
+		padding: 0 clamp(var(--fluid-space-xs), 2.5vw, var(--fluid-space-s)) !important;
+		height: clamp(32px, 7vw, 40px) !important;
+		min-height: clamp(32px, 7vw, 40px) !important;
+		line-height: 1.2 !important;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+		text-transform: capitalize !important;
+		white-space: nowrap !important;
+		cursor: pointer !important;
+		box-shadow: none !important;
+	}
+
+	/* Dark theme adjustments for ALL buttons */
+	[data-theme="dark"] :global(#filter-sort-menu button),
+	[data-theme="dark"] :global(#filter-sort-menu .pill),
+	[data-theme="dark"] :global(#filter-sort-menu .theme-toggle-btn) {
+		background: #222 !important;
+		color: #fff !important;
+		border: none !important;
+	}
+
+	[data-theme="dark"]
+		:global(#filter-sort-menu button:hover:not([class*="pills-container"])),
+	[data-theme="dark"] :global(#filter-sort-menu .pill:hover),
+	[data-theme="dark"] :global(#filter-sort-menu .theme-toggle-btn:hover),
+	[data-theme="dark"]
+		:global(#filter-sort-menu button:focus:not([class*="pills-container"])),
+	[data-theme="dark"] :global(#filter-sort-menu .pill:focus),
+	[data-theme="dark"] :global(#filter-sort-menu .theme-toggle-btn:focus) {
+		background: #39ff14 !important;
+		color: #111 !important;
+	}
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.search-container-inline {
+			min-width: 120px;
+			margin: 0 0.5rem;
+		}
+
+		.nav__logo-img {
+			height: 45px; /* Smaller logo on tablets */
+		}
+
+		:global(.pagefind-ui__search-input) {
+			padding: 0.6rem 2.5rem 0.6rem 2.25rem !important;
+			font-size: 0.9rem !important;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.search-container-inline {
+			min-width: 100px;
+			margin: 0 0.25rem;
+		}
+
+		.nav__logo-img {
+			height: 40px; /* Even smaller logo on mobile */
+		}
+
+		.navbar-header-row {
+			gap: 0.25rem; /* Tighter spacing on mobile */
+		}
+
+		:global(.pagefind-ui__search-input) {
+			padding: 0.5rem 2rem 0.5rem 2rem !important;
+			font-size: 0.85rem !important;
+		}
+	}
+
+	/* Ensure pills-container never has button styles or hover effects */
+	:global([class*="pills-container"]) {
+		background: transparent !important;
+		box-shadow: none !important;
+		border: none !important;
+	}
+
+	:global([class*="pills-container"]:hover),
+	:global([class*="pills-container"]:focus) {
+		background: transparent !important;
+		box-shadow: none !important;
+		border: none !important;
+		transform: none !important;
+		color: inherit !important;
+	}
+</style>
+
+<script is:inline>
+	// Global dropdown state management
+	window.navbarState = {
+		searchOpen: false,
+		menuOpen: false,
+		closeSearch: null,
+		closeMenu: null,
+	};
+
+	// Inline Pagefind UI loader
+	if (typeof window !== "undefined") {
+		window.addEventListener("DOMContentLoaded", () => {
+			let pagefindLoaded = false;
+			let searchInput = null;
+
+			function initializePagefind() {
+				if (!pagefindLoaded) {
+					const script = document.createElement("script");
+					script.src = "/pagefind/pagefind-ui.js";
+					script.defer = true;
+					script.onload = () => {
+						if (window.PagefindUI) {
+							new window.PagefindUI({
+								element: "#pagefind-search-inline",
+								resetStyles: false,
+								showImages: false,
+								showSubResults: true,
+								excerptLength: 150,
+								placeholder: "Search...?",
+								autofocus: false,
+								processResult: function (result) {
+									return result;
+								},
+							});
+							pagefindLoaded = true;
+
+							// Get reference to search input and search container
+							searchInput = document.querySelector(
+								".pagefind-ui__search-input"
+							);
+							const searchContainer = document.querySelector(
+								"#pagefind-search-inline"
+							);
+							const searchPortal = document.querySelector(
+								"#navbar-search-portal"
+							);
+
+							// Simple function to move search results to portal
+							function moveResultsToPortal() {
+								const results = document.querySelector(".pagefind-ui__results");
+								if (results && searchPortal) {
+									searchPortal.appendChild(results);
+								}
+							}
+
+							// Watch for search results being created and move them immediately
+							if (searchContainer) {
+								const observer = new MutationObserver(() => {
+									moveResultsToPortal();
+								});
+								
+								observer.observe(searchContainer, {
+									childList: true,
+									subtree: true
+								});
+							}
+
+							// Enhanced clear button functionality
+							const clearButton = document.querySelector(
+								".pagefind-ui__search-clear"
+							);
+							if (clearButton && searchInput) {
+								// Update clear button state based on input content
+								function updateClearButton() {
+									const hasContent = searchInput.value.trim().length > 0;
+									clearButton.style.opacity = hasContent ? "0.7" : "0.3";
+									clearButton.style.pointerEvents =
+										hasContent ? "auto" : "none";
+								}
+
+								// Initial state
+								updateClearButton();
+
+								// Listen for input changes
+								searchInput.addEventListener("input", updateClearButton);
+								searchInput.addEventListener("keyup", updateClearButton);
+								searchInput.addEventListener("paste", () => {
+									setTimeout(updateClearButton, 10);
+								});
+
+								// Handle clear button click
+								clearButton.addEventListener("click", () => {
+									if (searchInput.value.trim().length > 0) {
+										searchInput.value = "";
+										searchInput.dispatchEvent(
+											new Event("input", { bubbles: true })
+										);
+										updateClearButton();
+										searchInput.focus();
+									}
+								});
+							}
+
+							// Add event listeners to search input
+							if (searchInput && searchContainer && searchPortal) {
+								searchInput.addEventListener("focus", () => {
+									window.navbarState.searchOpen = true;
+									// Close menu if open
+									if (
+										window.navbarState.menuOpen &&
+										window.navbarState.closeMenu
+									) {
+										window.navbarState.closeMenu();
+									}
+								});
+
+								searchInput.addEventListener("input", (e) => {
+									const hasValue = e.target.value.length > 0;
+									window.navbarState.searchOpen = hasValue;
+								});
+
+								searchInput.addEventListener("blur", () => {
+									// Delay to allow clicking on results
+									setTimeout(() => {
+										window.navbarState.searchOpen = false;
+									}, 200);
+								});
+							}
+						}
+					};
+					document.head.appendChild(script);
+				}
+			}
+
+			// Initialize search immediately
+			initializePagefind();
+
+			// Close search results function
+			function closeSearchResults() {
+				if (searchInput) {
+					searchInput.value = "";
+					searchInput.blur();
+					// Trigger input event to clear results
+					searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+				}
+				window.navbarState.searchOpen = false;
+			}
+
+			// Make close function available globally
+			window.navbarState.closeSearch = closeSearchResults;
+		});
+	}
+</script>

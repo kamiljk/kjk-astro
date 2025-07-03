@@ -1,0 +1,145 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PagefindSearch from "../components/features/PagefindSearch.jsx";
+---
+
+<BaseLayout>
+	<div class="test-search-page">
+		<h1>Pagefind Search Test</h1>
+		<p>This page demonstrates the pagefind search functionality.</p>
+
+		<section class="search-demo">
+			<h2>Standalone Search Component</h2>
+			<div class="search-container-demo">
+				<span class="search-label">Search posts:</span>
+				<div class="search-wrapper">
+					<PagefindSearch client:load />
+				</div>
+			</div>
+		</section>
+
+		<section class="search-info">
+			<h2>Search Information</h2>
+			<ul>
+				<li>Search is powered by Pagefind</li>
+				<li>Indexes all pages and posts automatically</li>
+				<li>Provides instant search results with highlighting</li>
+				<li>Works offline after initial page load</li>
+			</ul>
+		</section>
+
+		<section class="sample-content">
+			<h2>Sample Content for Testing</h2>
+			<article>
+				<h3>Technology and Innovation</h3>
+				<p>
+					This article discusses modern web technologies, including JavaScript
+					frameworks, CSS methodologies, and responsive design patterns. You can
+					search for terms like "technology", "JavaScript", or "design" to test
+					the search functionality.
+				</p>
+			</article>
+
+			<article>
+				<h3>Creative Writing and Literature</h3>
+				<p>
+					Exploring the intersection of digital creativity and traditional
+					storytelling. Topics include narrative structures, character
+					development, and the evolution of reading in the digital age. Try
+					searching for "writing", "narrative", or "digital".
+				</p>
+			</article>
+
+			<article>
+				<h3>Art and Visual Culture</h3>
+				<p>
+					Contemporary art movements and their influence on digital media. This
+					includes discussions about visual aesthetics, color theory, and the
+					democratization of artistic expression through technology. Search
+					terms: "art", "visual", "color".
+				</p>
+			</article>
+		</section>
+	</div>
+</BaseLayout>
+
+<style>
+	.test-search-page {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 2rem;
+	}
+
+	.search-demo {
+		background: var(--color-card-bg);
+		border: var(--border-unified);
+		border-radius: var(--radius-unified);
+		padding: 2rem;
+		margin: 2rem 0;
+	}
+
+	.search-container-demo {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.search-label {
+		font-weight: var(--font-weight-medium);
+		color: var(--color-text);
+	}
+
+	.search-wrapper {
+		max-width: 400px;
+	}
+
+	.search-info {
+		margin: 2rem 0;
+	}
+
+	.search-info ul {
+		list-style: disc;
+		margin-left: 2rem;
+	}
+
+	.search-info li {
+		margin: 0.5rem 0;
+		color: var(--color-desc);
+	}
+
+	.sample-content {
+		margin: 2rem 0;
+	}
+
+	.sample-content article {
+		background: var(--color-bg-alt);
+		padding: 1.5rem;
+		margin: 1rem 0;
+		border-radius: var(--radius-unified);
+		border: var(--border-unified);
+	}
+
+	.sample-content h3 {
+		color: var(--color-accent);
+		margin-bottom: 1rem;
+	}
+
+	.sample-content p {
+		color: var(--color-desc);
+		line-height: 1.6;
+	}
+
+	@media (max-width: 768px) {
+		.test-search-page {
+			padding: 1rem;
+		}
+
+		.search-demo {
+			padding: 1rem;
+		}
+
+		.search-wrapper {
+			max-width: 100%;
+		}
+	}
+</style>

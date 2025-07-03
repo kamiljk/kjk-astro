@@ -129,25 +129,34 @@
 				opacity: 0;
 			}
 
-			/* Button styles */
+			/* Button styles using unified accent color system */
 			button {
 				font-family: "PressStart2P", sans-serif;
 				font-size: 14px;
 				padding: 10px 20px;
-				border: none;
-				border-radius: 5px;
-				background-color: #2196f3;
-				color: white;
+				border: 2px solid var(--color-accent, #39ff14);
+				border-radius: var(--radius-btn, 8px);
+				background: var(--color-accent, #39ff14);
+				color: var(--color-accent-text, #181c17);
 				cursor: pointer;
-				transition: background-color 0.3s ease;
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2);
 			}
 
 			button:hover {
-				background-color: #1976d2;
+				background: var(--color-accent-hover, var(--color-accent, #33ff14));
+				border-color: var(--color-accent-hover, var(--color-accent, #33ff14));
+				transform: translateY(-2px);
+				box-shadow: 0 4px 12px 0
+						rgba(var(--color-accent-rgb, 57, 255, 20), 0.25),
+					0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1);
 			}
 
 			button:active {
-				background-color: #0d47a1;
+				background: var(--color-accent-active, var(--color-accent, #1aff00));
+				border-color: var(--color-accent-active, var(--color-accent, #1aff00));
+				transform: translateY(0);
+				box-shadow: 0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2);
 			}
 		</style>
 	</head>

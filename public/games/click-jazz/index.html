@@ -192,19 +192,23 @@
 				padding: var(--space-xs) var(--space-m);
 				font-size: var(--space-xl);
 				font-weight: 700;
-				background: linear-gradient(45deg, hotpink, turquoise);
-				color: #000;
-				border: var(--space-xs) solid #000;
-				border-radius: var(--space-s);
+				border: 2px solid var(--color-accent, #39ff14);
+				border-radius: var(--radius-btn, 8px);
+				background: var(--color-accent, #39ff14);
+				color: var(--color-accent-text, #181c17);
 				cursor: pointer;
-				text-shadow: 0 0 var(--space-xs) #fff;
-				box-shadow: 0 0 var(--space-l) turquoise;
-				transition: transform 0.3s ease, box-shadow 0.3s ease;
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				box-shadow: 0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2),
+					0 0 var(--space-l) rgba(var(--color-accent-rgb, 57, 255, 20), 0.4);
 				transform: rotate(5deg);
+				text-shadow: 0 0 var(--space-xs) rgba(255, 255, 255, 0.5);
 			}
 			button:hover {
-				transform: scale(1.05) rotate(5deg);
-				box-shadow: 0 0 var(--space-xl) hotpink;
+				background: var(--color-accent-hover, var(--color-accent, #33ff14));
+				border-color: var(--color-accent-hover, var(--color-accent, #33ff14));
+				transform: scale(1.05) rotate(5deg) translateY(-2px);
+				box-shadow: 0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.3),
+					0 0 var(--space-xl) rgba(var(--color-accent-rgb, 57, 255, 20), 0.6);
 			}
 			button:active {
 				transform: scale(0.95) rotate(5deg);

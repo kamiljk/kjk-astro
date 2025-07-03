@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Search Clear Button & Logo Scaling Test</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 20px;
+				background: #1a1a1a;
+				color: white;
+				line-height: 1.6;
+			}
+			.success {
+				color: #4caf50;
+				font-weight: bold;
+			}
+			.test-section {
+				margin: 20px 0;
+				padding: 15px;
+				border: 1px solid #444;
+				border-radius: 8px;
+			}
+			.check {
+				margin: 10px 0;
+			}
+			.check::before {
+				content: "✅ ";
+				color: #4caf50;
+			}
+			.important {
+				background: #2a2a2a;
+				padding: 10px;
+				border-left: 3px solid #4caf50;
+				margin: 10px 0;
+			}
+			.test-instructions {
+				background: #2a2a2a;
+				padding: 15px;
+				border-radius: 8px;
+				margin: 15px 0;
+			}
+			.test-instructions h4 {
+				margin-top: 0;
+				color: #4caf50;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>🔧 Search Clear Button & Logo Scaling Test</h1>
+
+		<div class="test-section">
+			<h2>✅ Fixes Implemented</h2>
+			<div class="check">Custom X glyph (✕) for Pagefind clear button</div>
+			<div class="check">
+				Clear button fades in only when search has content
+			</div>
+			<div class="check">Clear button fades out when search is empty</div>
+			<div class="check">
+				Smooth logo scaling using clamp() instead of breakpoint jumps
+			</div>
+			<div class="check">
+				Logo scales continuously from 40px to 69px based on viewport width
+			</div>
+		</div>
+
+		<div class="test-instructions">
+			<h4>🧪 Clear Button Test Instructions</h4>
+			<ol>
+				<li>
+					<strong>Visit the main site:</strong>
+					<a
+						href="http://localhost:4324"
+						style="color: #4caf50"
+						>http://localhost:4324</a
+					>
+				</li>
+				<li>
+					<strong>Search bar should be empty:</strong> No clear button visible
+				</li>
+				<li>
+					<strong>Type in search bar:</strong> Clear button (✕) should fade in
+					smoothly
+				</li>
+				<li>
+					<strong>Hover over clear button:</strong> Should brighten slightly
+				</li>
+				<li>
+					<strong>Click clear button:</strong> Should clear search and fade out
+				</li>
+				<li>
+					<strong>Clear search manually:</strong> Button should fade out when
+					empty
+				</li>
+			</ol>
+		</div>
+
+		<div class="test-instructions">
+			<h4>📱 Logo Scaling Test Instructions</h4>
+			<ol>
+				<li>
+					<strong>Start at desktop width:</strong> Logo should be at maximum
+					size (69px)
+				</li>
+				<li>
+					<strong>Gradually resize browser window:</strong> Logo should smoothly
+					scale down
+				</li>
+				<li>
+					<strong>Continue to mobile size:</strong> Logo should reach minimum
+					size (40px)
+				</li>
+				<li>
+					<strong>Resize back up:</strong> Logo should smoothly scale back up
+				</li>
+				<li>
+					<strong>No jumping:</strong> Should be continuous scaling, no sudden
+					size changes
+				</li>
+			</ol>
+		</div>
+
+		<div class="test-section">
+			<h2>🎨 Clear Button Styling Details</h2>
+			<div class="check">
+				Uses custom ✕ glyph instead of default Pagefind button
+			</div>
+			<div class="check">
+				Hidden by default (opacity: 0, visibility: hidden)
+			</div>
+			<div class="check">
+				Fades in with opacity transition when search has content
+			</div>
+			<div class="check">
+				Positioned absolutely at right side of search input
+			</div>
+			<div class="check">Proper hover states for better user interaction</div>
+			<div class="check">Respects CSS custom properties for theming</div>
+		</div>
+
+		<div class="test-section">
+			<h2>📐 Logo Scaling Details</h2>
+			<div class="check">
+				Uses clamp(40px, 8vw, 69px) for responsive scaling
+			</div>
+			<div class="check">Minimum size: 40px (on smallest screens)</div>
+			<div class="check">Maximum size: 69px (on larger screens)</div>
+			<div class="check">
+				Viewport-based scaling: 8vw (8% of viewport width)
+			</div>
+			<div class="check">Smooth transition with CSS transition property</div>
+			<div class="check">Removed media query overrides that caused jumping</div>
+		</div>
+
+		<div class="important">
+			<h3>🎯 Expected Behavior</h3>
+			<p>
+				<strong>Clear Button:</strong> Should only appear when there's text in
+				the search input, with smooth fade transitions and a clean ✕ symbol.
+			</p>
+			<p>
+				<strong>Logo Scaling:</strong> Should scale continuously and smoothly as
+				you resize the browser window, with no sudden jumps between sizes.
+			</p>
+		</div>
+
+		<script>
+			console.log("✅ Clear button and logo scaling test page loaded");
+			console.log("✅ Ready for manual testing on the main site");
+		</script>
+	</body>
+</html>

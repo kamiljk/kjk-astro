@@ -1,0 +1,166 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "Logo":
+    - /url: /
+    - img "Logo"
+  - search "Search this site":
+    - text: 🔍
+    - textbox "Search"
+    - button "Clear"
+  - button "Open menu" [expanded]:
+    - img
+- main:
+  - list:
+    - listitem:
+      - link "Bitface":
+        - /url: /posts/bitface/
+      - text: May 2025 A pixel art game where you can create and customize faces.
+      - 'link "Open post: Bitface"':
+        - /url: /posts/bitface/
+        - text: READ
+      - button "DIVE IN"
+      - img "Thumbnail for Bitface"
+    - listitem:
+      - link "Click Jazz":
+        - /url: /posts/click-jazz/
+      - text: Apr 2025 An engaging clicker game that uses behavioral reinforcement techniques to keep players entertained and coming back for more.
+      - 'link "Open post: Click Jazz"':
+        - /url: /posts/click-jazz/
+        - text: READ
+      - button "EXPERIENCE"
+      - img "Thumbnail for Click Jazz"
+    - listitem:
+      - link "P505 Drum Machine":
+        - /url: /posts/p505/
+      - text: Apr 2025 An implementation of some of the Roland TR-808 drum machine sequencer functionality, using P5.
+      - 'link "Open post: P505 Drum Machine"':
+        - /url: /posts/p505/
+        - text: READ
+      - button "DISCOVER"
+      - img "Thumbnail for P505 Drum Machine"
+    - listitem:
+      - link "Test Post":
+        - /url: /posts/about-attributions/
+      - text: Mar 2025 – Apr 2025 This is a test post for CardGrid.
+      - 'link "Open post: Test Post"':
+        - /url: /posts/about-attributions/
+        - text: READ
+    - listitem:
+      - link "About Me":
+        - /url: /posts/about-me/
+      - text: Mar 2025 I'm a developer and designer exploring interactive web experiences. This site showcases my portfolio, games, and writing. I love combining code, art, and storytelling.
+      - 'link "Open post: About Me"':
+        - /url: /posts/about-me/
+        - text: READ
+    - listitem:
+      - link "Colophon":
+        - /url: /posts/about-colophon/
+      - text: Mar 2025 Technical details about how this site was designed, built and deployed
+      - 'link "Open post: Colophon"':
+        - /url: /posts/about-colophon/
+        - text: READ
+    - listitem:
+      - link "Bad Ghost":
+        - /url: /posts/badghost/
+      - text: Mar 2025 – Apr 2025 This ghost Pls help ghots.
+      - 'link "Open post: Bad Ghost"':
+        - /url: /posts/badghost/
+        - text: READ
+      - button "LAUNCH"
+      - img "Thumbnail for Bad Ghost"
+    - listitem:
+      - link "Cosplay and LARPing":
+        - /url: /posts/cosplay_larping/
+      - text: Mar 2025 Explores the intersection of cosplay and live-action role-playing (LARPing), highlighting how participants blend costume creation with immersive role-playing experiences.
+      - 'link "Open post: Cosplay and LARPing"':
+        - /url: /posts/cosplay_larping/
+        - text: READ
+    - listitem:
+      - link "Discourse":
+        - /url: /posts/discourse/
+      - text: Mar 2025 Systems of thought, communication, and expression that shape and are shaped by social structures, power relations, and knowledge production.
+      - 'link "Open post: Discourse"':
+        - /url: /posts/discourse/
+        - text: READ
+    - listitem:
+      - link "Egregore":
+        - /url: /posts/egregore/
+      - text: Mar 2025 A collective thoughtform or entity created by the combined energy and intentions of a group of people, often taking on a life of its own.
+      - 'link "Open post: Egregore"':
+        - /url: /posts/egregore/
+        - text: READ
+    - listitem:
+      - link "Electro Ball":
+        - /url: /posts/electro-ball/
+      - text: Mar 2025 Control a charged ball with device motion.
+      - 'link "Open post: Electro Ball"':
+        - /url: /posts/electro-ball/
+        - text: READ
+      - button "INTERACT"
+      - img "Thumbnail for Electro Ball"
+    - listitem:
+      - link "Hauntology":
+        - /url: /posts/hauntology/
+      - text: Mar 2025 A concept examining how the past persists in the present, particularly through cultural elements that evoke nostalgia, grief, or unfulfilled potentials.
+      - 'link "Open post: Hauntology"':
+        - /url: /posts/hauntology/
+        - text: READ
+    - listitem:
+      - link "Hermeneutics":
+        - /url: /posts/hermeneutics/
+      - text: Mar 2025 The study of interpretation, especially the interpretation of texts, language, and symbolic expressions, exploring how meaning is constructed and understood.
+      - 'link "Open post: Hermeneutics"':
+        - /url: /posts/hermeneutics/
+        - text: READ
+    - listitem:
+      - link "Hybrid Forms":
+        - /url: /posts/hybridization/
+      - text: Mar 2025 Entities, concepts, or structures that combine elements from different domains, creating unique combinations that transcend traditional boundaries and categories.
+      - 'link "Open post: Hybrid Forms"':
+        - /url: /posts/hybridization/
+        - text: READ
+    - listitem:
+      - link "Imposed Structures":
+        - /url: /posts/imposed-structures/
+      - text: Mar 2025 Frameworks or systems that are externally applied to organize, control, or influence behavior, thought, or organization.
+      - 'link "Open post: Imposed Structures"':
+        - /url: /posts/imposed-structures/
+        - text: READ
+    - listitem:
+      - link "Intersectionality":
+        - /url: /posts/intersectionality/
+      - text: Mar 2025 A framework for understanding how multiple social identities intersect to create unique experiences of oppression and privilege.
+      - 'link "Open post: Intersectionality"':
+        - /url: /posts/intersectionality/
+        - text: READ
+    - listitem:
+      - link "Nested Becoming":
+        - /url: /posts/nested-becoming/
+      - text: Mar 2025 A process where multiple layers of transformation occur simultaneously, with each layer influencing and being influenced by the others.
+      - 'link "Open post: Nested Becoming"':
+        - /url: /posts/nested-becoming/
+        - text: READ
+    - listitem:
+      - link "Power":
+        - /url: /posts/power/
+      - text: Mar 2025 The capacity or ability to direct or influence the behavior of others or the course of events.
+      - 'link "Open post: Power"':
+        - /url: /posts/power/
+        - text: READ
+- menu:
+  - heading "Filter" [level=3]
+  - button "all"
+  - button "read"
+  - button "play"
+  - button "about"
+  - heading "Sort" [level=3]
+  - button "Updated"
+  - button "Created"
+  - button "A-Z"
+  - button "Sort descending": ˅
+  - button "Sort ascending": ˄
+  - heading "Mode" [level=3]
+  - button "Switch to dark mode": Dark
+```

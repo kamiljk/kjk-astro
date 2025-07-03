@@ -1,0 +1,1 @@
+Deleted to resolve route collision with /games.astro. See /src/pages/games.astro for the current static game list page.

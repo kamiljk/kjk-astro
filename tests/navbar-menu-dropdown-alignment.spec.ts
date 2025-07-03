@@ -6,37 +6,42 @@ const viewports = [
   { width: 600, height: 900 }, // mobile
 ];
 
+async function assertDropdownAlignment(page, viewport) {
+  await page.setViewportSize(viewport);
+  await page.goto('/');
+
+  const menuBtn = page.locator('.nav__menu-btn');
+  await menuBtn.click();
+
+  const navbar = page.locator('.navbar-header-row');
+  const dropdown = page.locator('#filter-sort-menu');
+  await expect(dropdown).toBeVisible();
+
+  const navbarBox = await navbar.boundingBox();
+  const dropdownBox = await dropdown.boundingBox();
+
+  expect(navbarBox).not.toBeNull();
+  expect(dropdownBox).not.toBeNull();
+
+  if (navbarBox && dropdownBox) {
+    const tolerance = 15;
+    expect(Math.abs(navbarBox.x - dropdownBox.x)).toBeLessThanOrEqual(tolerance);
+    expect(Math.abs(navbarBox.width - dropdownBox.width)).toBeLessThanOrEqual(tolerance);
+    expect(Math.abs(dropdownBox.y - (navbarBox.y + navbarBox.height))).toBeLessThanOrEqual(tolerance);
+  }
+
+  const menuOpenState = await page.evaluate(() => {
+    const menuComponent = document.querySelector('.nav__menu-btn');
+    return menuComponent ? menuComponent.getAttribute('aria-expanded') : null;
+  });
+
+  console.log(`[Debug] menuOpen state: ${menuOpenState}`);
+}
+
 test.describe('NavbarMenu Dropdown Alignment', () => {
   for (const viewport of viewports) {
-    test(`dropdown is flush and matches navbar width at ${viewport.width}px`, async ({ page }) => {
-      await page.setViewportSize(viewport);
-      await page.goto('/');
-      // Capture console logs for bounding box debug
-      page.on('console', msg => {
-        if (msg.type() === 'log' && msg.text().includes('[DEBUG]')) {
-          console.log(msg.text());
-        }
-      });
-      const menuBtn = page.locator('.nav__menu-btn');
-      await menuBtn.click();
-      const navbar = page.locator('.navbar-header-row');
-      const dropdown = page.locator('#filter-sort-menu');
-      await expect(dropdown).toBeVisible();
-      // Get bounding boxes
-      const navbarBox = await navbar.boundingBox();
-      const dropdownBox = await dropdown.boundingBox();
-      // Screenshot for visual diff
-      await page.screenshot({ path: `test-results/dropdown-align-${viewport.width}px.png` });
-      // Assert left, width, and top alignment
-      expect(navbarBox).not.toBeNull();
-      expect(dropdownBox).not.toBeNull();
-      if (navbarBox && dropdownBox) {
-        // Allow up to 15px tolerance for subpixel rendering and browser differences
-        // This is visually perfect and accounts for rounding/calc quirks
-        expect(Math.abs(navbarBox.x - dropdownBox.x)).toBeLessThanOrEqual(15);
-        expect(Math.abs(navbarBox.width - dropdownBox.width)).toBeLessThanOrEqual(15);
-        expect(Math.abs(dropdownBox.y - (navbarBox.y + navbarBox.height))).toBeLessThanOrEqual(15);
-      }
+    test(`dropdown alignment at ${viewport.width}px`, async ({ page }) => {
+      await assertDropdownAlignment(page, viewport);
     });
   }
 });

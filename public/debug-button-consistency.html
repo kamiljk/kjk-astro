@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Button Consistency Test</title>
+		<link
+			rel="stylesheet"
+			href="/styles/tokens.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/assets/styles.css"
+		/>
+		<style>
+			body {
+				padding: 2rem;
+				background: var(--color-bg);
+				color: var(--color-text);
+				font-family: var(--font-family-base);
+			}
+			.test-section {
+				margin: 2rem 0;
+				padding: 1rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-card);
+			}
+			.button-grid {
+				display: flex;
+				gap: 1rem;
+				flex-wrap: wrap;
+				margin: 1rem 0;
+			}
+			.test-output {
+				background: var(--color-card-bg);
+				padding: 1rem;
+				margin: 1rem 0;
+				border-radius: var(--radius-btn);
+				border: 1px solid var(--color-border);
+				white-space: pre-wrap;
+				font-family: monospace;
+				max-height: 300px;
+				overflow-y: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Button Consistency Test</h1>
+		<p>This page tests the unified button system across all button types.</p>
+
+		<div class="test-section">
+			<h2>Global Button Classes</h2>
+			<div class="button-grid">
+				<button class="button">Standard Button</button>
+				<button class="pill">Pill Button</button>
+				<button class="feed-cta">Feed CTA</button>
+				<button class="pill active">Active Pill</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Card Action Buttons</h2>
+			<div class="button-grid">
+				<button class="card-action-btn">Card Action</button>
+				<button class="card-play-btn">Card Play</button>
+				<button class="hero-play-btn">Hero Play</button>
+				<button class="card-cta-banner">CTA Banner</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Primary Variants</h2>
+			<div class="button-grid">
+				<button class="button button--primary">Primary Button</button>
+				<button class="pill pill--primary">Primary Pill</button>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Test Results</h2>
+			<button
+				onclick="runUnifiedButtonTests()"
+				class="button"
+			>
+				Run Tests
+			</button>
+			<div
+				class="test-output"
+				id="test-output"
+			>
+				Click "Run Tests" to see results...
+			</div>
+		</div>
+
+		<script src="/test-button-consistency.js"></script>
+		<script>
+			// Capture console output
+			const originalLog = console.log;
+			const output = document.getElementById("test-output");
+
+			console.log = function (...args) {
+				originalLog.apply(console, args);
+				if (output) {
+					output.textContent += args.join(" ") + "\n";
+					output.scrollTop = output.scrollHeight;
+				}
+			};
+
+			// Auto-run tests on load
+			setTimeout(() => {
+				if (typeof runUnifiedButtonTests === "function") {
+					output.textContent = "Running tests...\n";
+					runUnifiedButtonTests();
+				}
+			}, 1000);
+		</script>
+	</body>
+</html>

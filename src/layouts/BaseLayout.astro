@@ -1,96 +1,140 @@
 ---
-const {
-  posts = [],
-  taxonomy = ["all", "read", "play", "about"],
-  currentPage = 1,
-  totalPages = 1,
-  type = "all",
-  sort = "newest",
-  order = "desc",
-} = Astro.props;
+const { posts, taxonomy, currentPage, totalPages, type, sort, order } =
+	Astro.props;
+
+// Prioritize urgent posts
+const sortedPosts =
+	posts ?
+		posts.sort((a, b) => {
+			if (a.priority === "urgent" && b.priority !== "urgent") return -1;
+			if (b.priority === "urgent" && a.priority !== "urgent") return 1;
+			return 0;
+		})
+	:	[];
+
 import Navbar from "../components/common/Navbar.astro";
 import Feed from "../components/islands/Feed.jsx";
 import { normalizeType } from "../utils/normalizeType.js";
-import '../assets/global.css';
+import "../assets/global.css";
 ---
 
 <html lang="en">
-  <head>
-    <title>Posts Feed</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="/scripts/parallax-dot-grid.js" type="module"></script>
-    <script src="/scripts/view-transitions.js" type="module"></script>
-    <!-- Prevent FOUC: Set theme instantly on page load -->
-    <script>
-      (function() {
-        try {
-          var theme = localStorage.getItem('theme');
-          if (!theme) {
-            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-          document.body.dataset.theme = theme;
-        } catch (e) {}
-      })();
-    </script>
-    <link rel="stylesheet" href="/src/assets/global.css">
-  </head>
-  <body>
-    <div class="site-container">
-      <div class="navbar-bg-guard" aria-hidden="true"></div>
-      <Navbar
-        taxonomy={taxonomy}
-        type={type}
-        sort={sort}
-        currentPage={currentPage}
-      />
-      <div class="parallax-dot-grid-bg" aria-hidden="true"></div>
-      <div class="search-container">
-        <!-- <Search /> -->
-      </div>
-      <main class="main-alignment-wrapper">
-        {Astro.slots.default ? (
-          <slot />
-        ) : (
-          <div id="astro-feed-island">
-            <Feed
-              client:visible
-              type={type}
-              sort={sort}
-              order={order}
-            />
-          </div>
-        )}
-      </main>
-    </div>
-    <script>
-      function setNavbarHeightVar() {
-        const navbar = document.querySelector('.navbar');
-        if (navbar) {
-          const height = navbar.getBoundingClientRect().height;
-          document.documentElement.style.setProperty('--navbar-height', height + 'px');
-        }
-      }
-      window.addEventListener('DOMContentLoaded', setNavbarHeightVar);
-      window.addEventListener('resize', setNavbarHeightVar);
-      window.addEventListener('load', setNavbarHeightVar);
-      // Ensure Feed island always uses current URL params for type/sort/order
-      function updateFeedIslandProps() {
-        const url = new URL(window.location.href);
-        const type = url.searchParams.get('type') || 'all';
-        const sort = url.searchParams.get('sort') || 'newest';
-        let order = url.searchParams.get('order') || 'desc';
-        if (sort === 'alpha') order = 'asc';
-        var feed = document.getElementById('astro-feed-island');
-        if (feed) {
-          feed.setAttribute('data-prop-type', type);
-          feed.setAttribute('data-prop-sort', sort);
-          feed.setAttribute('data-prop-order', order);
-        }
-      }
-      window.addEventListener('popstate', updateFeedIslandProps);
-      window.addEventListener('DOMContentLoaded', updateFeedIslandProps);
-      window.addEventListener('load', updateFeedIslandProps);
-    </script>
-  </body>
+	<head>
+		<title>Posts Feed</title>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<script
+			src="/scripts/parallax-dot-grid.js"
+			type="module"
+		></script>
+		<script
+			src="/scripts/view-transitions.js"
+			type="module"
+		></script>
+		<script
+			src="/scripts/random-theme-color.js"
+			type="module"
+		></script>
+		<!-- DEBUG: Backdrop filter test styles -->
+		<link
+			rel="stylesheet"
+			href="/styles/debug-backdrop.css"
+		/>
+		<!-- Prevent FOUC: Set theme instantly on page load -->
+		<script>
+			(function () {
+				try {
+					var theme = localStorage.getItem("theme");
+					if (theme) {
+						document.body.dataset.theme = theme;
+					}
+				} catch (e) {}
+			})();
+		</script>
+		<link
+			rel="stylesheet"
+			href="/src/assets/global.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="/styles/navbar-dropdowns.css"
+		/>
+		<!-- Load unified button system LAST to ensure maximum CSS cascade priority -->
+		<link
+			rel="stylesheet"
+			href="/styles/unified-button-system.css"
+		/>
+	</head>
+	<body>
+		<div class="site-container">
+			<Navbar
+				taxonomy={taxonomy}
+				type={type}
+				sort={sort}
+				currentPage={currentPage}
+			/>
+			<div
+				class="parallax-dot-grid-bg"
+				aria-hidden="true"
+			>
+			</div>
+			<div class="search-container">
+				<!-- <Search /> -->
+			</div>
+			<main
+				class="main-alignment-wrapper"
+				data-pagefind-body
+			>
+				{
+					Astro.slots.default ? <slot />
+					: sortedPosts && sortedPosts.length > 0 ?
+						<div id="astro-feed-island">
+							<Feed
+								client:visible
+								posts={sortedPosts}
+								type={type}
+								sort={sort}
+								order={order}
+							/>
+						</div>
+					:	null
+				}
+			</main>
+		</div>
+		<style>
+			#navbar-dropdown-portal {
+				/* Positioning and transitions are now handled in navbar-dropdowns.css */
+			}
+		</style>
+		<script>
+			// Set fixed navbar height to prevent resize feedback loop
+			function setNavbarHeightVar() {
+				document.documentElement.style.setProperty(
+					"--navbar-height",
+					"76px" // Fixed height based on navbar content (logo + padding)
+				);
+			}
+			window.addEventListener("DOMContentLoaded", setNavbarHeightVar);
+			// Ensure Feed island always uses current URL params for type/sort/order
+			function updateFeedIslandProps() {
+				const url = new URL(window.location.href);
+				const type = url.searchParams.get("type");
+				const sort = url.searchParams.get("sort");
+				let order = url.searchParams.get("order");
+				if (sort === "alpha") order = "asc";
+				var feed = document.getElementById("astro-feed-island");
+				if (feed) {
+					if (type) feed.setAttribute("data-prop-type", type);
+					if (sort) feed.setAttribute("data-prop-sort", sort);
+					if (order) feed.setAttribute("data-prop-order", order);
+				}
+			}
+			window.addEventListener("popstate", updateFeedIslandProps);
+			window.addEventListener("DOMContentLoaded", updateFeedIslandProps);
+			window.addEventListener("load", updateFeedIslandProps);
+		</script>
+	</body>
 </html>

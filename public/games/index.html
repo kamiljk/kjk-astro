@@ -40,18 +40,32 @@
 		link.style.display = "inline-block";
 		link.style.marginTop = "8px";
 		link.style.padding = "8px 16px";
-		link.style.color = "#fff";
-		link.style.backgroundColor = "#007BFF";
-		link.style.borderRadius = "4px";
+		link.style.color = "var(--color-accent-text, #181c17)";
+		link.style.backgroundColor = "var(--color-accent, #39ff14)";
+		link.style.border = "2px solid var(--color-accent, #39ff14)";
+		link.style.borderRadius = "var(--radius-btn, 8px)";
 		link.style.textDecoration = "none";
 		link.style.fontWeight = "bold";
+		link.style.transition = "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)";
+		link.style.boxShadow =
+			"0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2)";
 
 		link.addEventListener("mouseover", () => {
-			link.style.backgroundColor = "#0056b3";
+			link.style.backgroundColor =
+				"var(--color-accent-hover, var(--color-accent, #33ff14))";
+			link.style.borderColor =
+				"var(--color-accent-hover, var(--color-accent, #33ff14))";
+			link.style.transform = "translateY(-2px)";
+			link.style.boxShadow =
+				"0 4px 12px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.25), 0 2px 4px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.1)";
 		});
 
 		link.addEventListener("mouseout", () => {
-			link.style.backgroundColor = "#007BFF";
+			link.style.backgroundColor = "var(--color-accent, #39ff14)";
+			link.style.borderColor = "var(--color-accent, #39ff14)";
+			link.style.transform = "translateY(0)";
+			link.style.boxShadow =
+				"0 2px 8px 0 rgba(var(--color-accent-rgb, 57, 255, 20), 0.2)";
 		});
 
 		card.appendChild(title);

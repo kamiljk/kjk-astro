@@ -103,7 +103,7 @@ test.describe('NavbarMenu UI interactions', () => {
     await page.locator('.nav__menu-btn').click();
     // Click each filter pill and check feed and URL
     for (const filter of ['read', 'play', 'about', 'all']) {
-      await page.locator('.filter-section .pill', { hasText: new RegExp('^' + filter.charAt(0).toUpperCase() + filter.slice(1)) }).click();
+      await page.locator('.filter-section button[class*="pill"]', { hasText: new RegExp('^' + filter.charAt(0).toUpperCase() + filter.slice(1)) }).click();
       await page.waitForLoadState('networkidle');
       // Check URL
       const url = page.url();
@@ -133,7 +133,7 @@ test.describe('NavbarMenu UI interactions', () => {
       { key: 'alpha', label: 'A-Z' },
     ]) {
       // Click sort pill
-      await page.locator('.sort-section .pill', { hasText: sort.label }).click();
+      await page.locator('.sort-section button[class*="pill"]', { hasText: sort.label }).click();
       await page.waitForLoadState('networkidle');
       expect(page.url()).toContain(`sort=${sort.key}`);
       // Click asc arrow

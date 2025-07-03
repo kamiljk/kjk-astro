@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>CSS Loading Debug</title>
+		<!-- Load in same order as main site -->
+		<link
+			rel="stylesheet"
+			href="/src/assets/global.css"
+		/>
+		<script
+			src="/scripts/random-theme-color.js"
+			type="module"
+		></script>
+	</head>
+	<body>
+		<h1>CSS Loading Debug</h1>
+
+		<h2>Button Types Test</h2>
+
+		<!-- Test dropdown button (from navbar) -->
+		<p>Dropdown Button (menu-toggle-btn):</p>
+		<button class="menu-toggle-btn">Menu</button>
+
+		<!-- Test dropdown items -->
+		<p>Dropdown Items (pill):</p>
+		<button class="pill">Read</button>
+		<button class="pill">Play</button>
+		<button class="pill">About</button>
+
+		<!-- Test feed buttons -->
+		<p>Feed Buttons (feed-cta):</p>
+		<button class="feed-cta">READ</button>
+		<button class="feed-cta">DIVE IN</button>
+
+		<h2>CSS Loading Check</h2>
+		<div id="css-status"></div>
+
+		<script>
+			function checkCSSLoading() {
+				const stylesheets = document.styleSheets;
+				const status = document.getElementById("css-status");
+				let statusHTML = "<h3>Loaded Stylesheets:</h3><ul>";
+
+				Array.from(stylesheets).forEach((sheet, index) => {
+					try {
+						statusHTML += `<li>${index + 1}. ${
+							sheet.href || "Inline styles"
+						} - ${sheet.cssRules.length} rules</li>`;
+					} catch (e) {
+						statusHTML += `<li>${index + 1}. ${
+							sheet.href || "Inline styles"
+						} - Access denied (CORS)</li>`;
+					}
+				});
+
+				statusHTML += "</ul>";
+
+				// Check for unified button system specifically
+				const hasUnifiedSystem = Array.from(stylesheets).some((sheet) => {
+					return sheet.href && sheet.href.includes("unified-button-system.css");
+				});
+
+				statusHTML += `<p><strong>Unified Button System Loaded:</strong> ${
+					hasUnifiedSystem ? "✅ YES" : "❌ NO"
+				}</p>`;
+
+				// Check button computed styles
+				const testButton = document.querySelector(".menu-toggle-btn");
+				if (testButton) {
+					const computedStyle = window.getComputedStyle(testButton);
+					statusHTML +=
+						"<h3>Test Button (.menu-toggle-btn) Computed Styles:</h3>";
+					statusHTML += `<ul>`;
+					statusHTML += `<li><strong>Background:</strong> ${computedStyle.background}</li>`;
+					statusHTML += `<li><strong>Border:</strong> ${computedStyle.border}</li>`;
+					statusHTML += `<li><strong>Color:</strong> ${computedStyle.color}</li>`;
+					statusHTML += `<li><strong>CSS Variables:</strong></li>`;
+					statusHTML += `<ul>`;
+					statusHTML += `<li>--color-accent: ${computedStyle.getPropertyValue(
+						"--color-accent"
+					)}</li>`;
+					statusHTML += `<li>--color-accent-rgb: ${computedStyle.getPropertyValue(
+						"--color-accent-rgb"
+					)}</li>`;
+					statusHTML += `</ul>`;
+					statusHTML += `</ul>`;
+				}
+
+				status.innerHTML = statusHTML;
+			}
+
+			// Wait for all resources to load
+			window.addEventListener("load", () => {
+				setTimeout(checkCSSLoading, 1000);
+			});
+		</script>
+	</body>
+</html>

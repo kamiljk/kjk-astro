@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Main Navbar Blur Test</title>
+		<style>
+			/* Import the actual tokens */
+			@import url("/styles/tokens.css");
+
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: sans-serif;
+				background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ffe66d, #1a535c);
+				background-size: 200% 200%;
+				animation: movebg 10s ease-in-out infinite;
+				min-height: 100vh;
+			}
+
+			@keyframes movebg {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			.navbar {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 76px;
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px) saturate(150%);
+				-webkit-backdrop-filter: blur(20px) saturate(150%);
+				border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+				z-index: 1000;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.navbar-content {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				width: 100%;
+				max-width: 1200px;
+				padding: 0 2rem;
+			}
+
+			.logo {
+				font-size: 1.5rem;
+				font-weight: bold;
+				color: #333;
+			}
+
+			.menu-btn {
+				background: rgba(0, 0, 0, 0.8);
+				color: white;
+				border: none;
+				padding: 0.5rem 1rem;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 1rem;
+			}
+
+			.dropdown-container {
+				position: absolute;
+				top: 100%;
+				left: 0;
+				right: 0;
+				margin: 0 auto;
+				max-width: 1200px;
+				width: 100%;
+				z-index: 999;
+				opacity: 0;
+				visibility: hidden;
+				transform: translateY(-10px);
+				transition: all 0.3s ease;
+			}
+
+			.dropdown-container.visible {
+				opacity: 1;
+				visibility: visible;
+				transform: translateY(0);
+			}
+
+			.dropdown-content {
+				background: var(--frosted-bg, rgba(255, 255, 255, 0.1));
+				backdrop-filter: var(--frosted-blur, blur(20px))
+					var(--frosted-saturate, saturate(150%));
+				-webkit-backdrop-filter: var(--frosted-blur, blur(20px))
+					var(--frosted-saturate, saturate(150%));
+				border: var(--frosted-border, 1px solid rgba(255, 255, 255, 0.2));
+				border-top: none;
+				border-radius: 0 0 12px 12px;
+				box-shadow: var(--frosted-shadow, 0 8px 32px rgba(0, 0, 0, 0.15));
+				padding: 2rem;
+				margin: 0 2rem;
+				/* Ensure backdrop filter works */
+				isolation: isolate;
+				transform: translateZ(0);
+			}
+
+			.test-content {
+				color: #333;
+				line-height: 1.6;
+			}
+
+			.content-spacer {
+				height: 100px;
+				margin-top: 100px;
+				padding: 2rem;
+				background: rgba(255, 255, 255, 0.9);
+				border-radius: 12px;
+				margin-left: 2rem;
+				margin-right: 2rem;
+			}
+
+			.debug-info {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				background: rgba(0, 0, 0, 0.9);
+				color: white;
+				padding: 1rem;
+				border-radius: 8px;
+				font-size: 0.8rem;
+				z-index: 2000;
+				max-width: 300px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="navbar">
+			<div class="navbar-content">
+				<div class="logo">Test Site</div>
+				<button
+					class="menu-btn"
+					onclick="toggleDropdown()"
+				>
+					Menu ▼
+				</button>
+			</div>
+			<div
+				class="dropdown-container"
+				id="dropdown"
+			>
+				<div class="dropdown-content">
+					<div class="test-content">
+						<h3>Dropdown Content</h3>
+						<p>This should show a blurred background behind it.</p>
+						<p>
+							If you can see this text clearly but the background behind it is
+							blurred, the backdrop-filter is working!
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="content-spacer">
+			<h2>Page Content</h2>
+			<p>
+				This is some page content to create visual contrast behind the dropdown.
+			</p>
+		</div>
+
+		<div
+			class="debug-info"
+			id="debugInfo"
+		>
+			Loading debug info...
+		</div>
+
+		<script>
+			let dropdownVisible = false;
+
+			function toggleDropdown() {
+				const dropdown = document.getElementById("dropdown");
+				dropdownVisible = !dropdownVisible;
+				dropdown.classList.toggle("visible", dropdownVisible);
+				updateDebugInfo();
+			}
+
+			function updateDebugInfo() {
+				const dropdown = document.getElementById("dropdown");
+				const dropdownContent = dropdown.querySelector(".dropdown-content");
+				const computed = getComputedStyle(dropdownContent);
+
+				const debugInfo = document.getElementById("debugInfo");
+				debugInfo.innerHTML = `
+                <strong>Debug Info:</strong><br>
+                Dropdown visible: ${dropdownVisible}<br>
+                backdrop-filter: ${computed.backdropFilter}<br>
+                -webkit-backdrop-filter: ${computed.webkitBackdropFilter}<br>
+                background: ${computed.backgroundColor}<br>
+                isolation: ${computed.isolation}<br>
+                transform: ${computed.transform}<br>
+                z-index: ${computed.zIndex}<br>
+                <br>
+                <strong>CSS Variables:</strong><br>
+                --frosted-bg: ${computed.getPropertyValue("--frosted-bg")}<br>
+                --frosted-blur: ${computed.getPropertyValue(
+									"--frosted-blur"
+								)}<br>
+                --frosted-saturate: ${computed.getPropertyValue(
+									"--frosted-saturate"
+								)}<br>
+                <br>
+                <strong>Support:</strong><br>
+                CSS.supports backdrop-filter: ${
+									CSS.supports
+										? CSS.supports("backdrop-filter", "blur(10px)")
+										: "N/A"
+								}<br>
+                CSS.supports webkit: ${
+									CSS.supports
+										? CSS.supports("-webkit-backdrop-filter", "blur(10px)")
+										: "N/A"
+								}
+            `;
+			}
+
+			// Initialize debug info
+			setTimeout(updateDebugInfo, 100);
+
+			// Click outside to close
+			document.addEventListener("click", (e) => {
+				if (dropdownVisible && !e.target.closest(".navbar")) {
+					dropdownVisible = false;
+					document.getElementById("dropdown").classList.remove("visible");
+					updateDebugInfo();
+				}
+			});
+		</script>
+	</body>
+</html>

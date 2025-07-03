@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Final Search Bar Validation</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				padding: 20px;
+				background: #1a1a1a;
+				color: white;
+				line-height: 1.6;
+			}
+			.test-section {
+				margin-bottom: 30px;
+				padding: 20px;
+				background: #2a2a2a;
+				border-radius: 8px;
+				border: 1px solid #444;
+			}
+			.test-item {
+				margin: 10px 0;
+				padding: 10px;
+				background: #3a3a3a;
+				border-radius: 4px;
+			}
+			.status {
+				font-weight: bold;
+				margin-left: 10px;
+			}
+			.pass {
+				color: #4caf50;
+			}
+			.fail {
+				color: #f44336;
+			}
+			.warning {
+				color: #ff9800;
+			}
+			button {
+				margin: 5px;
+				padding: 8px 16px;
+				background: #4a4a4a;
+				border: none;
+				color: white;
+				cursor: pointer;
+				border-radius: 4px;
+			}
+			button:hover {
+				background: #5a5a5a;
+			}
+			code {
+				background: #222;
+				padding: 2px 4px;
+				border-radius: 3px;
+				font-family: monospace;
+			}
+			.details {
+				font-size: 0.9em;
+				color: #ccc;
+				margin-top: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>🔍 Final Search Bar Validation</h1>
+		<p>
+			This page validates all the search bar requirements and provides real-time
+			status updates.
+		</p>
+
+		<div class="test-section">
+			<h2>📋 Requirements Checklist</h2>
+			<div id="requirements-results"></div>
+			<button onclick="runAllValidations()">🔄 Run Full Validation</button>
+			<button onclick="autoRefresh()">🔁 Auto-Refresh (5s)</button>
+		</div>
+
+		<div class="test-section">
+			<h2>🎯 Quick Fixes</h2>
+			<button onclick="applyUltimateSearchBarFix()">
+				🚀 Apply Ultimate Search Bar Fix
+			</button>
+			<button onclick="debugSearchElements()">🔍 Debug Current State</button>
+			<button onclick="testSearchFunctionality()">
+				⚡ Test Search Functionality
+			</button>
+		</div>
+
+		<div class="test-section">
+			<h2>📊 Detailed Analysis</h2>
+			<div id="detailed-analysis"></div>
+		</div>
+
+		<script>
+			let autoRefreshInterval = null;
+
+			function runAllValidations() {
+				const mainWindow = parent;
+				const requirements = [
+					{
+						name: "Search Bar Has NO Background",
+						test: () => {
+							const form =
+								mainWindow.document.querySelector(".pagefind-ui__form");
+							const input = mainWindow.document.querySelector(
+								".pagefind-ui__search-input"
+							);
+							if (!form || !input)
+								return { status: "fail", message: "Elements not found" };
+
+							const formBg = mainWindow.getComputedStyle(form).background;
+							const inputBg = mainWindow.getComputedStyle(input).background;
+
+							const isTransparent = (bg) => {
+								return (
+									bg.includes("rgba(0, 0, 0, 0)") ||
+									bg.includes("transparent") ||
+									bg === "none" ||
+									bg.includes("rgba(255, 255, 255, 0)")
+								);
+							};
+
+							if (isTransparent(formBg) && isTransparent(inputBg)) {
+								return {
+									status: "pass",
+									message: "Both form and input are transparent",
+								};
+							} else {
+								return {
+									status: "fail",
+									message: `Form bg: ${formBg}, Input bg: ${inputBg}`,
+								};
+							}
+						},
+					},
+					{
+						name: "Search Bar Has NO Rounded Corners",
+						test: () => {
+							const form =
+								mainWindow.document.querySelector(".pagefind-ui__form");
+							const input = mainWindow.document.querySelector(
+								".pagefind-ui__search-input"
+							);
+							if (!form || !input)
+								return { status: "fail", message: "Elements not found" };
+
+							const formRadius = mainWindow.getComputedStyle(form).borderRadius;
+							const inputRadius =
+								mainWindow.getComputedStyle(input).borderRadius;
+
+							if (formRadius === "0px" && inputRadius === "0px") {
+								return {
+									status: "pass",
+									message: "No border radius on form or input",
+								};
+							} else {
+								return {
+									status: "fail",
+									message: `Form radius: ${formRadius}, Input radius: ${inputRadius}`,
+								};
+							}
+						},
+					},
+					{
+						name: "Search Bar Has ONLY Bottom Border (Underline)",
+						test: () => {
+							const form =
+								mainWindow.document.querySelector(".pagefind-ui__form");
+							if (!form) return { status: "fail", message: "Form not found" };
+
+							const styles = mainWindow.getComputedStyle(form);
+							const borderTop = styles.borderTopWidth;
+							const borderRight = styles.borderRightWidth;
+							const borderBottom = styles.borderBottomWidth;
+							const borderLeft = styles.borderLeftWidth;
+
+							if (
+								borderTop === "0px" &&
+								borderRight === "0px" &&
+								borderLeft === "0px" &&
+								borderBottom !== "0px" &&
+								borderBottom !== ""
+							) {
+								return {
+									status: "pass",
+									message: `Bottom border: ${borderBottom}`,
+								};
+							} else {
+								return {
+									status: "fail",
+									message: `T:${borderTop} R:${borderRight} B:${borderBottom} L:${borderLeft}`,
+								};
+							}
+						},
+					},
+					{
+						name: "Clear Button Shows X Glyph",
+						test: () => {
+							const clearBtn = mainWindow.document.querySelector(
+								".pagefind-ui__search-clear"
+							);
+							if (!clearBtn)
+								return {
+									status: "warning",
+									message: "Clear button not found (may be hidden)",
+								};
+
+							const content = clearBtn.innerHTML || clearBtn.textContent;
+							if (
+								content.includes("✕") ||
+								content.includes("×") ||
+								content.includes("X")
+							) {
+								return { status: "pass", message: `Content: "${content}"` };
+							} else {
+								return { status: "fail", message: `Content: "${content}"` };
+							}
+						},
+					},
+					{
+						name: "Clear Button Only Visible When Needed",
+						test: () => {
+							const input = mainWindow.document.querySelector(
+								".pagefind-ui__search-input"
+							);
+							const clearBtn = mainWindow.document.querySelector(
+								".pagefind-ui__search-clear"
+							);
+							if (!input || !clearBtn)
+								return { status: "fail", message: "Elements not found" };
+
+							const hasContent = input.value.trim() !== "";
+							const isVisible =
+								mainWindow.getComputedStyle(clearBtn).opacity !== "0" &&
+								mainWindow.getComputedStyle(clearBtn).display !== "none";
+
+							if ((hasContent && isVisible) || (!hasContent && !isVisible)) {
+								return {
+									status: "pass",
+									message: `Has content: ${hasContent}, Visible: ${isVisible}`,
+								};
+							} else {
+								return {
+									status: "fail",
+									message: `Has content: ${hasContent}, Visible: ${isVisible}`,
+								};
+							}
+						},
+					},
+					{
+						name: "Search Icon Uses Unicode ⌕",
+						test: () => {
+							const form =
+								mainWindow.document.querySelector(".pagefind-ui__form");
+							const searchIcon = mainWindow.document.querySelector(
+								".custom-search-icon"
+							);
+							if (!form) return { status: "fail", message: "Form not found" };
+
+							if (searchIcon && searchIcon.innerHTML.includes("⌕")) {
+								return {
+									status: "pass",
+									message: "Custom search icon found with ⌕",
+								};
+							} else {
+								return {
+									status: "warning",
+									message: "Custom search icon may not be loaded yet",
+								};
+							}
+						},
+					},
+					{
+						name: "Search Dropdown Positioned Correctly",
+						test: () => {
+							const drawer = mainWindow.document.querySelector(
+								".pagefind-ui__drawer"
+							);
+							if (!drawer)
+								return {
+									status: "warning",
+									message: "Dropdown not visible (no search results)",
+								};
+
+							const styles = mainWindow.getComputedStyle(drawer);
+							const position = styles.position;
+							const top = styles.top;
+
+							if (
+								position === "absolute" &&
+								(top === "100%" || top.includes("100%"))
+							) {
+								return {
+									status: "pass",
+									message: `Position: ${position}, Top: ${top}`,
+								};
+							} else {
+								return {
+									status: "fail",
+									message: `Position: ${position}, Top: ${top}`,
+								};
+							}
+						},
+					},
+				];
+
+				const resultsContainer = document.getElementById(
+					"requirements-results"
+				);
+				let html = "";
+				let passCount = 0;
+
+				requirements.forEach((req) => {
+					const result = req.test();
+					const statusClass = result.status;
+					const statusSymbol = {
+						pass: "✅",
+						fail: "❌",
+						warning: "⚠️",
+					}[result.status];
+
+					if (result.status === "pass") passCount++;
+
+					html += `
+                    <div class="test-item">
+                        <strong>${req.name}</strong>
+                        <span class="status ${statusClass}">${statusSymbol} ${result.status.toUpperCase()}</span>
+                        <div class="details">${result.message}</div>
+                    </div>
+                `;
+				});
+
+				const score = Math.round((passCount / requirements.length) * 100);
+				const scoreColor =
+					score >= 80 ? "pass" : score >= 60 ? "warning" : "fail";
+
+				html =
+					`
+                <div class="test-item">
+                    <strong>🎯 Overall Score</strong>
+                    <span class="status ${scoreColor}">${score}% (${passCount}/${requirements.length})</span>
+                </div>
+            ` + html;
+
+				resultsContainer.innerHTML = html;
+			}
+
+			function applyUltimateSearchBarFix() {
+				const mainWindow = parent;
+
+				// Create the ultimate fix stylesheet
+				const ultimateStyle = mainWindow.document.createElement("style");
+				ultimateStyle.id = "ultimate-search-fix";
+				ultimateStyle.textContent = `
+                /* ULTIMATE SEARCH BAR FIX - NUCLEAR OPTION */
+                .search-results-container *,
+                .search-results-container [data-pagefind-ui] *,
+                .pagefind-ui__form,
+                .pagefind-ui__search-input,
+                .pagefind-ui__search-wrapper {
+                    background: transparent !important;
+                    background-color: transparent !important;
+                    background-image: none !important;
+                    border: none !important;
+                    border-radius: 0 !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                    -webkit-appearance: none !important;
+                    appearance: none !important;
+                }
+                
+                .search-results-container .pagefind-ui__form {
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    position: relative !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    height: 40px !important;
+                    width: 100% !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                }
+                
+                .search-results-container .pagefind-ui__search-input {
+                    padding: 10px 30px 10px 25px !important;
+                    width: 100% !important;
+                    color: var(--color-text, white) !important;
+                    font-size: 14px !important;
+                    font-family: inherit !important;
+                }
+                
+                .search-results-container .pagefind-ui__form::before {
+                    display: none !important;
+                }
+                
+                .search-results-container .pagefind-ui__search-clear {
+                    position: absolute !important;
+                    right: 0 !important;
+                    top: 50% !important;
+                    transform: translateY(-50%) !important;
+                    width: 24px !important;
+                    height: 24px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    z-index: 10 !important;
+                    font-size: 14px !important;
+                    color: rgba(255, 255, 255, 0.5) !important;
+                }
+            `;
+
+				// Remove existing style if present
+				const existing = mainWindow.document.getElementById(
+					"ultimate-search-fix"
+				);
+				if (existing) existing.remove();
+
+				mainWindow.document.head.appendChild(ultimateStyle);
+
+				// Apply direct DOM fixes
+				setTimeout(() => {
+					const form = mainWindow.document.querySelector(".pagefind-ui__form");
+					const input = mainWindow.document.querySelector(
+						".pagefind-ui__search-input"
+					);
+					const clearBtn = mainWindow.document.querySelector(
+						".pagefind-ui__search-clear"
+					);
+
+					if (form) {
+						// Remove any remaining backgrounds/borders
+						[
+							"background",
+							"backgroundColor",
+							"backgroundImage",
+							"border",
+							"borderRadius",
+							"boxShadow",
+						].forEach((prop) => {
+							form.style.removeProperty(prop);
+						});
+						form.style.cssText += `
+                        background: transparent !important;
+                        border: none !important;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
+                    `;
+					}
+
+					if (input) {
+						[
+							"background",
+							"backgroundColor",
+							"backgroundImage",
+							"border",
+							"borderRadius",
+							"boxShadow",
+						].forEach((prop) => {
+							input.style.removeProperty(prop);
+						});
+						input.style.cssText += `
+                        background: transparent !important;
+                        border: none !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
+                    `;
+					}
+
+					if (clearBtn) {
+						clearBtn.innerHTML = "✕";
+					}
+
+					// Add search icon if missing
+					if (form && !form.querySelector(".custom-search-icon")) {
+						const icon = mainWindow.document.createElement("span");
+						icon.className = "custom-search-icon";
+						icon.innerHTML = "⌕";
+						icon.style.cssText = `
+                        position: absolute !important;
+                        left: 0 !important;
+                        top: 50% !important;
+                        transform: translateY(-50%) !important;
+                        font-size: 16px !important;
+                        opacity: 0.5 !important;
+                        pointer-events: none !important;
+                        color: rgba(255, 255, 255, 0.5) !important;
+                    `;
+						form.appendChild(icon);
+					}
+
+					console.log("🚀 Ultimate search bar fix applied!");
+					runAllValidations();
+				}, 100);
+			}
+
+			function debugSearchElements() {
+				const mainWindow = parent;
+				const analysis = document.getElementById("detailed-analysis");
+
+				const elements = {
+					container: mainWindow.document.querySelector(
+						".search-results-container"
+					),
+					form: mainWindow.document.querySelector(".pagefind-ui__form"),
+					input: mainWindow.document.querySelector(
+						".pagefind-ui__search-input"
+					),
+					clearBtn: mainWindow.document.querySelector(
+						".pagefind-ui__search-clear"
+					),
+					drawer: mainWindow.document.querySelector(".pagefind-ui__drawer"),
+					searchIcon: mainWindow.document.querySelector(".custom-search-icon"),
+				};
+
+				let html = "<h3>🔍 Element Analysis</h3>";
+
+				Object.entries(elements).forEach(([name, element]) => {
+					if (element) {
+						const styles = mainWindow.getComputedStyle(element);
+						html += `
+                        <div class="test-item">
+                            <strong>${name}</strong> ✅ Found
+                            <div class="details">
+                                <code>Background:</code> ${styles.background}<br>
+                                <code>Border:</code> ${styles.border}<br>
+                                <code>Border-radius:</code> ${styles.borderRadius}<br>
+                                <code>Box-shadow:</code> ${styles.boxShadow}<br>
+                                <code>Position:</code> ${styles.position}<br>
+                                <code>Classes:</code> ${element.className}
+                            </div>
+                        </div>
+                    `;
+					} else {
+						html += `
+                        <div class="test-item">
+                            <strong>${name}</strong> ❌ Not Found
+                        </div>
+                    `;
+					}
+				});
+
+				analysis.innerHTML = html;
+			}
+
+			function testSearchFunctionality() {
+				const mainWindow = parent;
+				const input = mainWindow.document.querySelector(
+					".pagefind-ui__search-input"
+				);
+
+				if (input) {
+					// Test typing
+					input.value = "test search";
+					input.dispatchEvent(new Event("input", { bubbles: true }));
+
+					setTimeout(() => {
+						// Clear search
+						input.value = "";
+						input.dispatchEvent(new Event("input", { bubbles: true }));
+
+						console.log("🔧 Search functionality test completed");
+						runAllValidations();
+					}, 1000);
+				}
+			}
+
+			function autoRefresh() {
+				if (autoRefreshInterval) {
+					clearInterval(autoRefreshInterval);
+					autoRefreshInterval = null;
+					event.target.textContent = "🔁 Auto-Refresh (5s)";
+				} else {
+					autoRefreshInterval = setInterval(runAllValidations, 5000);
+					event.target.textContent = "⏹️ Stop Auto-Refresh";
+					runAllValidations();
+				}
+			}
+
+			// Run initial validation
+			runAllValidations();
+		</script>
+	</body>
+</html>

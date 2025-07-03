@@ -27,7 +27,7 @@ test.describe('NavbarMenu Dropdown', () => {
     await page.goto('/');
     const menuBtn = page.locator('.nav__menu-btn');
     await menuBtn.click();
-    const pills = page.locator('#filter-sort-menu .pill');
+    const pills = page.locator('#filter-sort-menu button[class*="pill"]');
     await expect(pills.first()).toBeFocused();
     await page.keyboard.press('ArrowDown');
     await expect(pills.nth(1)).toBeFocused();
@@ -43,7 +43,7 @@ test.describe('NavbarMenu Dropdown', () => {
     await page.goto('/');
     const menuBtn = page.locator('.nav__menu-btn');
     await menuBtn.click();
-    const aboutPill = page.locator('#filter-sort-menu .pill', { hasText: 'About' });
+    const aboutPill = page.locator('#filter-sort-menu button[class*="pill"]', { hasText: 'About' });
     await aboutPill.click();
     await expect(page.locator('#filter-sort-menu')).not.toBeVisible();
     await expect(page).toHaveURL(/type=about/);
@@ -59,5 +59,16 @@ test.describe('NavbarMenu Dropdown', () => {
     await expect(menu).toHaveAttribute('aria-hidden', 'false');
     await page.keyboard.press('Escape');
     await expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('debug logs for menuOpen and portalTarget', async ({ page }) => {
+    await page.goto('/');
+    // Fix debug logs to access menuOpen from the component
+    const menuOpenState = await page.evaluate(() => {
+      const menuComponent = document.querySelector('.nav__menu-btn');
+      return menuComponent ? menuComponent.getAttribute('aria-expanded') : null;
+    });
+    console.log(`[Debug] menuOpen state during test: ${menuOpenState}`);
+    console.log(`[Debug] portalTarget during test: ${await page.evaluate(() => document.querySelector('#navbar-dropdown-portal'))}`);
   });
 });

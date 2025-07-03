@@ -1,9 +1,11 @@
 @import "/styles/tokens.css";
 /*
-  * MASTER CSS RESET & FOUNDATION (Roboto Only, Variable Weights)
-  * Uses only Roboto Variable for all text, leveraging font-variation-settings and font-weight for emphasis
+ * MASTER CSS RESET & FOUNDATION
+ * Contains: CSS Reset, Design Tokens, and Base Element Styles.
+ * All component-specific styles should be in their own scoped files.
 */
 
+/* === FONT FACES === */
 @font-face {
 	font-family: "Roboto";
 	src: url("/fonts/Roboto-VariableFont_wdth,wght.ttf") format("truetype");
@@ -12,10 +14,20 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: "Merriweather";
+	src: url("/fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf")
+		format("truetype");
+	font-weight: 100 900;
+	font-stretch: 75% 125%;
+	font-display: swap;
+}
+
+/* === DESIGN TOKENS === */
 :root {
-	--font-family-base:
-		"Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-		"Helvetica Neue", Arial, sans-serif;
+	/* Base Font */
+	--font-family-base: "Merriweather", serif, system-ui, -apple-system,
+		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	--font-weight-thin: 100;
 	--font-weight-light: 300;
 	--font-weight-regular: 400;
@@ -24,573 +36,89 @@
 	--font-weight-bold: 700;
 	--font-weight-black: 900;
 
-	/* Color tokens */
+	/* Color Tokens - Light Theme */
 	--color-bg: #f8f7f2;
 	--color-text: #181c17;
 	--color-accent: #39ff14;
 	--color-accent-dark: #1aff00;
-	--color-link: #22d900; /* More neon but still readable green */
-	--color-link-hover: #33ff14; /* Brighter neon green when hovered */
+	--color-link: #22d900;
+	--color-link-hover: #33ff14;
 	--color-border: #d6d5c9;
 	--color-bg-alt: #ecebe3;
 	--color-desc: #888888;
 	--color-card-bg: #fff;
 	--color-card-border: #e0e0e0;
-	--color-card-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.12);
-	--color-navbar-bg: rgba(
-		255,
-		255,
-		255,
-		0.69
-	); /* Navbar is 92% opaque in light mode */
+	--color-navbar-bg: rgba(255, 255, 255, 0.6);
 
-	/* Accent color in HSL for shadow system */
-	--color-accent-hsl: 112 100% 10%; /* HSL for #39ff14 */
+	/* Shadow Tokens */
+	--shadow-color: 220 3% 15%;
+	--shadow-strength: 1%;
+	--shadow-1: 0 1px 2px -1px hsl(var(--shadow-color) /
+				calc(var(--shadow-strength) + 9%));
+	--shadow-2: 0 3px 5px -2px hsl(var(--shadow-color) /
+					calc(var(--shadow-strength) + 9%)),
+		0 7px 14px -5px hsl(var(--shadow-color) / calc(var(--shadow-strength) + 7%));
+	--shadow-3: 0 1rem 2rem -1rem hsl(var(--shadow-color) /
+				calc(var(--shadow-strength) + 12%));
 
-	/* Modern shadow system using accent color */
-	--shadow-color: hsl(var(--color-accent-hsl) / 0.12);
-	--shadow-color-strong: hsl(var(--color-accent-hsl) / 0.22);
-	--shadow-elevation-1: 0 1px 2px 0 var(--shadow-color);
-	--shadow-elevation-2: 0 2px 8px 0 var(--shadow-color);
-	--shadow-elevation-3: 0 4px 16px 0 var(--shadow-color-strong);
-	--shadow-elevation-4: 0 8px 32px 0 var(--shadow-color-strong);
+	/* Spacing Tokens (Fluid) */
+	--space-3xs: clamp(0.25rem, 0.5vw, 0.5rem);
+	--space-2xs: clamp(0.5rem, 1vw, 0.75rem);
+	--space-xs: clamp(0.75rem, 1.25vw, 1rem);
+	--space-s: clamp(1rem, 1.5vw, 1.25rem);
+	--space-m: clamp(1.5rem, 2vw, 2rem);
+	--space-l: clamp(2rem, 3vw, 3rem);
+	--space-xl: clamp(3rem, 4vw, 4rem);
 
-	/* Spacing tokens */
-	--space-1: 4px;
-	--space-2: 8px;
-	--space-3: 16px;
-	--space-4: 24px;
-	--space-xs: 0.75rem; /* Maintained for specific small-scale uses */
-	--space-s: 1rem; /* Maintained for specific small-scale uses */
-	--space-m: 1.5rem; /* Maintained for specific small-scale uses */
-	--space-l: 2rem; /* Maintained for specific small-scale uses */
-	--space-xl: 3rem; /* Maintained for specific small-scale uses */
-
-	/* Fluid spacing tokens (Utopia-compliant) - PRIORITIZE THESE FOR LAYOUT */
-	--fluid-space-3xs: clamp(2px, 0.2vw, 4px);
-	--fluid-space-2xs: clamp(4px, 0.4vw, 8px);
-	--fluid-space-xs: clamp(8px, 0.7vw, 12px);
-	--fluid-space-s: clamp(12px, 1vw, 20px);
-	--fluid-space-m: clamp(16px, 1.5vw, 32px);
-	--fluid-space-l: clamp(24px, 2vw, 48px);
-	--fluid-space-xl: clamp(32px, 3vw, 64px);
-	--fluid-space-2xl: clamp(48px, 5vw, 96px);
-	--fluid-space-3xl: clamp(64px, 8vw, 128px);
-
-	/* Renamed old spacing tokens to avoid conflict and clarify usage */
-	--static-space-xs: 0.75rem;
-	--static-space-s: 1rem;
-	--static-space-m: 1.5rem;
-	--static-space-l: 2rem;
-	--static-space-xl: 3rem;
-
-	/* Border tokens */
-	--border-width-thin: 1px;
-	--border-width: 2px;
-	--border-width-thick: 4px;
-	--border-color: var(--color-border);
-	--border-radius-xs: 2px;
-	--border-radius-s: 6px;
-	--border-radius-m: 12px;
-	--border-radius-l: 24px;
-	--border-radius-pill: 9999px;
-
-	/* Frosted glass effect tokens */
-	--frosted-bg: rgba(255, 255, 255, 0.72);
-	--frosted-bg-dark: rgba(26, 26, 26, 0.72);
-	--frosted-blur: blur(18px) saturate(180%);
-	--frosted-border: 1.5px solid var(--color-border);
-	--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
-
-	/* Unified border radius for all major UI elements */
-	--radius-unified: 12px;
-	--radius-btn: 8px;
+	/* Border Tokens */
+	--border-thin: 1px;
+	--border-thick: 2px;
+	--radius-small: 4px;
+	--radius-medium: 8px;
+	--radius-large: 16px;
 	--radius-pill: 9999px;
-	--radius-card: 16px;
 
-	/* Unified border for all major UI elements */
-	--border-unified: 1.5px solid var(--color-border);
+	/* Frosted Glass Effect Tokens */
+	--frosted-bg: rgba(255, 255, 255, 0.6);
+	--frosted-blur: blur(12px) saturate(150%);
+	--frosted-border: 1px solid rgba(255, 255, 255, 0.2);
 
-	/* Max-width tokens for responsive layout */
-	--navbar-max-width: clamp(340px, 90vw, 1200px);
-	--dropdown-max-width: calc(var(--navbar-max-width) - 1rem);
-	--content-max-width: calc(var(--dropdown-max-width) - 1rem);
-	--feed-max-width: var(--content-max-width);
+	/* Layout Widths */
+	--max-width: 1200px;
+	--navbar-height: 76px;
 }
 
 [data-theme="dark"] {
-	/* Base colors - warm neutral grays */
-	--color-bg: #121212; /* Dark but not pure black for background */
-	--color-text: #ffffff;
-	--color-accent: #39ff14; /* Neon green */
+	/* Color Tokens - Dark Theme */
+	--color-bg: #121212;
+	--color-text: #e0e0e0;
+	--color-accent: #39ff14;
 	--color-accent-dark: #1aff00;
-	--color-link: #39ff14; /* Bright neon green for dark mode */
-	--color-link-hover: #52ff3d; /* Slightly lighter neon when hovered */
+	--color-link: #39ff14;
+	--color-link-hover: #52ff3d;
 	--color-border: #333333;
-	--color-bg-alt: #1e1e1e; /* Slightly lighter than background */
-	--color-desc: #b0b0b0; /* Warm light gray for descriptions */
-	--color-card-bg: #1a1a1a; /* Cards slightly lighter than background */
+	--color-bg-alt: #1e1e1e;
+	--color-desc: #b0b0b0;
+	--color-card-bg: #1a1a1a;
 	--color-card-border: #333333;
-	--color-card-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.32);
-	--color-text-muted: #999999;
-	--color-navbar-bg: rgba(
-		26,
-		26,
-		26,
-		0.92
-	); /* Navbar is 92% opaque in dark mode */
+	--color-navbar-bg: rgba(26, 26, 26, 0.75);
 
-	/* Header and UI specific colors */
-	--header-bar-bg: #1a1a1a;
-	--header-bar-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	/* Shadow Tokens - Dark Theme */
+	--shadow-color: 220 40% 2%;
+	--shadow-strength: 25%;
 
-	/* Modern shadow system using accent color */
-	--shadow-color: hsl(var(--color-accent-hsl) / 0.18);
-	--shadow-color-strong: hsl(var(--color-accent-hsl) / 0.32);
-	--shadow-elevation-1: 0 1px 2px 0 var(--shadow-color);
-	--shadow-elevation-2: 0 2px 8px 0 var(--shadow-color);
-	--shadow-elevation-3: 0 4px 16px 0 var(--shadow-color-strong);
-	--shadow-elevation-4: 0 8px 32px 0 var(--shadow-color-strong);
-
-	/* Frosted glass effect tokens */
-	--frosted-bg: rgba(26, 26, 26, 0.72);
-	--frosted-bg-dark: rgba(26, 26, 26, 0.82);
-	--frosted-blur: blur(18px) saturate(180%);
-	--frosted-border: 1.5px solid var(--color-border);
-	--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.32);
+	/* Frosted Glass Effect Tokens - Dark Theme */
+	--frosted-bg: rgba(26, 26, 26, 0.75);
+	--frosted-border: 1px solid rgba(255, 255, 255, 0.1);
 
 	/* HDR color support where available */
 	@supports (color: color(display-p3 0 0 0)) {
-		--color-accent: color(
-			display-p3 0.224 1 0.078
-		); /* Enhanced neon green for HDR */
-		--color-accent-dark: color(
-			display-p3 0.1 1 0
-		); /* Enhanced neon dark green for HDR */
+		--color-accent: color(display-p3 0.224 1 0.078);
+		--color-accent-dark: color(display-p3 0.1 1 0);
 	}
 }
 
-/* REMOVE CONFLICTING WIDTH DEFINITIONS - Using unified system above */
-
-.navbar-content-inner,
-.navbar-header-row {
-	max-width: var(--navbar-max-width);
-	width: 100%;
-	margin: 0 auto;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	height: 100%;
-	box-sizing: border-box;
-	gap: var(--content-gap);
-}
-
-.menu-content {
-	max-width: var(--dropdown-max-width);
-	margin: 0 auto;
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	gap: 2rem;
-	min-height: 40px;
-	padding: 0 1rem;
-}
-
-#posts-feed {
-	max-width: var(--feed-max-width);
-	margin: 0 auto;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	gap: var(--card-margin-y);
-	border-radius: 2px;
-	border: none;
-	box-shadow: none;
-}
-
-/* Remove redundant margin-top from #astro-feed-island and #posts-feed */
-
-/* Responsive adjustments */
-@media (max-width: 900px) {
-	.menu-content {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 0.7rem;
-	}
-}
-@media (max-width: 600px) {
-	.menu-content {
-		gap: 0.4rem;
-	}
-	.menu-section {
-		flex-direction: column;
-		align-items: stretch;
-	}
-}
-@media (max-width: 639px) {
-	#posts-feed {
-		gap: var(--fluid-space-m);
-	}
-}
-@media (min-width: 640px) and (max-width: 1024px) {
-	#posts-feed {
-		gap: var(--fluid-space-l);
-	}
-}
-@media (min-width: 1025px) {
-	#posts-feed {
-		gap: var(--fluid-space-xl);
-	}
-}
-
-/* Remove horizontal margin/padding from direct children of main/feed */
-main > *,
-#posts-feed > * {
-	margin-left: unset !important;
-	margin-right: unset !important;
-	padding-left: unset !important;
-	padding-right: unset !important;
-}
-
-/* --- END CLEANED UP LAYOUT & ALIGNMENT SYSTEM --- */
-
-/* --- NAVBAR & FEED ARCHITECTURE: TRUE FIRST PRINCIPLES --- */
-
-/*
- * Navbar background guard: prevents Safari/WebKit blur artifacts by ensuring
- * a fully opaque block is always behind the navbar, even when scrolled to top.
- * Place <div class="navbar-bg-guard" aria-hidden="true"></div> before .site-header in your HTML.
- */
-.navbar-bg-guard {
-	position: fixed;
-	top: calc(-1 * var(--navbar-height));
-	left: 0;
-	width: 100vw;
-	height: var(--navbar-height);
-	background: var(--color-navbar-bg);
-	z-index: 9999;
-	pointer-events: none;
-}
-
-[data-theme="dark"] .navbar-bg-guard {
-	background: var(--color-navbar-bg);
-}
-
-/* Removing manual overrides */
-/* deleted broad overrides for .site-header-inner, .navbar-header-row, #posts-feed and related rules */
-
-.navbar-content-inner,
-.navbar-header-row {
-	max-width: var(
-		--navbar-content-max-width
-	); /* Max width for the content inside navbar */
-	width: 100%;
-	margin: 0 auto; /* Center content within the navbar */
-	display: flex;
-	align-items: center;
-	justify-content: space-between; /* Adjust as needed, space-between is common */
-	height: 100%; /* Fill navbar height */
-	box-sizing: border-box;
-	gap: var(--content-gap); /* Use token for gap */
-}
-
-/* Remove horizontal padding and margin from all direct children of .site-container */
-.site-container > * {
-	margin-left: unset;
-	margin-right: unset;
-	padding-left: unset;
-	padding-right: unset;
-}
-
-main {
-	padding-top: calc(
-		var(--navbar-height) + 1rem
-	); /* Ensures content starts 1rem below navbar globally */
-	padding-bottom: var(--main-content-padding-y);
-	min-height: calc(100vh); /* Adjusted to be full viewport height */
-	box-sizing: border-box;
-	width: 100%;
-	margin: 0 auto; /* Center main content */
-}
-
-#posts-feed {
-	box-sizing: border-box;
-	gap: var(--card-margin-y); /* Use token for gap between posts */
-	border-radius: 2px;
-	border: none;
-	box-shadow: none;
-	width: 100%;
-	max-width: var(--feed-max-width); /* Max width for the feed itself */
-	margin: 0 auto; /* Center the feed within the main container */
-	/* padding-left and padding-right removed, handled by main or specific feed items if needed */
-}
-
-/* Feed column layout: only one source of truth */
-@media (max-width: 1024px) {
-	#posts-feed {
-		gap: var(--fluid-space-l) !important; /* Use fluid token */
-	}
-}
-@media (min-width: 1025px) {
-	#posts-feed {
-		gap: var(--fluid-space-xl) !important; /* Use fluid token */
-	}
-}
-
-/* Remove horizontal margin from .card and .post-card for perfect alignment */
-.card {
-	background-color: var(--color-card-bg);
-	border: var(--border-unified) !important;
-	box-shadow: var(--color-card-shadow) !important;
-	border-radius: var(--radius-unified) !important;
-}
-
-.post-card {
-	/* margin-left and margin-right removed, handled by #posts-feed centering */
-	margin-bottom: var(--card-margin-y); /* Use token for vertical spacing */
-}
-
-/* Remove bottom margin from the last card to prevent extra space at the bottom */
-.post-card:last-child {
-	margin-bottom: 0;
-}
-
-#posts-feed > .post-card:first-child {
-	margin-top: 0; /* remove individual post margin now handled by wrapper */
-}
-
-/* Navbar dropdown layout */
-.menu-content {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: space-between;
-	gap: 2rem;
-	max-width: 826px;
-	margin: 0 auto;
-	width: 100%;
-	min-height: 40px;
-	padding: 0 1rem;
-}
-
-.menu-section {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 1.2rem;
-	min-width: 0;
-	margin: 0;
-	padding: 0;
-	position: relative;
-	z-index: 2;
-}
-
-.menu-section.filter {
-	flex: 1 1 0;
-	justify-content: flex-start;
-}
-.menu-section.sort {
-	flex: 0 0 auto;
-	justify-content: center;
-}
-.menu-section.theme-toggle-section {
-	flex: 0 0 auto;
-	justify-content: flex-end;
-	margin-left: auto;
-}
-
-@media (max-width: 900px) {
-	.menu-content {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 0.7rem;
-	}
-	.menu-section {
-		flex-direction: row;
-		gap: 0.5rem;
-	}
-}
-@media (max-width: 600px) {
-	.menu-content {
-		gap: 0.4rem;
-	}
-	.menu-section {
-		flex-direction: column;
-		align-items: stretch;
-	}
-}
-
-@media (max-width: 639px) {
-	#posts-feed {
-		display: flex !important;
-		flex-direction: column !important;
-		gap: var(--fluid-space-m) !important; /* Adjusted for smaller screens */
-	}
-}
-
-@media (min-width: 640px) and (max-width: 1024px) {
-	#posts-feed {
-		display: flex !important;
-		flex-direction: column !important;
-		gap: var(--fluid-space-l) !important; /* Use fluid token */
-	}
-}
-
-@media (min-width: 1025px) {
-	#posts-feed {
-		display: flex !important;
-		flex-direction: column !important;
-		gap: var(--fluid-space-xl) !important; /* Use fluid token */
-	}
-}
-
-/* --- NAVBAR, DROPDOWN, FEED, FULLPOST CONSISTENCY FIXES --- */
-:root {
-	--content-gap: var(--fluid-space-m);
-	--card-margin-y: var(--fluid-space-m);
-}
-
-.navbar-content-inner,
-.navbar-header-row {
-	max-width: var(--navbar-max-width);
-	width: 100%;
-	margin: 0 auto;
-	box-sizing: border-box;
-}
-
-.menu-content {
-	max-width: var(--dropdown-max-width);
-	width: 100%;
-	margin: 0 auto;
-	gap: var(--content-gap);
-}
-
-#posts-feed {
-	max-width: var(--feed-max-width);
-	width: 100%;
-	margin: 0 auto;
-	gap: var(--card-margin-y);
-}
-
-.post-card,
-.expanded-card {
-	max-width: var(--feed-element-max-width);
-	width: 100%;
-	margin: 0 auto var(--card-margin-y) auto;
-}
-
-.post-card-inner {
-	padding-left: max(1.25rem, 2rem);
-	padding-right: max(1.25rem, 2rem);
-	box-sizing: border-box;
-}
-
-/* Remove horizontal padding/margin from direct children */
-.site-container > *,
-main > *,
-#posts-feed > * {
-	margin-left: unset !important;
-	margin-right: unset !important;
-	padding-left: unset !important;
-	padding-right: unset !important;
-}
-
-/* Responsive: full width on mobile, consistent padding */
-@media (max-width: 900px) {
-	.site-header,
-	.navbar-content-inner,
-	.navbar-header-row,
-	.menu-content,
-	#posts-feed,
-	.post-card,
-	.expanded-card {
-		max-width: 100vw;
-		width: 100vw;
-		padding-left: var(--fluid-space-s);
-		padding-right: var(--fluid-space-s);
-	}
-}
-@media (max-width: 600px) {
-	.site-header,
-	.navbar-content-inner,
-	.navbar-header-row,
-	.menu-content,
-	#posts-feed,
-	.post-card,
-	.expanded-card {
-		max-width: 100vw;
-		width: 100vw;
-		padding-left: var(--fluid-space-xs);
-		padding-right: var(--fluid-space-xs);
-	}
-}
-
-/* Ensure dropdown never overflows navbar */
-.menu-content {
-	box-sizing: border-box;
-	padding-left: 0;
-	padding-right: 0;
-}
-
-/* Z-index fixes */
-.site-header,
-.navbar-header-row {
-	z-index: 1000;
-}
-.menu-content {
-	z-index: 1001;
-}
-.expanded-card {
-	z-index: 100;
-}
-
-/* Dark theme adjustments */
-[data-theme="dark"] .theme-toggle-btn img,
-.dark-theme .theme-toggle-btn img {
-	filter: brightness(1);
-}
-
-[data-theme="light"] .theme-toggle-btn img,
-.light-theme .theme-toggle-btn img {
-	filter: brightness(0.2);
-}
-
-/* Theme toggle icon fixes */
-#theme-toggle-btn img {
-	filter: brightness(0.2); /* Default dark color for light mode */
-}
-
-[data-theme="dark"] #theme-toggle-btn img {
-	filter: brightness(1); /* White for dark mode */
-}
-
-/* Force proper icon visibility in dropdown menu */
-.menu-section.theme-toggle-section #theme-toggle-btn img {
-	filter: brightness(0.2); /* Dark in dropdown (light background) */
-}
-
-[data-theme="dark"] .menu-section.theme-toggle-section #theme-toggle-btn img {
-	filter: brightness(1); /* White in dark mode dropdown */
-}
-
-/* Logo filter for dark mode */
-[data-theme="dark"] .nav__logo-img,
-.dark-theme .nav__logo-img,
-[data-theme="dark"] .nav__logo img,
-.dark-theme .nav__logo img {
-	filter: brightness(0) invert(1); /* Make logo white in dark mode */
-}
-
-/*  Global CSS  */
-/*  --------------------
-  * 1. CSS RESET
-  * -------------------  */
-
-/* Elegant global CSS reset and foundation */
-
-/* 1. Box sizing and margin/padding reset */
+/* === CSS RESET === */
 *,
 *::before,
 *::after {
@@ -599,37 +127,52 @@ main > *,
 	padding: 0;
 }
 
-/* 2. Remove default border, outline, and background for all elements */
-*:focus {
-	outline: none;
+html {
+	font-size: 100%;
+	text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+	line-height: 1.5;
+	scroll-behavior: smooth;
+	tab-size: 4;
+	overflow-x: hidden;
+	scrollbar-gutter: stable;
+	-webkit-tap-highlight-color: transparent;
 }
 
-/* 3. Remove default list styles */
+body {
+	min-height: 100vh;
+	width: 100%;
+	font-family: var(--font-family-base);
+	font-weight: var(--font-weight-regular);
+	background: var(--color-bg);
+	color: var(--color-text);
+	text-rendering: optimizeSpeed;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	line-height: 1.6;
+}
+
 ul,
 ol {
 	list-style: none;
 }
 
-/* 4. Remove default quotes from blockquotes and q */
-blockquote,
-q {
-	quotes: none;
-}
-blockquote::before,
-blockquote::after,
-q::before,
-q::after {
-	content: "";
-	content: none;
+a {
+	text-decoration: none;
+	color: inherit;
 }
 
-/* 5. Remove default table spacing */
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
+img,
+picture,
+video,
+canvas,
+svg,
+iframe {
+	display: block;
+	max-width: 100%;
+	border: 0;
 }
 
-/* 6. Remove default button and input styles */
 button,
 input,
 select,
@@ -642,225 +185,26 @@ textarea {
 	box-shadow: none;
 	appearance: none;
 }
+
 button {
 	cursor: pointer;
 }
 
-/* 7. Remove anchor underline and inherit color */
-a {
-	text-decoration: none;
-	color: inherit;
+:focus:not(:focus-visible) {
+	outline: none;
 }
 
-/* 8. Remove image border and set display */
-img,
-picture,
-video,
-canvas,
-svg,
-iframe {
-	display: block;
-	max-width: 100%;
-	border: 0;
-}
-
-/* 9. Remove default fieldset and legend styles */
-fieldset {
-	border: 0;
-	margin: 0;
-	padding: 0;
-}
-legend {
-	padding: 0;
-}
-
-/* 10. Remove default hr styles */
-hr {
-	height: 0;
-	border: none;
-	border-top: 1px solid #444;
-	margin: 2rem 0;
-}
-
-/* 11. Remove default figure margin */
-figure {
-	margin: 0;
-}
-
-/* 12. Remove default form element spacing */
-form {
-	margin: 0;
-}
-
-/* 13. Remove default mark background */
-mark {
-	background: none;
-	color: inherit;
-}
-
-/* 14. Remove default strong/em font style */
-strong,
-b {
-	font-weight: var(--font-weight-bold);
-	font-variation-settings: "wght" var(--font-weight-bold);
-}
-em,
-i {
-	font-style: italic;
-	font-variation-settings: "wght" var(--font-weight-medium);
-}
-
-/* 15. Remove default sub/sup vertical alignment */
-sub,
-sup {
-	vertical-align: baseline;
-	font-size: 0.75em;
-}
-
-/* 16. Remove default code/kbd/samp font */
-code,
-kbd,
-samp,
-pre {
-	font-family: inherit;
-	font-size: 1em;
-}
-
-/* 17. Remove default details/summary styles */
-details,
-summary {
-	display: block;
-}
-
-/* 18. Remove default progress appearance */
-progress {
-	vertical-align: baseline;
-}
-
-/* 19. Remove default audio/video controls background */
-audio,
-video {
-	background: none;
-}
-
-/* 20. Remove default meter appearance */
-meter {
-	-webkit-appearance: none;
-	appearance: none;
-}
-
-/* 21. Remove default input[type=search] styles */
-input[type="search"]::-webkit-search-decoration,
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-results-button,
-input[type="search"]::-webkit-search-results-decoration {
-	display: none;
-}
-
-/* 22. Remove default input[type=number] spin buttons */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
-}
-input[type="number"] {
-	-moz-appearance: textfield;
-	appearance: textfield;
-}
-
-/* 23. Remove default input[type=date/time] calendar icon */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-	filter: invert(0.7);
-}
-
-/* 24. Remove default input[type=checkbox/radio] appearance */
-input[type="checkbox"],
-input[type="radio"] {
-	-webkit-appearance: none;
-	appearance: none;
-	margin: 0;
-}
-
-/* 25. Remove default select arrow */
-select::-ms-expand {
-	display: none;
-}
-
-/* 26. Remove default textarea resize */
-textarea {
-	resize: vertical;
-}
-
-/* 27. Remove default cursor for disabled elements */
 [disabled] {
 	cursor: not-allowed;
 	opacity: 0.6;
 }
 
-/* 28. Remove tap highlight on mobile */
-html {
-	-webkit-tap-highlight-color: transparent;
+/* === BASE ELEMENT STYLES === */
+main {
+	padding-top: calc(var(--navbar-height) + var(--space-m));
+	padding-bottom: var(--space-l);
 }
 
-/* 29. Remove outline for non-keyboard users */
-:focus:not(:focus-visible) {
-	outline: none;
-}
-
-/* 30. Remove default selection color */
-::selection {
-	background: #4f8cff;
-	color: #fff;
-}
-
-html {
-	font-size: 100%;
-	text-size-adjust: 100%;
-	-webkit-text-size-adjust: 100%;
-	line-height: 1.5;
-	scroll-behavior: smooth;
-	tab-size: 4;
-	overflow-x: hidden;
-	scrollbar-gutter: stable;
-}
-
-/* GLOBAL BOX-SIZING RESET */
-html {
-	box-sizing: border-box;
-}
-*,
-*::before,
-*::after {
-	box-sizing: inherit;
-}
-
-html,
-body {
-	margin: 0;
-	padding: 0;
-	min-height: 100vh;
-	width: 100vw;
-	box-sizing: border-box;
-	font-family: var(--font-family-base);
-	font-weight: var(--font-weight-regular);
-	background: var(--color-bg);
-	color: var(--color-text);
-	scrollbar-gutter: stable;
-}
-
-body {
-	min-height: 100vh;
-	text-rendering: optimizeSpeed;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	overflow-x: hidden;
-	font-family: var(--font-family-base);
-	font-size: var(--font-size-body);
-	line-height: 1.6;
-}
-
-/* Header font assignment */
 h1,
 h2,
 h3,
@@ -872,59 +216,46 @@ h6 {
 	line-height: 1.3;
 	margin-bottom: var(--space-xs);
 }
+
 h1 {
-	font-size: var(--font-size-header-1);
-	font-variation-settings: "wght" var(--font-weight-black);
+	font-size: 2.5rem;
 }
 h2 {
-	font-size: var(--font-size-header-2);
-	font-variation-settings: "wght" var(--font-weight-bold);
+	font-size: 2rem;
 }
 h3 {
-	font-size: var(--font-size-header-3);
-	font-variation-settings: "wght" var(--font-weight-semibold);
+	font-size: 1.75rem;
 }
 h4 {
-	font-size: var(--font-size-header-4);
-	font-variation-settings: "wght" var(--font-weight-medium);
+	font-size: 1.5rem;
 }
 h5 {
-	font-size: var(--font-size-header-5);
-	font-variation-settings: "wght" var(--font-weight-regular);
+	font-size: 1.25rem;
 }
 h6 {
-	font-size: var(--font-size-header-6);
-	font-variation-settings: "wght" var(--font-weight-light);
+	font-size: 1rem;
 }
 
-/* Menu font assignment */
-.navbar,
-.nav-center,
-.nav__logo,
-.nav__links,
-.nav__filter,
-.nav__sort,
-.theme-toggle,
-.hamburger-menu {
-	font-family: var(--font-family-base);
-	font-weight: var(--font-weight-medium);
-	letter-spacing: 0.02em;
+a {
+	color: var(--color-link);
+	transition: color 0.2s ease;
 }
 
-/* Card and description color tokens */
-.card {
-	background-color: var(--color-card-bg);
-	border: var(--border-unified) !important;
-	box-shadow: var(--color-card-shadow) !important;
-	border-radius: var(--radius-unified) !important;
-}
-.card .description {
-	color: var(--color-desc);
-	font-weight: var(--font-weight-light);
+a:hover {
+	color: var(--color-link-hover);
 }
 
-/* Utility Classes */
-.hidden {
+strong,
+b {
+	font-weight: var(--font-weight-bold);
+}
+em,
+i {
+	font-style: italic;
+}
+
+/* === UTILITY CLASSES === */
+.sr-only {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -935,344 +266,33 @@ h6 {
 	white-space: nowrap;
 	border-width: 0;
 }
-.flex {
-	display: flex;
-}
-.flex-center {
-	display: flex;
+
+.pill {
+	display: inline-flex;
+	align-items: center;
 	justify-content: center;
-	align-items: center;
-}
-.text-center {
-	text-align: center;
-}
-
-/* Active filter button styling */
-.pill.active,
-.pill[aria-current="page"] {
-	background: var(--color-navbar-bg) !important;
-	color: var(--color-text) !important;
-	font-weight: var(--font-weight-bold);
-	border: 2px solid var(--color-accent, #bdbdbd);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	padding: var(--space-2xs) var(--space-s);
+	border-radius: var(--radius-pill);
+	border: var(--border-thin) solid var(--color-border);
+	background-color: var(--color-bg-alt);
+	color: var(--color-text);
+	font-size: 0.9rem;
+	font-weight: var(--font-weight-medium);
+	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease,
+		color 0.2s ease;
 }
 
-.pill.active *,
-.pill[aria-current="page"] * {
-	color: var(--color-text) !important;
+.pill:hover {
+	background-color: var(--color-border);
 }
 
-.nav__search-stretch {
-	flex: 1 1 auto;
-	min-width: 0;
-	display: flex;
-	align-items: center;
-	padding: 0.75rem 1rem;
-	box-shadow: none; /* Removed box-shadow */
-	margin: 0 !important;
-	height: auto;
-	transition: background 0.18s; /* Removed box-shadow transition */
-	position: relative; /* Add this to contain the dropdown */
-	border: none; /* Explicitly set border to none */
+.pill.active {
+	background-color: var(--color-accent);
+	border-color: var(--color-accent);
+	color: var(--color-bg);
 }
 
-/* Clear previous selectors that might be causing conflicts */
-.nav__search-stretch .pagefind-ui,
-.nav__search-stretch .pagefind-ui--reset,
-.nav__search-stretch div[class*="pagefind-ui"],
-.nav__search-stretch div[class*="svelte-e9gkc3"],
-.nav__search-stretch #search,
-.nav__search-stretch .search-container {
-	flex: 1 1 auto;
-	width: 100%;
-	display: flex;
-	min-width: 0;
-	border: none !important; /* Remove borders */
-	box-shadow: none !important; /* Remove shadows */
-	outline: none !important; /* Remove outlines */
-}
-
-/* Style the form element */
-.pagefind-ui__form {
-	width: 100% !important;
-	display: flex !important;
-	flex: 1 1 auto !important;
-	min-width: 0 !important;
-	align-items: center !important;
-	position: relative !important;
-	border: none !important; /* Added to remove borders */
-	box-shadow: none !important; /* Added to remove shadows */
-}
-
-.pagefind-ui__form:before {
-	top: 50% !important;
-	left: 20px !important;
-	transform: translateY(-50%);
-}
-
-/* Style the input */
-.pagefind-ui__search-input {
-	flex: 1 1 auto !important;
-	min-width: 0 !important;
-	width: 100% !important;
-	background: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	padding: 0.75rem 1rem !important;
-	padding-left: 2.75rem !important; /* Make room for icon, adjust as needed */
-	font-size: 1rem !important;
-	line-height: 1.5 !important;
-	display: flex !important;
-	align-items: center !important;
-	outline: none !important; /* Added to remove outlines */
-}
-
-.pagefind-ui__search-input:focus {
-	border: none !important;
-	box-shadow: none !important;
-	outline: none !important;
-}
-
-/* Search results styling */
-.pagefind-ui__drawer {
-	position: absolute !important;
-	left: 0 !important;
-	right: 0 !important;
-	width: 100% !important; /* Match the width of the search box */
-	top: 100% !important;
-	margin-top: 0.5rem !important;
-	background: var(--color-card-bg, #fff) !important;
-	border-radius: var(--radius-card, 12px) !important;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-	z-index: 1000 !important;
-	overflow: hidden !important;
-	max-height: 85vh !important;
-	overflow-y: auto !important;
-	padding: 0.75rem !important;
-	display: flex !important;
-	flex-direction: column !important;
-}
-
-/* Explicitly ensure hidden class works */
-.pagefind-ui__hidden.svelte-e9gkc3,
-.pagefind-ui__drawer.pagefind-ui__hidden {
-	display: none !important;
-}
-
-/* Ensure search results area is full width and single column */
-.pagefind-ui__results-area {
-	width: 100% !important;
-}
-
-/* Style search results */
-.pagefind-ui__results {
-	padding: 0 !important;
-	margin: 0 !important;
-	width: 100% !important;
-}
-
-/* Style individual results in a clean, simple format */
-.pagefind-ui__result {
-	margin-bottom: 1rem !important;
-	padding: 0.5rem 0 !important;
-	border-bottom: 1px solid var(--color-border, #d6d5c9) !important;
-	width: 100% !important;
-	display: block !important;
-	flex-direction: unset !important;
-	align-items: unset !important;
-	gap: unset !important;
-}
-
-/* Style the term highlighting - make it yellow like in the reference image */
-.pagefind-ui__result mark {
-	background-color: #ffff00 !important;
-	padding: 0 !important;
-	color: inherit !important;
-	font-weight: inherit !important;
-	border-radius: 0 !important;
-}
-
-/* Style the "Load more results" button to match the screenshot */
-.pagefind-ui__button {
-	background-color: #f1f1f1 !important;
-	color: var(--color-text, #333) !important;
-	border: none !important;
-	border-radius: 0 !important;
-	padding: 0.75rem 1rem !important;
-	font-size: 0.9rem !important;
-	font-weight: 400 !important;
-	cursor: pointer !important;
-	text-align: center !important;
-	width: 100% !important;
-	margin-top: 0.5rem !important;
-	transition: background-color 0.2s ease !important;
-}
-
-.pagefind-ui__button:hover {
-	background-color: #e5e5e5 !important;
-}
-
-/* Message styling */
-.pagefind-ui__message {
-	padding: 1rem 0.5rem !important;
-	color: var(--color-desc, #666) !important;
-	font-size: 0.9rem !important;
-	text-align: center !important;
-}
-
-/* Result count styling */
-.pagefind-ui__results-count {
-	color: var(--color-desc, #666) !important;
-	font-size: 0.85rem !important;
-	margin-bottom: 1rem !important;
-	padding-left: 0.5rem !important;
-	font-weight: 500 !important;
-}
-
-/* Ensure no scrolling when search results are shown */
-body.search-active {
-	overflow: hidden;
-}
-
-.site-header-inner {
-	max-width: var(--navbar-max-width);
-	margin: 0 auto;
-	width: 100%;
-	box-sizing: border-box;
-}
-
-/* --- FORCE CENTERING FOR ALL MAJOR LAYOUTS --- */
-.site-header,
-.navbar-content-inner,
-.navbar-header-row,
-.menu-content,
-#posts-feed,
-.post-card,
-.expanded-card {
-	margin-left: auto !important;
-	margin-right: auto !important;
-}
-
-/* Remove any left/right padding that could offset centering */
-.site-header,
-.navbar-content-inner,
-.navbar-header-row,
-.menu-content,
-#posts-feed,
-.post-card,
-.expanded-card {
-	padding-left: 0 !important;
-	padding-right: 0 !important;
-}
-
-/* Responsive: still center, but allow some horizontal padding for breathing room */
-@media (max-width: 900px) {
-	.navbar-content-inner,
-	.navbar-header-row,
-	.menu-content,
-	#posts-feed,
-	.post-card,
-	.expanded-card {
-		margin-left: auto !important;
-		margin-right: auto !important;
-		padding-left: var(--fluid-space-s) !important;
-		padding-right: var(--fluid-space-s) !important;
-	}
-}
-@media (max-width: 600px) {
-	.navbar-content-inner,
-	.navbar-header-row,
-	.menu-content,
-	#posts-feed,
-	.post-card,
-	.expanded-card {
-		margin-left: auto !important;
-		margin-right: auto !important;
-		padding-left: var(--fluid-space-xs) !important;
-		padding-right: var(--fluid-space-xs) !important;
-	}
-}
-
-/* --- FINAL: ENFORCE ABSOLUTE ALIGNMENT & CENTERING FOR NAVBAR, DROPDOWN, FEED, FULL POST --- */
-:root {
-	--layout-max-width: 840px;
-}
-
-/* Remove legacy layout-max-width for all major containers */
-.site-header-inner,
-.navbar-content-inner,
-.navbar-header-row {
-	max-width: var(--navbar-max-width) !important;
-	width: 100%;
-	margin-left: auto !important;
-	margin-right: auto !important;
-	box-sizing: border-box;
-	padding-left: 0 !important;
-	padding-right: 0 !important;
-}
-
-.menu-content,
-#filter-sort-menu {
-	max-width: var(--navbar-max-width) !important;
-	width: 100%;
-	margin-left: auto !important;
-	margin-right: auto !important;
-	box-sizing: border-box;
-	padding-left: 0 !important;
-	padding-right: 0 !important;
-}
-
-#posts-feed,
-.post-card,
-.expanded-card {
-	max-width: var(--feed-max-width) !important;
-	width: 100%;
-	margin-left: auto !important;
-	margin-right: auto !important;
-	box-sizing: border-box;
-	padding-left: 0 !important;
-	padding-right: 0 !important;
-}
-
-/* Remove all .site-header-inner, .navbar-content-inner, .navbar-header-row, .menu-content, #filter-sort-menu, #posts-feed, .post-card, .expanded-card { max-width: var(--layout-max-width) !important; } blocks */
-
-/* DEBUG SECTION REMOVED - Content should now be visible */
-
-/* Comment out or remove all modal/conditional hiding logic for clarity */
-/*
-body.hero-modal-open .site-container,
-body.hero-modal-open main,
-body.hero-modal-open #posts-feed,
-body.hero-modal-open .post-card,
-body.hero-modal-open .expanded-card {
-  display: none !important;
-}
-body.hero-modal-open .site-header,
-body.hero-modal-open .menu-content {
-  display: flex !important;
-}
-#hero-card.active {
-  z-index: 99999 !important;
-}
-body.hero-modal-open .site-container {
-  display: none !important;
-}
-body.hero-modal-open #hero-card {
-  display: block !important;
-  z-index: 99999 !important;
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.7);
-  overflow: auto;
-}
-#hero-card.active {
-  z-index: 99999 !important;
-}
-*/
-#astro-feed-island,
-#posts-feed {
-	margin-top: 1rem; /* Ensures both feed and single post start 1rem below navbar */
+[data-theme="dark"] .pill.active {
+	color: var(--color-text);
 }

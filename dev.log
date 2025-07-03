@@ -1,0 +1,16 @@
+
+> kjk-astro@0.0.1 dev
+> astro dev
+
+17:36:42 [types] Generated 1ms
+17:36:42 [content] Syncing content
+17:36:42 [content] Synced content
+17:36:42 [vite] Port 4321 is in use, trying another one...
+17:36:42 [vite] Port 4322 is in use, trying another one...
+
+ astro  v5.8.2 ready in 343 ms
+
+┃ Local    http://localhost:4323/
+┃ Network  use --host to expose
+
+17:36:42 watching for file changes...

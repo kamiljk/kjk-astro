@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frosted Glass Token Tester</title>
+    <link rel="stylesheet" href="/styles/tokens.css">
+    <style>
+        /* Reset and Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base, 'Inter', sans-serif);
+            min-height: 100vh;
+            background: var(--test-background, #1a1a2e);
+            transition: background 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        /* Background Presets */
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .bg-text {
+            background: #f0f0f0;
+            background-image: 
+                linear-gradient(45deg, #000 25%, transparent 25%), 
+                linear-gradient(-45deg, #000 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #000 75%), 
+                linear-gradient(-45deg, transparent 75%, #000 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        .bg-pattern {
+            background: 
+                radial-gradient(circle at 25% 25%, #ff6b6b 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, #4ecdc4 0%, transparent 50%),
+                linear-gradient(45deg, #ffe66d 0%, #764ba2 100%);
+        }
+
+        .bg-photo {
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23667eea"/><circle cx="20" cy="20" r="15" fill="%23f093fb"/><rect x="60" y="10" width="30" height="30" fill="%23ffe66d"/><polygon points="10,80 30,60 50,80 30,90" fill="%23ff6b6b"/><text x="50" y="95" font-family="Arial" font-size="12" fill="white" text-anchor="middle">TEXT</text></svg>') repeat;
+            background-size: 80px 80px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Test Area */
+        .test-area {
+            background: var(--current-bg, rgba(255, 255, 255, 0.1));
+            backdrop-filter: var(--current-blur, blur(20px)) var(--current-saturate, saturate(150%));
+            -webkit-backdrop-filter: var(--current-blur, blur(20px)) var(--current-saturate, saturate(150%));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            isolation: isolate;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .test-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            padding: 2rem;
+            color: white;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #374151;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .value-display {
+            background: #1f2937;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+            color: #fbbf24;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #374151;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .btn:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .btn.active {
+            background: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Background Preview */
+        .bg-preview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .bg-option {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .bg-option.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        .bg-option-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.25rem;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* Current Values Display */
+        .current-values {
+            background: #111827;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+        }
+
+        .current-values h3 {
+            color: #10b981;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .value-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+        }
+
+        .value-name {
+            color: #9ca3af;
+        }
+
+        .value-code {
+            color: #fbbf24;
+            font-weight: 500;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls-panel {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .bg-preview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+
+        /* Floating elements for visual complexity */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-square {
+            position: absolute;
+            background: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.1), 
+                rgba(255, 255, 255, 0.05)
+            );
+            animation: floatRotate 8s ease-in-out infinite;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            animation: floatSpin 10s linear infinite;
+        }
+
+        .floating-text {
+            position: absolute;
+            font-size: 120px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.05);
+            user-select: none;
+            animation: textFloat 12s ease-in-out infinite;
+        }
+
+        .floating-circle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-circle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .floating-circle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 70%;
+            animation-delay: 4s;
+        }
+
+        .floating-square:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            right: 30%;
+            animation-delay: 1s;
+        }
+
+        .floating-square:nth-child(5) {
+            width: 70px;
+            height: 70px;
+            top: 70%;
+            left: 20%;
+            animation-delay: 3s;
+        }
+
+        .floating-triangle:nth-child(6) {
+            top: 30%;
+            left: 80%;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 50px solid rgba(255, 255, 255, 0.1);
+            animation-delay: 2.5s;
+        }
+
+        .floating-text:nth-child(7) {
+            top: 15%;
+            left: 5%;
+            transform: rotate(-15deg);
+            animation-delay: 1s;
+        }
+
+        .floating-text:nth-child(8) {
+            top: 55%;
+            right: 10%;
+            transform: rotate(10deg);
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+        }
+
+        @keyframes floatRotate {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-25px) rotate(90deg) scale(1.2); }
+        }
+
+        @keyframes floatSpin {
+            0% { transform: rotate(0deg) translateY(0px); }
+            50% { transform: rotate(180deg) translateY(-20px); }
+            100% { transform: rotate(360deg) translateY(0px); }
+        }
+
+        @keyframes textFloat {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.03; }
+            50% { transform: translateY(-15px) scale(1.05); opacity: 0.08; }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 2rem 0 4rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Test Grid */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        /* Add visual complexity behind test cards */
+        .test-grid::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            right: -50px;
+            bottom: -50px;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.1) 0px,
+                    rgba(255, 255, 255, 0.1) 1px,
+                    transparent 1px,
+                    transparent 30px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.05) 0px,
+                    rgba(255, 255, 255, 0.05) 1px,
+                    transparent 1px,
+                    transparent 40px
+                ),
+                conic-gradient(from 45deg at 30% 70%, 
+                    rgba(255, 0, 150, 0.1) 0deg,
+                    rgba(0, 255, 255, 0.1) 120deg,
+                    rgba(255, 255, 0, 0.1) 240deg,
+                    rgba(255, 0, 150, 0.1) 360deg
+                );
+            z-index: -1;
+            animation: patternShift 20s linear infinite;
+        }
+
+        @keyframes patternShift {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.02); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        /* Test Card */
+        .test-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px) saturate(120%);
+            -webkit-backdrop-filter: blur(10px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-unified, 16px);
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            isolation: isolate;
+        }
+
+        .test-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .test-description {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Dropdown Test Area */
+        .dropdown-test {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .dropdown-trigger {
+            background: var(--frosted-bg, rgba(255, 255, 255, 0.15));
+            backdrop-filter: var(--frosted-blur, blur(20px)) var(--frosted-saturate, saturate(150%));
+            -webkit-backdrop-filter: var(--frosted-blur, blur(20px)) var(--frosted-saturate, saturate(150%));
+            border: var(--frosted-border, 1px solid rgba(255, 255, 255, 0.3));
+            border-radius: var(--radius-btn, 12px);
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            isolation: isolate;
+            position: relative;
+            z-index: 50;
+        }
+
+        .dropdown-trigger:hover {
+            background: var(--frosted-bg, rgba(255, 255, 255, 0.25));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .dropdown-trigger.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown Content */
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--frosted-bg, rgba(255, 255, 255, 0.1));
+            backdrop-filter: var(--frosted-blur, blur(20px)) var(--frosted-saturate, saturate(150%));
+            -webkit-backdrop-filter: var(--frosted-blur, blur(20px)) var(--frosted-saturate, saturate(150%));
+            border: var(--frosted-border, 1px solid rgba(255, 255, 255, 0.2));
+            border-radius: var(--radius-unified, 16px);
+            box-shadow: var(--frosted-shadow, 0 20px 40px rgba(0, 0, 0, 0.15));
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            isolation: isolate;
+            /* Force GPU layer */
+            will-change: transform, opacity;
+            transform-style: preserve-3d;
+        }
+
+        .dropdown-content.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-btn, 8px);
+            color: white;
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s ease;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .dropdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-unified, 12px);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-top: 2rem;
+        }
+
+        .debug-title {
+            color: #4ade80;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .debug-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .debug-label {
+            color: #94a3b8;
+        }
+
+        .debug-value {
+            color: #fbbf24;
+            font-weight: 500;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-btn, 8px);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-btn, 8px);
+            padding: 0.75rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .test-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<body class="bg-gradient">
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">← Back to Specimens</a>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌫️ Frosted Glass Token Tester</h1>
+            <p>Adjust blur and saturation values in real-time</p>
+        </header>
+
+        <!-- Test Area -->
+        <div class="test-area" id="testArea">
+            <div class="test-content">
+                <h2>Frosted Glass Effect</h2>
+                <p>This panel demonstrates the backdrop-filter blur and saturation effects. Adjust the controls below to see how different values affect the appearance.</p>
+            </div>
+        </div>
+
+        <!-- Controls Panel -->
+        <div class="controls-panel">
+            <!-- Left Column: Blur & Saturation -->
+            <div class="control-group">
+                <div class="control-label">Blur Amount</div>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="blurSlider" min="0" max="50" value="20" step="1">
+                    <div class="value-display" id="blurValue">20px</div>
+                </div>
+                
+                <div class="control-label">Saturation</div>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="satSlider" min="50" max="300" value="150" step="10">
+                    <div class="value-display" id="satValue">150%</div>
+                </div>
+
+                <div class="control-label">Background Opacity</div>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="opacitySlider" min="0" max="50" value="10" step="1">
+                    <div class="value-display" id="opacityValue">0.1</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Background Options -->
+            <div class="control-group">
+                <div class="control-label">Test Background</div>
+                <div class="bg-preview">
+                    <div class="bg-option bg-gradient active" data-bg="gradient">
+                        <div class="bg-option-label">Gradient</div>
+                    </div>
+                    <div class="bg-option bg-text" data-bg="text">
+                        <div class="bg-option-label">Pattern</div>
+                    </div>
+                    <div class="bg-option bg-pattern" data-bg="pattern">
+                        <div class="bg-option-label">Radial</div>
+                    </div>
+                    <div class="bg-option bg-photo" data-bg="photo">
+                        <div class="bg-option-label">Complex</div>
+                    </div>
+                </div>
+
+                <div class="control-label">Presets</div>
+                <div class="button-group">
+                    <button class="btn" onclick="applyPreset('subtle')">Subtle</button>
+                    <button class="btn" onclick="applyPreset('normal')">Normal</button>
+                    <button class="btn" onclick="applyPreset('strong')">Strong</button>
+                    <button class="btn" onclick="applyPreset('none')">No Blur</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Values Display -->
+        <div class="current-values">
+            <h3>Current CSS Values</h3>
+            <div class="value-row">
+                <span class="value-name">background:</span>
+                <span class="value-code" id="cssBackground">rgba(255, 255, 255, 0.1)</span>
+            </div>
+            <div class="value-row">
+                <span class="value-name">backdrop-filter:</span>
+                <span class="value-code" id="cssBackdrop">blur(20px) saturate(150%)</span>
+            </div>
+            <div class="value-row">
+                <span class="value-name">-webkit-backdrop-filter:</span>
+                <span class="value-code" id="cssWebkit">blur(20px) saturate(150%)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const testArea = document.getElementById('testArea');
+        const blurSlider = document.getElementById('blurSlider');
+        const satSlider = document.getElementById('satSlider');
+        const opacitySlider = document.getElementById('opacitySlider');
+        const blurValue = document.getElementById('blurValue');
+        const satValue = document.getElementById('satValue');
+        const opacityValue = document.getElementById('opacityValue');
+        const cssBackground = document.getElementById('cssBackground');
+        const cssBackdrop = document.getElementById('cssBackdrop');
+        const cssWebkit = document.getElementById('cssWebkit');
+
+        // Update values and preview
+        function updateValues() {
+            const blur = blurSlider.value;
+            const saturation = satSlider.value;
+            const opacity = (opacitySlider.value / 100).toFixed(2);
+
+            // Update display values
+            blurValue.textContent = blur + 'px';
+            satValue.textContent = saturation + '%';
+            opacityValue.textContent = opacity;
+
+            // Update CSS
+            const background = `rgba(255, 255, 255, ${opacity})`;
+            const backdropFilter = `blur(${blur}px) saturate(${saturation}%)`;
+
+            testArea.style.background = background;
+            testArea.style.backdropFilter = backdropFilter;
+            testArea.style.webkitBackdropFilter = backdropFilter;
+
+            // Update CSS display
+            cssBackground.textContent = background;
+            cssBackdrop.textContent = backdropFilter;
+            cssWebkit.textContent = backdropFilter;
+        }
+
+        // Background switcher
+        function switchBackground(bgType) {
+            document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[data-bg="${bgType}"]`).classList.add('active');
+            
+            document.body.className = '';
+            document.body.classList.add(`bg-${bgType}`);
+        }
+
+        // Presets
+        function applyPreset(preset) {
+            switch(preset) {
+                case 'subtle':
+                    blurSlider.value = 10;
+                    satSlider.value = 110;
+                    opacitySlider.value = 5;
+                    break;
+                case 'normal':
+                    blurSlider.value = 20;
+                    satSlider.value = 150;
+                    opacitySlider.value = 10;
+                    break;
+                case 'strong':
+                    blurSlider.value = 35;
+                    satSlider.value = 200;
+                    opacitySlider.value = 15;
+                    break;
+                case 'none':
+                    blurSlider.value = 0;
+                    satSlider.value = 100;
+                    opacitySlider.value = 30;
+                    break;
+            }
+            updateValues();
+        }
+
+        // Event listeners
+        blurSlider.addEventListener('input', updateValues);
+        satSlider.addEventListener('input', updateValues);
+        opacitySlider.addEventListener('input', updateValues);
+
+        // Background option click handlers
+        document.querySelectorAll('.bg-option').forEach(option => {
+            option.addEventListener('click', () => {
+                switchBackground(option.dataset.bg);
+            });
+        });
+
+        // Initialize
+        updateValues();
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1') applyPreset('subtle');
+            if (e.key === '2') applyPreset('normal');
+            if (e.key === '3') applyPreset('strong');
+            if (e.key === '0') applyPreset('none');
+        });
+    </script>
+</body>
+</html>

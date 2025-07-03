@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { normalizeType } from "../../utils/normalizeType.js";
 import styles from "./Feed.module.css";
+import UnifiedButton from "../common/UnifiedButton.jsx";
 
 export default function Feed({ type: initialType = "all", sort: initialSort = "newest", order: initialOrder = "desc" } = {}) {
   const [posts, setPosts] = useState([]);
@@ -50,8 +51,8 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
       const rawType = post.data?.type;
       const norm = normalizeType(rawType);
       if (!norm) return false;
-      if (type === "all") return allowedTypes.includes(norm);
-      return norm === type;
+      if (type === "all") return allowedTypes.includes(norm) || post.data?.priority === "urgent";
+      return norm === type || post.data?.priority === "urgent";
     });
   }
 
@@ -236,73 +237,38 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
             No posts loaded
           </li>
         )}
+        {/* Refine rendering logic for urgent posts */}
         {posts.map((post, idx) => {
           const slug = post.slug || post.data?.slug;
-          const title = post.data?.title || post.title || post.slug || post.data?.name || 'Untitled Post';
-          const isGame = normalizeType(post.data?.type) === "play";
+          const title = post.data?.title || post.title || post.slug || post.data?.name || "Untitled Post";
+          const isUrgent = post.data?.priority === "urgent";
           const href = `/posts/${slug}/`;
-          const gameHref = isGame ? (post.data?.link || `/games/${slug}/index.html`) : null;
           const dateCreated = post.data?.dateCreated;
           const dateUpdated = post.data?.dateUpdated;
           const description = post.data?.description;
-          const thumbnail = (post.data?.type === "game" || post.data?.type === "play") ? `/games/${slug || post.data?.name}/thumbnail.png` : post.data?.thumbnailSrc;
-          const showThumb = Boolean(thumbnail);
-          const readCta = "READ";
-          const playCtas = ["EXPERIENCE", "EXPLORE", "INTERACT", "PLAY NOW", "DISCOVER", "ENGAGE", "TRY IT", "DIVE IN", "LAUNCH", "IMMERSE"];
-          const dynamicPlayCTA = playCtas[(slug?.length || idx) % playCtas.length];
-          let dateDisplay = null;
-          if (dateCreated && dateUpdated) {
-            dateDisplay = elegantDateRange(dateCreated, dateUpdated);
-          } else if (dateCreated) {
-            dateDisplay = isRecent(dateCreated) ? fuzzyDate(dateCreated) : calendarDate(dateCreated);
-          } else if (dateUpdated) {
-            dateDisplay = isRecent(dateUpdated) ? fuzzyDate(dateUpdated) : calendarDate(dateUpdated);
-          }
+          const thumbnail = post.data?.thumbnailSrc;
+          const showThumb = Boolean(thumbnail && thumbnail !== "null" && thumbnail !== "undefined");
+
           return (
             <li
               key={slug || idx}
               data-type={normalizeType(post.data?.type) || ""}
-              className={styles["post-card"]}
+              className={`${styles["post-card"]} ${isUrgent ? styles["urgent-post"] : ""}`}
             >
-              {/* Warn if slug is missing */}
-              {!slug && (
-                <div style={{color: 'red', fontWeight: 'bold'}}>Warning: Missing slug for post: {JSON.stringify(post)}</div>
-              )}
-              <div className={styles["post-card-inner"]}>
+              <div className={`${styles["post-card-inner"]} ${showThumb ? styles["with-thumbnail"] : ""}`}>
                 <div className={styles["post-card-content"]}>
                   <a
-                    href={slug ? `/posts/${slug}/` : '#'}
-                    data-testid="feed-post-link"
-                    style={{ fontSize: "1.15em", fontWeight: 600, color: "var(--color-text)", textDecoration: "none", wordBreak: "break-word" }}
+                    href={slug ? `/posts/${slug}/` : "#"}
+                    style={{ fontSize: "1.15em", fontWeight: 600, color: isUrgent ? "red" : "var(--color-text)", textDecoration: "none" }}
                   >
-                    {title}
+                    {isUrgent ? `⚠️ ${title}` : title}
                   </a>
-                  <div style={{ fontSize: '0.95em', color: '#888', margin: '0.2em 0 0.5em 0', minHeight: '1.2em' }}>{dateDisplay || ''}</div>
+                  <div style={{ fontSize: "0.95em", color: "#888", margin: "0.2em 0 0.5em 0" }}>{dateCreated || ""}</div>
                   {description && (
-                    <div className={styles["post-description"]} style={{ marginBottom: '0.5em' }}>
+                    <div className={styles["post-description"]}>
                       {description}
                     </div>
                   )}
-                  <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75em' }}>
-                    <a
-                      className={`${styles["feed-cta"]} ${styles["pill"]} read`}
-                      data-testid="feed-cta-link"
-                      style={{ marginRight: isGame ? '0.5em' : 0, display: 'inline-block', textDecoration: 'none', cursor: 'pointer' }}
-                      href={slug ? `/posts/${slug}/` : undefined}
-                      tabIndex={slug ? 0 : -1}
-                      aria-label={slug ? `Open post: ${title}` : undefined}
-                    >
-                      {readCta}
-                    </a>
-                    {isGame && (
-                      <button
-                        className={`${styles["feed-cta"]} ${styles["feed-cta-play"]} ${styles["pill"]}`}
-                        onClick={e => { e.preventDefault(); window.location.assign(`/games/${slug}/index.html`); }}
-                      >
-                        {dynamicPlayCTA}
-                      </button>
-                    )}
-                  </div>
                 </div>
                 {showThumb && (
                   <div className={styles["post-card-thumbnail"]}>
@@ -311,7 +277,13 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
                       alt={`Thumbnail for ${title}`}
                       className={styles["post-thumb-large"]}
                       loading="lazy"
-                      onError={e => (e.target.style.display = "none")}
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.parentElement.style.display = "none";
+                      }}
+                      onLoad={(e) => {
+                        e.target.parentElement.classList.remove("loading");
+                      }}
                     />
                   </div>
                 )}
