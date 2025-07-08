@@ -1,0 +1,9 @@
+Deleting redundant navbar menu component files:
+- NavbarMenuImproved.jsx
+- NavbarMenuImproved.module.css
+- NavbarMenuCompact.jsx
+- NavbarMenuElegant.jsx
+- NavbarMenu.simple.jsx
+- NavbarMenu.layout.module.css
+
+Also removing /src/components/common/Navbar.clean.astro

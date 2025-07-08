@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Backdrop Filter Debug</title>
+		<style>
+			:root {
+				--frosted-blur: blur(20px);
+				--frosted-saturate: saturate(150%);
+				--frosted-bg: rgba(255, 255, 255, 0.1);
+				--frosted-border: 1px solid rgba(255, 255, 255, 0.2);
+				--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+				--radius-unified: 12px;
+			}
+
+			body {
+				margin: 0;
+				font-family: Arial, sans-serif;
+				background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+				background-size: 400% 400%;
+				animation: gradient 15s ease infinite;
+				min-height: 100vh;
+				padding: 20px;
+			}
+
+			@keyframes gradient {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			.content {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+
+			.card {
+				background: rgba(0, 0, 0, 0.8);
+				color: white;
+				padding: 20px;
+				margin: 20px 0;
+				border-radius: 10px;
+			}
+
+			.card h2 {
+				margin: 0 0 10px 0;
+				font-size: 24px;
+			}
+
+			.card p {
+				margin: 0;
+				line-height: 1.6;
+				font-size: 16px;
+			}
+
+			/* Test button */
+			.test-button {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				background: rgba(255, 255, 255, 0.2);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				color: white;
+				padding: 10px 20px;
+				border-radius: 5px;
+				cursor: pointer;
+				z-index: 20000;
+			}
+
+			/* Blur backdrop */
+			.test-backdrop {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				z-index: 5000;
+
+				/* Make background almost transparent so we can see if blur is working */
+				background: rgba(255, 0, 0, 0.05);
+				backdrop-filter: var(--frosted-blur) var(--frosted-saturate);
+				-webkit-backdrop-filter: var(--frosted-blur) var(--frosted-saturate);
+
+				isolation: isolate;
+				will-change: backdrop-filter;
+
+				opacity: 0;
+				visibility: hidden;
+				transition: all 0.3s ease;
+
+				pointer-events: none;
+			}
+
+			.test-backdrop.active {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			/* Test dropdown */
+			.test-dropdown {
+				position: fixed;
+				top: 80px;
+				right: 20px;
+				width: 300px;
+				z-index: 15000;
+
+				background: var(--frosted-bg);
+				border: var(--frosted-border);
+				border-radius: var(--radius-unified);
+				box-shadow: var(--frosted-shadow);
+
+				padding: 20px;
+
+				opacity: 0;
+				visibility: hidden;
+				transform: translateY(-10px);
+				transition: all 0.3s ease;
+
+				pointer-events: auto;
+			}
+
+			.test-dropdown.active {
+				opacity: 1;
+				visibility: visible;
+				transform: translateY(0);
+			}
+
+			.test-dropdown h3 {
+				margin: 0 0 10px 0;
+				color: white;
+			}
+
+			.test-dropdown p {
+				margin: 0;
+				color: rgba(255, 255, 255, 0.8);
+				font-size: 14px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="content">
+			<h1
+				style="
+					color: white;
+					text-align: center;
+					font-size: 48px;
+					margin-bottom: 40px;
+				"
+			>
+				Backdrop Filter Test
+			</h1>
+
+			<div class="card">
+				<h2>⚠️ Under Construction</h2>
+				<p>
+					This site is under construction and evolving as a digital garden. You
+					should see this text become blurred when the backdrop is active.
+				</p>
+			</div>
+
+			<div class="card">
+				<h2>🎮 Bitface</h2>
+				<p>
+					A pixel art game where you can create and customize faces. This text
+					should also become blurred behind the backdrop overlay.
+				</p>
+			</div>
+
+			<div class="card">
+				<h2>🎵 Click Jazz</h2>
+				<p>
+					An engaging clicker game that uses behavioral reinforcement techniques
+					to keep players entertained and coming back for more. The blur should
+					make this less readable.
+				</p>
+			</div>
+
+			<div class="card">
+				<h2>🥁 P505 Drum Machine</h2>
+				<p>
+					An implementation of some of the Roland TR-808 drum machine sequencer
+					functionality, using P5. When blurred, this should be much harder to
+					read.
+				</p>
+			</div>
+
+			<div class="card">
+				<h2>👋 About Me</h2>
+				<p>
+					I'm a developer and designer exploring interactive web experiences.
+					This site showcases my portfolio, games, and writing. I love combining
+					code, art, and storytelling.
+				</p>
+			</div>
+		</div>
+
+		<button
+			class="test-button"
+			onclick="toggleBackdrop()"
+		>
+			Toggle Backdrop Blur
+		</button>
+
+		<div
+			class="test-backdrop"
+			id="test-backdrop"
+		></div>
+
+		<div
+			class="test-dropdown"
+			id="test-dropdown"
+		>
+			<h3>Dropdown Menu</h3>
+			<p>
+				This dropdown should appear on top of the blurred background. The
+				content behind should be blurred while this remains sharp.
+			</p>
+		</div>
+
+		<div
+			id="debug-info"
+			style="
+				position: fixed;
+				top: 10px;
+				right: 10px;
+				background: white;
+				padding: 10px;
+				border: 1px solid #ccc;
+				font-size: 12px;
+				z-index: 10000;
+			"
+		>
+			<div>Backdrop-filter support: <span id="backdrop-support"></span></div>
+			<div>Computed backdrop-filter: <span id="computed-backdrop"></span></div>
+			<div>Computed background: <span id="computed-bg"></span></div>
+		</div>
+
+		<script>
+			let isActive = false;
+
+			function updateDebugInfo() {
+				const backdrop = document.getElementById("test-backdrop");
+				const computed = window.getComputedStyle(backdrop);
+
+				document.getElementById("backdrop-support").textContent = CSS.supports(
+					"backdrop-filter",
+					"blur(10px)"
+				)
+					? "YES"
+					: "NO";
+				document.getElementById("computed-backdrop").textContent =
+					computed.backdropFilter || "none";
+				document.getElementById("computed-bg").textContent =
+					computed.backgroundColor;
+			}
+
+			function toggleBackdrop() {
+				isActive = !isActive;
+				const backdrop = document.getElementById("test-backdrop");
+				const dropdown = document.getElementById("test-dropdown");
+
+				if (isActive) {
+					backdrop.classList.add("active");
+					dropdown.classList.add("active");
+				} else {
+					backdrop.classList.remove("active");
+					dropdown.classList.remove("active");
+				}
+
+				setTimeout(updateDebugInfo, 100);
+			}
+
+			// Initialize debug info
+			updateDebugInfo();
+
+			// Auto-test on load
+			setTimeout(() => {
+				console.log("Auto-triggering backdrop test...");
+				toggleBackdrop();
+			}, 1000);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,78 @@
+---
+import NavbarManager from "./navbar-manager.js";
+import PagefindSearch from "../features/PagefindSearch.jsx";
+import NavbarMenu from "../islands/NavbarMenu.jsx";
+---
+
+<div class="horizontal-navbar">
+	<!-- Logo -->
+	<a
+		href="/"
+		class="navbar-logo"
+		>Logo</a
+	>
+
+	<!-- Search Form -->
+	<div class="navbar-search">
+		<PagefindSearch />
+	</div>
+
+	<!-- Dropdown Button -->
+	<div class="navbar-dropdown">
+		<NavbarMenu
+			taxonomy={["all", "read", "play", "about"]}
+			type="all"
+			sort="updated"
+			order="desc"
+		>
+			<div>Dropdown Content</div>
+		</NavbarMenu>
+	</div>
+
+	<!-- Shared Container for Search Results and Dropdown Menu -->
+	<div
+		id="shared-container"
+		class="shared-container"
+	>
+	</div>
+</div>
+
+<style>
+	.horizontal-navbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1rem;
+		background-color: var(--color-bg);
+		color: var(--color-text);
+		position: relative; /* Ensure children absolute positioning is relative to navbar */
+		z-index: 20;
+	}
+
+	.navbar-logo {
+		font-size: 1.5rem;
+		font-weight: bold;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.navbar-search,
+	.navbar-dropdown {
+		position: relative;
+	}
+
+	.shared-container {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		width: 100%;
+		min-height: 0;
+		background: none;
+		box-shadow: none;
+		z-index: 100;
+		pointer-events: none; /* Only enable pointer events when content is present */
+	}
+	.shared-container > * {
+		pointer-events: auto;
+	}
+</style>

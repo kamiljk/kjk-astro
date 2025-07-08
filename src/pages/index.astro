@@ -7,8 +7,8 @@ import { normalizeType } from "../utils/normalizeType.js";
 const PAGE_SIZE = 3;
 const { searchParams } = new URL(Astro.request.url);
 const type = searchParams.get("type") || "all";
-let sort = searchParams.get("sort") || "created";
-if (sort === "newest") sort = "created"; // backward compatibility
+let sort = searchParams.get("sort") || "activity"; // Changed to unified timeline
+if (sort === "newest") sort = "activity"; // backward compatibility
 let order = searchParams.get("order");
 if (sort === "alpha") {
 	order = "asc";
@@ -44,6 +44,11 @@ function getSortDate(post, field) {
 		return new Date(
 			post.data.dateUpdated || post.data.dateCreated || 0
 		).getTime();
+	} else if (field === "activity") {
+		// Unified timeline: use most recent activity (updated OR created)
+		return new Date(
+			post.data.dateUpdated || post.data.dateCreated || 0
+		).getTime();
 	}
 	return new Date(post.data.dateCreated || 0).getTime();
 }
@@ -51,7 +56,11 @@ function getSortDate(post, field) {
 let sortedPosts = filteredPosts.sort((a, b) => {
 	if (a.data.priority === "urgent" && b.data.priority !== "urgent") return -1;
 	if (b.data.priority === "urgent" && a.data.priority !== "urgent") return 1;
-	if (sort === "created") {
+	if (sort === "activity") {
+		return order === "asc" ?
+				getSortDate(a, "activity") - getSortDate(b, "activity")
+			:	getSortDate(b, "activity") - getSortDate(a, "activity");
+	} else if (sort === "created") {
 		return order === "asc" ?
 				getSortDate(a, "created") - getSortDate(b, "created")
 			:	getSortDate(b, "created") - getSortDate(a, "created");

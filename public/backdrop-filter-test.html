@@ -11,91 +11,155 @@
 			body {
 				margin: 0;
 				padding: 20px;
-				font-family: Arial, sans-serif;
 				background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
-				background-size: 400% 400%;
-				animation: gradientBG 15s ease infinite;
 				min-height: 100vh;
-			}
-
-			@keyframes gradientBG {
-				0% {
-					background-position: 0% 50%;
-				}
-				50% {
-					background-position: 100% 50%;
-				}
-				100% {
-					background-position: 0% 50%;
-				}
+				font-family: Arial, sans-serif;
 			}
 
 			.content {
-				background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="20" fill="red">BACKGROUND</text></svg>')
-					repeat;
-				padding: 50px;
-				margin: 20px 0;
-				border: 2px solid #333;
+				padding: 20px;
+				background: white;
+				margin: 20px;
+				border-radius: 10px;
+			}
+
+			.text {
+				font-size: 24px;
+				font-weight: bold;
+				color: #333;
+				line-height: 1.5;
 			}
 
 			.backdrop-test {
-				position: relative;
-				margin: 50px 0;
-				padding: 30px;
-				background: rgba(255, 255, 255, 0.8);
-				backdrop-filter: blur(20px) saturate(180%);
-				-webkit-backdrop-filter: blur(20px) saturate(180%);
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 300px;
+				height: 200px;
+				background: rgba(255, 255, 255, 0.1);
+				backdrop-filter: blur(20px) saturate(150%);
+				-webkit-backdrop-filter: blur(20px) saturate(150%);
+				border: 1px solid rgba(255, 255, 255, 0.2);
 				border-radius: 12px;
-				border: 1px solid rgba(255, 255, 255, 0.3);
-				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-			}
-
-			.test-text {
-				color: #333;
-				font-size: 18px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: white;
 				font-weight: bold;
+				text-align: center;
+				box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 			}
 
-			.no-backdrop {
-				background: rgba(255, 255, 255, 0.8);
-				margin: 20px 0;
-				padding: 30px;
-				border-radius: 12px;
-				border: 1px solid rgba(255, 255, 255, 0.3);
+			.full-backdrop-test {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+				background: rgba(0, 0, 0, 0.1);
+				z-index: 1;
+			}
+
+			.overlay {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 20px;
+				border-radius: 10px;
+				z-index: 2;
+			}
+
+			button {
+				padding: 10px 20px;
+				margin: 5px;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				background: #007bff;
+				color: white;
 			}
 		</style>
 	</head>
 	<body>
-		<h1>Backdrop Filter Test</h1>
-
 		<div class="content">
-			<p>
-				This is background content that should be blurred behind the
-				backdrop-filter elements.
-			</p>
-			<p>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-				tempor incididunt ut labore et dolore magna aliqua.
-			</p>
-		</div>
-
-		<div class="backdrop-test">
-			<div class="test-text">
-				✅ WITH backdrop-filter: blur(20px) saturate(180%)
-				<br />If this looks blurry behind, backdrop-filter is working!
-			</div>
-		</div>
-
-		<div class="no-backdrop">
-			<div class="test-text">
-				❌ WITHOUT backdrop-filter
-				<br />This should look sharp/clear behind
+			<div class="text">
+				This is some test content with colorful background.<br />
+				If backdrop-filter is working, this should be blurred when overlay is
+				active.<br />
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br />
+				Vivamus lacinia odio vitae vestibulum vestibulum.
 			</div>
 		</div>
 
 		<div class="content">
-			<p>More background content to test the blur effect.</p>
-			<p>The difference should be very obvious between the two boxes above.</p>
+			<div class="text">
+				More content to test the blur effect.<br />
+				This text should also become blurred when the backdrop filter is
+				applied.<br />
+				Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+			</div>
 		</div>
+
+		<div
+			class="backdrop-test"
+			id="localTest"
+		>
+			Local Backdrop Filter Test<br />
+			<small>This should blur content behind it</small>
+		</div>
+
+		<div class="overlay">
+			<h3>Backdrop Filter Tests</h3>
+			<button onclick="toggleFullBackdrop()">Toggle Full Screen Blur</button
+			><br />
+			<button onclick="toggleLocalBackdrop()">Toggle Local Blur</button><br />
+			<button onclick="checkSupport()">Check Browser Support</button>
+			<div id="result"></div>
+		</div>
+
+		<div
+			class="full-backdrop-test"
+			id="fullTest"
+			style="display: none"
+		></div>
+
+		<script>
+			function toggleFullBackdrop() {
+				const element = document.getElementById("fullTest");
+				element.style.display =
+					element.style.display === "none" ? "block" : "none";
+			}
+
+			function toggleLocalBackdrop() {
+				const element = document.getElementById("localTest");
+				element.style.display =
+					element.style.display === "none" ? "block" : "none";
+			}
+
+			function checkSupport() {
+				const testDiv = document.createElement("div");
+				testDiv.style.backdropFilter = "blur(10px)";
+				const supported = testDiv.style.backdropFilter !== "";
+
+				const webkitSupported = "webkitBackdropFilter" in testDiv.style;
+
+				document.getElementById("result").innerHTML = `
+                <p>backdrop-filter: ${
+									supported ? "Supported" : "Not supported"
+								}</p>
+                <p>-webkit-backdrop-filter: ${
+									webkitSupported ? "Supported" : "Not supported"
+								}</p>
+                <p>User Agent: ${navigator.userAgent}</p>
+            `;
+			}
+
+			// Check support on load
+			checkSupport();
+		</script>
 	</body>
 </html>

@@ -198,6 +198,11 @@
 	padding: 0;
 }
 
+#filter-sort-menu:not([hidden]) {
+	display: block !important;
+	visibility: visible !important;
+}
+
 /* ===== REMOVED ALL BUTTON STYLING =====
    All button styling (background, color, border, hover states) 
    is now handled by /public/styles/unified-button-system.css
@@ -255,4 +260,9 @@
 	#navbar-dropdown-portal.visible {
 		transform: translateY(0);
 	}
+}
+
+/* Global rule to hide elements with the `hidden` attribute */
+[hidden] {
+	display: none !important;
 }

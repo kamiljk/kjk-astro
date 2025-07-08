@@ -3,7 +3,7 @@ import { normalizeType } from "../../utils/normalizeType.js";
 import styles from "./Feed.module.css";
 import UnifiedButton from "../common/UnifiedButton.jsx";
 
-export default function Feed({ type: initialType = "all", sort: initialSort = "newest", order: initialOrder = "desc" } = {}) {
+export default function Feed({ type: initialType = "all", sort: initialSort = "activity", order: initialOrder = "desc" } = {}) {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
   function normalizeSortOrder(sort, order) {
     let s = sort;
     let o = order;
-    if (s === "newest") s = "created";
+    if (s === "newest") s = "activity"; // Map legacy 'newest' to new unified timeline
     if (s === "alpha") o = "asc";
     else if (!o) o = "desc";
     return { sort: s, order: o };
@@ -70,6 +70,12 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
       const url = `/api/feed.json?${params}`;
       const res = await fetch(url);
       const data = await res.json();
+      console.log('[Feed.jsx] Fetched data:', data);
+      console.log('[Feed.jsx] First post data:', data.posts[0]?.data);
+      console.log('[Feed.jsx] Thumbnail check for first 3 posts:');
+      data.posts.slice(0, 3).forEach((post, idx) => {
+        console.log(`  Post ${idx}: slug=${post.slug}, thumbnailSrc="${post.data?.thumbnailSrc}", hasThumb=${Boolean(post.data?.thumbnailSrc && post.data?.thumbnailSrc !== "null" && post.data?.thumbnailSrc !== "undefined")}`);
+      });
       setPosts(filterPosts(data.posts, type));
       setHasMore(data.hasMore);
       setLoading(false);
@@ -142,9 +148,9 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
   function fuzzyDate(dateStr) {
     if (!dateStr) return null;
     const date = new Date(dateStr);
-    if (isNaN(date)) return null;
+    if (isNaN(date.getTime())) return null;
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHr = Math.floor(diffMin / 60);
@@ -165,47 +171,74 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
   function calendarDate(dateStr) {
     if (!dateStr) return null;
     const date = new Date(dateStr);
-    if (isNaN(date)) return null;
-    return date.toLocaleString('default', { month: 'short', year: 'numeric' });
+    if (isNaN(date.getTime())) return null;
+    return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   // Helper: is date recent (within 2 months)
   function isRecent(dateStr) {
     if (!dateStr) return false;
     const date = new Date(dateStr);
-    if (isNaN(date)) return false;
+    if (isNaN(date.getTime())) return false;
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffDay = diffMs / (1000 * 60 * 60 * 24);
     return diffDay < 62; // ~2 months
   }
 
-  // Helper: elegant date range display (never mix fuzzy and calendar, always align)
-  function elegantDateRange(start, end) {
-    if (!start && !end) return null;
-    if (start && !end) return isRecent(start) ? fuzzyDate(start) : calendarDate(start);
-    if (!start && end) return isRecent(end) ? fuzzyDate(end) : calendarDate(end);
-    if (start === end) return isRecent(start) ? fuzzyDate(start) : calendarDate(start);
-
-    const startRecent = isRecent(start);
-    const endRecent = isRecent(end);
-
-    // Both recent: show both fuzzy
-    if (startRecent && endRecent) {
-      return `${fuzzyDate(start)} – ${fuzzyDate(end)}`;
+  // Helper: elegant date display prioritizing most relevant date
+  function elegantDateDisplay(dateCreated, dateUpdated) {
+    if (!dateCreated && !dateUpdated) return null;
+    
+    // If no update or same date, show created date as simple text
+    if (!dateUpdated || dateCreated === dateUpdated) {
+      const displayDate = isRecent(dateCreated) ? fuzzyDate(dateCreated) : calendarDate(dateCreated);
+      return (
+        <span style={{ 
+          fontSize: '0.85em', 
+          fontWeight: '400', 
+          color: 'rgba(var(--color-text-rgb, 24, 28, 23), 0.7)' 
+        }}>
+          {displayDate}
+        </span>
+      );
     }
-    // Both old: show both calendar
-    if (!startRecent && !endRecent) {
-      return `${calendarDate(start)} – ${calendarDate(end)}`;
+    
+    // For posts with updates, show chronological timeline: newest ← span → oldest
+    const createdRecent = isRecent(dateCreated);
+    const updatedRecent = isRecent(dateUpdated);
+    
+    // Calculate time span between dates
+    const createdDate = new Date(dateCreated);
+    const updatedDate = new Date(dateUpdated);
+    const diffMs = updatedDate.getTime() - createdDate.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffMonths = Math.floor(diffDays / 30);
+    const diffYears = Math.floor(diffDays / 365);
+    
+    let span = "";
+    if (diffYears >= 1) {
+      span = `${diffYears}y`;
+    } else if (diffMonths >= 1) {
+      span = `${diffMonths}mo`;
+    } else if (diffDays >= 7) {
+      const weeks = Math.floor(diffDays / 7);
+      span = `${weeks}w`;
+    } else {
+      span = `${diffDays}d`;
     }
-    // If one is recent and one is old, show only the recent end (aligned)
-    if (!startRecent && endRecent) {
-      return fuzzyDate(end); // Only show the recent end
-    }
-    if (startRecent && !endRecent) {
-      return calendarDate(end); // Only show the old end (shouldn't happen, but fallback)
-    }
-    return null;
+    
+    // Format dates for display
+    const newestDate = updatedRecent ? fuzzyDate(dateUpdated) : calendarDate(dateUpdated);
+    const oldestDate = calendarDate(dateCreated);
+    
+    // Clean, simple display: prioritize the most relevant information
+    return (
+      <span className="post-date-timeline">
+        <span className="post-date-primary">{newestDate}</span>
+        <span className="post-date-context">({span})</span>
+      </span>
+    );
   }
 
   // Helper to fetch rendered HTML for a post
@@ -231,70 +264,115 @@ export default function Feed({ type: initialType = "all", sort: initialSort = "n
   // In the render, always use normalizeType for data-type
   return (
     <>
-      <ul id="posts-feed" className={styles["posts-feed"]}>
-        {posts.length === 0 && (
-          <li style={{color: 'red', fontWeight: 'bold'}}>
-            No posts loaded
-          </li>
-        )}
-        {/* Refine rendering logic for urgent posts */}
-        {posts.map((post, idx) => {
-          const slug = post.slug || post.data?.slug;
-          const title = post.data?.title || post.title || post.slug || post.data?.name || "Untitled Post";
-          const isUrgent = post.data?.priority === "urgent";
-          const href = `/posts/${slug}/`;
-          const dateCreated = post.data?.dateCreated;
-          const dateUpdated = post.data?.dateUpdated;
-          const description = post.data?.description;
-          const thumbnail = post.data?.thumbnailSrc;
-          const showThumb = Boolean(thumbnail && thumbnail !== "null" && thumbnail !== "undefined");
+        <ul id="posts-feed" className={styles["posts-feed"]}>
+            {posts.length === 0 && (
+                <li className={styles["urgent-post"]}>
+                    No posts loaded
+                </li>
+            )}
+            {posts.map((post, idx) => {
+                const slug = post.slug || post.data?.slug;
+                const title = post.data?.title || post.title || post.slug || post.data?.name || "Untitled Post";
+                const isUrgent = post.data?.priority === "urgent";
+                const href = `/posts/${slug}/`;
+                const dateCreated = post.data?.dateCreated;
+                const dateUpdated = post.data?.dateUpdated;
+                const description = post.data?.description;
+                const thumbnail = post.data?.thumbnailSrc;
+                const hasThumb = Boolean(thumbnail && thumbnail !== "null" && thumbnail !== "undefined");
+                const postType = normalizeType(post.data?.type);
+                
+                console.log(`[Feed.jsx] Post ${slug}:`, {
+                    thumbnail: thumbnail,
+                    hasThumb: hasThumb,
+                    postType: postType,
+                    postData: post.data
+                });
+                
+                // Generate placeholder content based on post type
+                const getPlaceholderContent = () => {
+                    switch(postType) {
+                        case "play":
+                        case "game":
+                            return "🎮";
+                        case "read":
+                            return "📚";
+                        case "post":
+                            return "📝";
+                        case "about":
+                            return "ℹ️";
+                        default:
+                            return "📄";
+                    }
+                };
 
-          return (
-            <li
-              key={slug || idx}
-              data-type={normalizeType(post.data?.type) || ""}
-              className={`${styles["post-card"]} ${isUrgent ? styles["urgent-post"] : ""}`}
-            >
-              <div className={`${styles["post-card-inner"]} ${showThumb ? styles["with-thumbnail"] : ""}`}>
-                <div className={styles["post-card-content"]}>
-                  <a
-                    href={slug ? `/posts/${slug}/` : "#"}
-                    style={{ fontSize: "1.15em", fontWeight: 600, color: isUrgent ? "red" : "var(--color-text)", textDecoration: "none" }}
-                  >
-                    {isUrgent ? `⚠️ ${title}` : title}
-                  </a>
-                  <div style={{ fontSize: "0.95em", color: "#888", margin: "0.2em 0 0.5em 0" }}>{dateCreated || ""}</div>
-                  {description && (
-                    <div className={styles["post-description"]}>
-                      {description}
-                    </div>
-                  )}
-                </div>
-                {showThumb && (
-                  <div className={styles["post-card-thumbnail"]}>
-                    <img
-                      src={thumbnail}
-                      alt={`Thumbnail for ${title}`}
-                      className={styles["post-thumb-large"]}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.parentElement.style.display = "none";
-                      }}
-                      onLoad={(e) => {
-                        e.target.parentElement.classList.remove("loading");
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      <div ref={loaderRef} id="feed-loader" className={styles["feed-loader"]}>
-        {loading ? "Loading..." : !hasMore ? "No more posts." : null}
-      </div>
+                return (
+                    <li
+                        key={slug || idx}
+                        data-type={postType || ""}
+                        className={`${styles["post-card"]} ${isUrgent ? styles["urgent-post"] : ""}`}
+                    >
+                        <div className={`${styles["post-card-inner"]} ${styles["with-thumbnail"]}`}>
+                            <div className={styles["post-card-content"]}>
+                                <a
+                                    href={slug ? `/posts/${slug}/` : "#"}
+                                    className={`${styles["post-title"]} ${isUrgent ? styles["urgent"] : ""}`}
+                                >
+                                    {isUrgent ? `⚠️ ${title}` : title}
+                                </a>
+                                <div className={styles["post-date"]} title={
+                                    dateUpdated && dateUpdated !== dateCreated ? 
+                                        `Updated ${calendarDate(dateUpdated)} → originally created ${calendarDate(dateCreated)}` :
+                                        `Created: ${calendarDate(dateCreated)}`
+                                }>
+                                    {elegantDateDisplay(dateCreated, dateUpdated)}
+                                </div>
+                                {description && (
+                                    <div className={styles["post-description"]}>
+                                        {description}
+                                    </div>
+                                )}
+                            </div>
+                            <div className={styles["post-card-thumbnail"]}>
+                                {hasThumb ? (
+                                    <img
+                                        src={thumbnail}
+                                        alt={`Thumbnail for ${title}`}
+                                        className={styles["post-thumb-large"]}
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            // On error, show placeholder instead
+                                            e.target.style.display = "none";
+                                            const placeholder = e.target.parentElement.querySelector('.thumbnail-placeholder');
+                                            if (placeholder) placeholder.style.display = 'flex';
+                                        }}
+                                        onLoad={(e) => {
+                                            e.target.parentElement.classList.remove("loading");
+                                        }}
+                                    />
+                                ) : null}
+                                <div 
+                                    className={`${styles["thumbnail-placeholder"]} ${hasThumb ? styles["hidden"] : ""}`}
+                                    style={{ 
+                                        display: hasThumb ? 'none' : 'flex'
+                                    }}
+                                >
+                                    <span className={styles["placeholder-icon"]}>
+                                        {getPlaceholderContent()}
+                                    </span>
+                                    <span className={styles["placeholder-text"]}>
+                                        {postType || 'post'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                );
+            })}
+        </ul>
+        <div ref={loaderRef} id="feed-loader" className={styles["feed-loader"]}>
+            {loading ? "Loading..." : !hasMore ? "No more posts." : null}
+        </div>
     </>
   );
 }

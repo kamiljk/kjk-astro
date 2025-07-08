@@ -1,7 +1,6 @@
 ---
 import NavbarMenu from "../islands/NavbarMenu.jsx";
 import ThemeToggle from "../islands/ThemeToggle.jsx";
-import PagefindSearch from "../features/PagefindSearch.jsx";
 const {
 	taxonomy = ["all", "read", "play", "about"],
 	type = "all",
@@ -10,18 +9,23 @@ const {
 } = Astro.props;
 ---
 
-<header class="navbar site-header">
+<header class="navbar site-header liquid-glass-navbar">
 	<div class="site-header-inner">
 		<div class="navbar-content-inner">
 			<div class="navbar-header-row">
-				<a href="/" class="nav__logo">
-					<img src="/assets/k_blk_svg.svg" alt="Logo" class="nav__logo-img" />
+				<!-- Logo -->
+				<a
+					href="/"
+					class="nav__logo"
+				>
+					<img
+						src="/assets/k_blk_svg.svg"
+						alt="Logo"
+						class="nav__logo-img"
+					/>
 				</a>
-				<div class="search-container-inline">
-					<div class="search-bar-inline">
-						<PagefindSearch client:load />
-					</div>
-				</div>
+
+				<!-- Dropdown Menu -->
 				<div class="navbar-menu-wrapper">
 					<NavbarMenu
 						taxonomy={taxonomy}
@@ -30,7 +34,7 @@ const {
 						order="desc"
 						client:load
 					>
-						<ThemeToggle client:load />
+						<div></div>
 					</NavbarMenu>
 				</div>
 			</div>
@@ -38,3 +42,72 @@ const {
 	</div>
 	<div id="navbar-dropdown-portal"></div>
 </header>
+
+<style>
+	/* Navbar layout and positioning */
+	.navbar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 100;
+
+		/* Remove default styles - liquid glass effect handles background */
+		border-bottom: none;
+		box-shadow: none;
+	}
+
+	.site-header-inner {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 0 1rem;
+	}
+
+	.navbar-content-inner {
+		display: flex;
+		align-items: center;
+		min-height: 64px;
+	}
+
+	.navbar-header-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		gap: 1rem;
+	}
+
+	.nav__logo {
+		flex-shrink: 0;
+		z-index: 10; /* Ensure logo is above pseudo-element */
+		position: relative;
+	}
+
+	.nav__logo-img {
+		height: 32px;
+		width: auto;
+		display: block;
+	}
+
+	.navbar-menu-wrapper {
+		position: relative;
+		flex-shrink: 0;
+		z-index: 10; /* Ensure menu is above pseudo-element */
+	}
+
+	/* Ensure content doesn't hide behind fixed navbar */
+	:global(body) {
+		padding-top: 64px;
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.navbar-header-row {
+			gap: 0.5rem;
+		}
+
+		.nav__logo-img {
+			height: 28px;
+		}
+	}
+</style>

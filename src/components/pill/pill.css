@@ -1,0 +1,32 @@
+/* === PILL STYLES === */
+
+.pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--space-2xs) var(--space-s);
+	border-radius: var(--radius-pill);
+	border: var(--border-thin) solid var(--color-border);
+	background-color: var(--color-bg-alt);
+	color: var(--color-text);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+	text-decoration: none;
+	transition: background-color var(--transition-duration-fast)
+			var(--transition-ease),
+		border-color var(--transition-duration-fast) var(--transition-ease);
+}
+
+.pill:hover {
+	background-color: var(--color-border-hover);
+}
+
+.pill.active {
+	background-color: var(--color-accent);
+	border-color: var(--color-accent);
+	color: var(--color-bg);
+}
+
+[data-theme="dark"] .pill.active {
+	color: var(--color-text);
+}

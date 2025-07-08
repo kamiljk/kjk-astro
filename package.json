@@ -3,9 +3,10 @@
 	"type": "module",
 	"version": "0.0.1",
 	"scripts": {
+		"build:astro": "astro build",
+		"build:pagefind": "npx pagefind --site dist",
+		"build": "npm-run-all -s build:astro build:pagefind",
 		"dev": "astro dev",
-		"build": "astro build",
-		"preview": "vercel dev --listen 3000",
 		"astro": "astro",
 		"test": "playwright test"
 	},
@@ -16,6 +17,7 @@
 		"astro": "^5.8.2",
 		"astro-pagefind": "^1.8.3",
 		"gray-matter": "^4.0.3",
+		"npm-run-all": "^4.1.5",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0"
 	},

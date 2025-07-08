@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Feed Layout Test</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					sans-serif;
+				margin: 0;
+				padding: 20px;
+				background: #f5f5f5;
+				line-height: 1.6;
+			}
+
+			.layout-section {
+				margin-bottom: 60px;
+				background: white;
+				padding: 30px;
+				border-radius: 12px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+
+			.layout-title {
+				margin: 0 0 20px 0;
+				font-size: 1.5em;
+				color: #333;
+				border-bottom: 2px solid #00ffe7;
+				padding-bottom: 10px;
+			}
+
+			/* Layout 1: Default List */
+			.feed-default {
+				display: flex;
+				flex-direction: column;
+				gap: 20px;
+			}
+
+			/* Layout 2: Compact List */
+			.feed-compact {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+
+			/* Layout 3: Grid - 2 columns */
+			.feed-grid-2 {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 20px;
+			}
+
+			/* Layout 4: Grid - 3 columns */
+			.feed-grid-3 {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+				gap: 16px;
+			}
+
+			/* Layout 5: Masonry-style */
+			.feed-masonry {
+				columns: 3;
+				column-gap: 20px;
+			}
+
+			/* Layout 6: Large Cards */
+			.feed-large {
+				display: flex;
+				flex-direction: column;
+				gap: 30px;
+			}
+
+			/* Post Card Base Styles */
+			.post-card {
+				background: white;
+				border-radius: 8px;
+				overflow: hidden;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				border: 1px solid #e1e5e9;
+			}
+
+			.post-card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+			}
+
+			/* Variant: Default */
+			.post-card.default {
+				display: flex;
+				min-height: 120px;
+			}
+
+			/* Variant: Compact */
+			.post-card.compact {
+				display: flex;
+				min-height: 80px;
+			}
+
+			/* Variant: Grid */
+			.post-card.grid {
+				display: flex;
+				flex-direction: column;
+				height: 280px;
+			}
+
+			/* Variant: Masonry */
+			.post-card.masonry {
+				display: inline-block;
+				width: 100%;
+				margin-bottom: 20px;
+				break-inside: avoid;
+			}
+
+			/* Variant: Large */
+			.post-card.large {
+				display: flex;
+				min-height: 200px;
+			}
+
+			/* Content Areas */
+			.post-content {
+				flex: 1;
+				padding: 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.post-content.compact {
+				padding: 12px;
+				gap: 4px;
+			}
+
+			.post-content.large {
+				padding: 30px;
+				gap: 12px;
+			}
+
+			.post-title {
+				font-weight: 600;
+				color: #333;
+				text-decoration: none;
+				font-size: 1.1em;
+				margin: 0;
+			}
+
+			.post-title.compact {
+				font-size: 1em;
+			}
+
+			.post-title.large {
+				font-size: 1.4em;
+			}
+
+			.post-title:hover {
+				color: #00ffe7;
+			}
+
+			.post-meta {
+				font-size: 0.85em;
+				color: #666;
+				margin: 0;
+			}
+
+			.post-description {
+				font-size: 0.9em;
+				color: #555;
+				margin: 0;
+				flex: 1;
+			}
+
+			.post-description.compact {
+				font-size: 0.8em;
+			}
+
+			.post-description.large {
+				font-size: 1em;
+			}
+
+			/* Thumbnail Styles */
+			.post-thumbnail {
+				width: 120px;
+				height: 120px;
+				flex-shrink: 0;
+				background: #f8f9fa;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				position: relative;
+				overflow: hidden;
+			}
+
+			.post-thumbnail.compact {
+				width: 80px;
+				height: 80px;
+			}
+
+			.post-thumbnail.grid {
+				width: 100%;
+				height: 140px;
+			}
+
+			.post-thumbnail.large {
+				width: 180px;
+				height: 180px;
+			}
+
+			.post-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.thumbnail-placeholder {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				color: #999;
+				font-size: 0.8em;
+			}
+
+			.placeholder-icon {
+				font-size: 2em;
+			}
+
+			.post-type {
+				display: inline-block;
+				padding: 4px 8px;
+				background: #00ffe7;
+				color: #000;
+				border-radius: 4px;
+				font-size: 0.7em;
+				font-weight: 500;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			.loading {
+				text-align: center;
+				padding: 40px;
+				color: #666;
+			}
+
+			/* Responsive adjustments */
+			@media (max-width: 768px) {
+				.feed-grid-3 {
+					grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+				}
+
+				.feed-masonry {
+					columns: 2;
+				}
+
+				.post-card.default,
+				.post-card.large {
+					flex-direction: column;
+				}
+
+				.post-thumbnail.default,
+				.post-thumbnail.large {
+					width: 100%;
+					height: 120px;
+				}
+			}
+
+			@media (max-width: 480px) {
+				.feed-grid-2,
+				.feed-grid-3 {
+					grid-template-columns: 1fr;
+				}
+
+				.feed-masonry {
+					columns: 1;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Feed Layout Variations</h1>
+
+		<!-- Layout 1: Default List -->
+		<div class="layout-section">
+			<h2 class="layout-title">1. Default List Layout</h2>
+			<div
+				id="feed-default"
+				class="feed-default loading"
+			>
+				Loading posts...
+			</div>
+		</div>
+
+		<!-- Layout 2: Compact List -->
+		<div class="layout-section">
+			<h2 class="layout-title">2. Compact List Layout</h2>
+			<div
+				id="feed-compact"
+				class="feed-compact loading"
+			>
+				Loading posts...
+			</div>
+		</div>
+
+		<!-- Layout 3: Grid 2 Columns -->
+		<div class="layout-section">
+			<h2 class="layout-title">3. Grid Layout (2 Columns)</h2>
+			<div
+				id="feed-grid-2"
+				class="feed-grid-2 loading"
+			>
+				Loading posts...
+			</div>
+		</div>
+
+		<!-- Layout 4: Grid 3 Columns -->
+		<div class="layout-section">
+			<h2 class="layout-title">4. Grid Layout (3 Columns)</h2>
+			<div
+				id="feed-grid-3"
+				class="feed-grid-3 loading"
+			>
+				Loading posts...
+			</div>
+		</div>
+
+		<!-- Layout 5: Masonry Style -->
+		<div class="layout-section">
+			<h2 class="layout-title">5. Masonry Layout</h2>
+			<div
+				id="feed-masonry"
+				class="feed-masonry loading"
+			>
+				Loading posts...
+			</div>
+		</div>
+
+		<!-- Layout 6: Large Cards -->
+		<div class="layout-section">
+			<h2 class="layout-title">6. Large Card Layout</h2>
+			<div
+				id="feed-large"
+				class="feed-large loading"
+			>
+				Loading posts...
+			</div>
+		</div>
+
+		<script>
+			// Utility to get placeholder content based on post type
+			function getPlaceholderContent(type) {
+				switch (type) {
+					case "play":
+					case "game":
+						return "🎮";
+					case "read":
+						return "📚";
+					case "post":
+						return "📝";
+					case "about":
+						return "ℹ️";
+					default:
+						return "📄";
+				}
+			}
+
+			// Create post card for different layouts
+			function createPostCard(post, variant = "default") {
+				const thumbnailSrc = post.data?.thumbnailSrc;
+				const hasThumb = Boolean(
+					thumbnailSrc &&
+						thumbnailSrc !== "null" &&
+						thumbnailSrc !== "undefined"
+				);
+				const postType = post.data?.type || "post";
+
+				const card = document.createElement("div");
+				card.className = `post-card ${variant}`;
+
+				const thumbnailHtml = hasThumb
+					? `<img src="${thumbnailSrc}" alt="Thumbnail for ${post.data?.title}" loading="lazy">`
+					: `<div class="thumbnail-placeholder">
+                    <span class="placeholder-icon">${getPlaceholderContent(
+											postType
+										)}</span>
+                    <span>${postType}</span>
+                </div>`;
+
+				// For grid and masonry, thumbnail goes on top
+				const isVertical = variant === "grid" || variant === "masonry";
+
+				card.innerHTML = `
+                ${
+									isVertical
+										? `<div class="post-thumbnail ${variant}">${thumbnailHtml}</div>`
+										: ""
+								}
+                <div class="post-content ${variant}">
+                    <a href="/posts/${
+											post.slug
+										}/" class="post-title ${variant}">${
+					post.data?.title || "Untitled"
+				}</a>
+                    <div class="post-meta">
+                        <span class="post-type">${postType}</span>
+                        ${
+													post.data?.dateCreated
+														? `• ${new Date(
+																post.data.dateCreated
+														  ).toLocaleDateString()}`
+														: ""
+												}
+                    </div>
+                    ${
+											post.data?.description
+												? `<p class="post-description ${variant}">${post.data.description}</p>`
+												: ""
+										}
+                </div>
+                ${
+									!isVertical
+										? `<div class="post-thumbnail ${variant}">${thumbnailHtml}</div>`
+										: ""
+								}
+            `;
+
+				return card;
+			}
+
+			// Load and display posts in all layouts
+			async function loadFeedLayouts() {
+				try {
+					const response = await fetch("/api/feed.json");
+					const data = await response.json();
+					const posts = data.posts.slice(0, 9); // Limit to 9 posts for testing
+
+					console.log("Loaded posts:", posts);
+
+					// Populate each layout
+					const layouts = [
+						{ id: "feed-default", variant: "default" },
+						{ id: "feed-compact", variant: "compact" },
+						{ id: "feed-grid-2", variant: "grid" },
+						{ id: "feed-grid-3", variant: "grid" },
+						{ id: "feed-masonry", variant: "masonry" },
+						{ id: "feed-large", variant: "large" },
+					];
+
+					layouts.forEach(({ id, variant }) => {
+						const container = document.getElementById(id);
+						container.innerHTML = "";
+						container.classList.remove("loading");
+
+						posts.forEach((post) => {
+							const card = createPostCard(post, variant);
+							container.appendChild(card);
+						});
+					});
+				} catch (error) {
+					console.error("Error loading feeds:", error);
+					document.querySelectorAll(".loading").forEach((el) => {
+						el.innerHTML = `<p style="color: red;">Error loading posts: ${error.message}</p>`;
+					});
+				}
+			}
+
+			// Load when page is ready
+			document.addEventListener("DOMContentLoaded", loadFeedLayouts);
+		</script>
+	</body>
+</html>

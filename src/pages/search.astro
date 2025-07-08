@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import PagefindSearch from "../components/features/PagefindSearch.jsx";
 
 const title = "Search";
 const description = "Search through all posts and content on this site.";
@@ -15,7 +14,7 @@ const description = "Search through all posts and content on this site.";
 
 		<main class="search-main">
 			<div class="search-container-large">
-				<PagefindSearch client:load />
+				<div id="pagefind-search-full"></div>
 			</div>
 
 			<section class="search-tips">
@@ -125,3 +124,32 @@ const description = "Search through all posts and content on this site.";
 		}
 	}
 </style>
+
+<script>
+	// Initialize full-page search
+	function initializeFullSearch() {
+		if (window.PagefindUI) {
+			const container = document.getElementById('pagefind-search-full');
+			if (container) {
+				new window.PagefindUI({
+					element: container,
+					rootUrl: "/pagefind/",
+					showImages: false,
+					showSubResults: true,
+				});
+			}
+		}
+	}
+
+	// Load PagefindUI if not already loaded
+	if (!window.PagefindUI) {
+		const script = document.createElement("script");
+		script.type = "module";
+		script.src = "/pagefind/pagefind-ui.js";
+		script.onload = initializeFullSearch;
+		script.onerror = () => console.error("Failed to load Pagefind UI script");
+		document.head.appendChild(script);
+	} else {
+		initializeFullSearch();
+	}
+</script>

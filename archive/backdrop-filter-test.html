@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Backdrop Filter Test</title>
+		<style>
+			body {
+				margin: 0;
+				padding: 20px;
+				font-family: Arial, sans-serif;
+				background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+				background-size: 400% 400%;
+				animation: gradientBG 15s ease infinite;
+				min-height: 100vh;
+			}
+
+			@keyframes gradientBG {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			.content {
+				background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="20" fill="red">BACKGROUND</text></svg>')
+					repeat;
+				padding: 50px;
+				margin: 20px 0;
+				border: 2px solid #333;
+			}
+
+			.backdrop-test {
+				position: relative;
+				margin: 50px 0;
+				padding: 30px;
+				background: rgba(255, 255, 255, 0.8);
+				backdrop-filter: blur(20px) saturate(180%);
+				-webkit-backdrop-filter: blur(20px) saturate(180%);
+				border-radius: 12px;
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+			}
+
+			.test-text {
+				color: #333;
+				font-size: 18px;
+				font-weight: bold;
+			}
+
+			.no-backdrop {
+				background: rgba(255, 255, 255, 0.8);
+				margin: 20px 0;
+				padding: 30px;
+				border-radius: 12px;
+				border: 1px solid rgba(255, 255, 255, 0.3);
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Backdrop Filter Test</h1>
+
+		<div class="content">
+			<p>
+				This is background content that should be blurred behind the
+				backdrop-filter elements.
+			</p>
+			<p>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+				tempor incididunt ut labore et dolore magna aliqua.
+			</p>
+		</div>
+
+		<div class="backdrop-test">
+			<div class="test-text">
+				✅ WITH backdrop-filter: blur(20px) saturate(180%)
+				<br />If this looks blurry behind, backdrop-filter is working!
+			</div>
+		</div>
+
+		<div class="no-backdrop">
+			<div class="test-text">
+				❌ WITHOUT backdrop-filter
+				<br />This should look sharp/clear behind
+			</div>
+		</div>
+
+		<div class="content">
+			<p>More background content to test the blur effect.</p>
+			<p>The difference should be very obvious between the two boxes above.</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Button States Test</title>
+		<link
+			rel="stylesheet"
+			href="/styles/tokens.css"
+		/>
+		<style>
+			body {
+				padding: 2rem;
+				background: var(--color-bg);
+				color: var(--color-text);
+				font-family: system-ui, sans-serif;
+			}
+
+			.test-section {
+				margin-bottom: 3rem;
+				padding: 1.5rem;
+				border: 2px solid var(--color-border);
+				border-radius: var(--radius-unified);
+				background: var(--color-bg-alt);
+			}
+
+			.test-section h2 {
+				margin-top: 0;
+				color: var(--color-accent);
+			}
+
+			.button-group {
+				display: flex;
+				gap: 1rem;
+				margin: 1rem 0;
+				flex-wrap: wrap;
+			}
+
+			.state-info {
+				margin-top: 1rem;
+				padding: 1rem;
+				background: var(--frosted-bg);
+				border-radius: var(--radius-btn);
+				font-family: monospace;
+				font-size: 0.875rem;
+			}
+
+			/* Import navbar button styles */
+			.pill {
+				background: var(--button-bg-inactive);
+				border: 1px solid var(--button-border-inactive);
+				border-radius: var(--radius-btn);
+				padding: var(--space-xs) var(--space-s);
+				color: var(--button-text-inactive);
+				font-size: 0.875rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				white-space: nowrap;
+				opacity: 0.7;
+				min-height: 44px;
+				min-width: 44px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.pill:hover {
+				background: var(--button-bg-hover);
+				color: var(--button-text-hover);
+				border-color: var(--button-border-hover);
+				opacity: 0.9;
+				transform: translateY(-1px);
+			}
+
+			.pill[data-active="true"] {
+				background: var(--color-accent);
+				color: var(--color-text-on-accent);
+				border-color: var(--color-accent);
+				opacity: 1;
+				font-weight: 600;
+				box-shadow: var(--shadow-glow-accent);
+			}
+
+			.pill[data-active="true"]:hover {
+				transform: translateY(-1px);
+				box-shadow: var(--shadow-glow-accent-strong);
+			}
+
+			.pill:focus-visible {
+				outline: 2px solid var(--color-accent);
+				outline-offset: 2px;
+				text-shadow: 0 0 0 1px var(--color-bg);
+			}
+
+			.glyph {
+				background: var(--button-bg-inactive);
+				border: 1px solid var(--button-border-inactive);
+				border-radius: var(--radius-btn);
+				padding: var(--space-xs);
+				color: var(--button-text-inactive);
+				font-size: 0.875rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				min-width: 2rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				opacity: 0.7;
+			}
+
+			.glyph:hover {
+				background: var(--button-bg-hover);
+				color: var(--button-text-hover);
+				border-color: var(--button-border-hover);
+				opacity: 0.9;
+				transform: translateY(-1px);
+			}
+
+			.glyph[data-active="true"] {
+				background: var(--color-accent);
+				color: var(--color-text-on-accent);
+				border-color: var(--color-accent);
+				opacity: 1;
+				font-weight: 600;
+				box-shadow: var(--shadow-glow-accent);
+			}
+
+			.glyph[data-active="true"]:hover {
+				transform: translateY(-1px);
+				box-shadow: var(--shadow-glow-accent-strong);
+			}
+
+			.glyph:focus-visible {
+				outline: 2px solid var(--color-accent);
+				outline-offset: 2px;
+				text-shadow: 0 0 0 1px var(--color-bg);
+			}
+
+			.theme-toggle {
+				padding: 0.5rem 1rem;
+				background: transparent;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-btn);
+				color: var(--color-text);
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.theme-toggle:hover {
+				background: var(--color-accent);
+				color: var(--color-text-on-accent);
+				border-color: var(--color-accent);
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Button States Comprehensive Test</h1>
+
+		<div class="test-section">
+			<h2>Filter Pills (data-active states)</h2>
+			<div class="button-group">
+				<button
+					class="pill"
+					data-active="false"
+				>
+					All (Inactive)
+				</button>
+				<button
+					class="pill"
+					data-active="true"
+				>
+					Read (Active)
+				</button>
+				<button
+					class="pill"
+					data-active="false"
+				>
+					Play (Inactive)
+				</button>
+				<button
+					class="pill"
+					data-active="false"
+				>
+					About (Inactive)
+				</button>
+			</div>
+			<div
+				class="state-info"
+				id="pill-info"
+			>
+				Hover and click buttons above to test states
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Sort Pills (data-active states)</h2>
+			<div class="button-group">
+				<button
+					class="pill"
+					data-active="true"
+					data-sort="updated"
+				>
+					Updated (Active)
+				</button>
+				<button
+					class="pill"
+					data-active="false"
+					data-sort="created"
+				>
+					Created (Inactive)
+				</button>
+				<button
+					class="pill"
+					data-active="false"
+					data-sort="alpha"
+				>
+					A-Z (Inactive)
+				</button>
+			</div>
+			<div
+				class="state-info"
+				id="sort-info"
+			>
+				Hover and click buttons above to test states
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Order Glyphs (data-active states)</h2>
+			<div class="button-group">
+				<button
+					class="glyph"
+					data-active="true"
+					data-order="desc"
+				>
+					↓ (Active)
+				</button>
+				<button
+					class="glyph"
+					data-active="false"
+					data-order="asc"
+				>
+					↑ (Inactive)
+				</button>
+			</div>
+			<div
+				class="state-info"
+				id="glyph-info"
+			>
+				Hover and click buttons above to test states
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Theme Toggle (hover states)</h2>
+			<div class="button-group">
+				<button
+					class="theme-toggle"
+					id="theme-toggle"
+				>
+					Dark Mode
+				</button>
+			</div>
+			<div
+				class="state-info"
+				id="theme-info"
+			>
+				Test theme toggle functionality
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h2>Design Token Values</h2>
+			<div
+				class="state-info"
+				id="token-info"
+			>
+				Loading token values...
+			</div>
+		</div>
+
+		<script>
+			// Display design token values
+			function displayTokenValues() {
+				const root = document.documentElement;
+				const computedStyle = getComputedStyle(root);
+
+				const tokens = [
+					"--color-accent",
+					"--color-text-on-accent",
+					"--button-bg-inactive",
+					"--button-text-inactive",
+					"--button-border-inactive",
+					"--button-bg-hover",
+					"--button-text-hover",
+					"--button-border-hover",
+					"--shadow-glow-accent",
+					"--shadow-glow-accent-strong",
+				];
+
+				const tokenInfo = document.getElementById("token-info");
+				let html = "<h3>Current Design Token Values:</h3>";
+
+				tokens.forEach((token) => {
+					const value = computedStyle.getPropertyValue(token).trim();
+					html += `<div><strong>${token}:</strong> ${
+						value || "undefined"
+					}</div>`;
+				});
+
+				tokenInfo.innerHTML = html;
+			}
+
+			// Test button state updates
+			function setupButtonTests() {
+				// Add event listeners to all test buttons
+				document.querySelectorAll(".pill, .glyph").forEach((button) => {
+					button.addEventListener("click", function () {
+						// Toggle active state for testing
+						const isActive = this.getAttribute("data-active") === "true";
+
+						// Reset siblings in the same group
+						const parent = this.parentElement;
+						parent.querySelectorAll(".pill, .glyph").forEach((sibling) => {
+							sibling.setAttribute("data-active", "false");
+						});
+
+						// Set this button as active
+						this.setAttribute("data-active", "true");
+
+						// Update info display
+						updateStateInfo(this);
+					});
+
+					button.addEventListener("mouseenter", function () {
+						updateStateInfo(this);
+					});
+				});
+			}
+
+			function updateStateInfo(button) {
+				const isActive = button.getAttribute("data-active") === "true";
+				const computedStyle = getComputedStyle(button);
+
+				const info = {
+					"data-active": isActive,
+					background: computedStyle.background,
+					color: computedStyle.color,
+					"border-color": computedStyle.borderColor,
+					"box-shadow": computedStyle.boxShadow,
+					opacity: computedStyle.opacity,
+					transform: computedStyle.transform,
+				};
+
+				// Find the appropriate info div
+				let infoDiv;
+				if (button.classList.contains("pill")) {
+					if (
+						button
+							.closest(".test-section")
+							.querySelector("h2")
+							.textContent.includes("Filter")
+					) {
+						infoDiv = document.getElementById("pill-info");
+					} else {
+						infoDiv = document.getElementById("sort-info");
+					}
+				} else if (button.classList.contains("glyph")) {
+					infoDiv = document.getElementById("glyph-info");
+				}
+
+				if (infoDiv) {
+					let html = "<h4>Current Button State:</h4>";
+					Object.entries(info).forEach(([key, value]) => {
+						html += `<div><strong>${key}:</strong> ${value}</div>`;
+					});
+					infoDiv.innerHTML = html;
+				}
+			}
+
+			// Theme toggle functionality
+			function setupThemeToggle() {
+				const themeToggle = document.getElementById("theme-toggle");
+				const themeInfo = document.getElementById("theme-info");
+
+				themeToggle.addEventListener("click", function () {
+					const currentTheme =
+						document.documentElement.dataset.theme || "light";
+					const newTheme = currentTheme === "light" ? "dark" : "light";
+
+					document.documentElement.dataset.theme = newTheme;
+					this.textContent = newTheme === "light" ? "Dark Mode" : "Light Mode";
+
+					// Update info
+					themeInfo.innerHTML = `<h4>Theme switched to: ${newTheme}</h4>`;
+
+					// Refresh token values
+					setTimeout(displayTokenValues, 100);
+				});
+			}
+
+			// Initialize everything when DOM is ready
+			document.addEventListener("DOMContentLoaded", function () {
+				displayTokenValues();
+				setupButtonTests();
+				setupThemeToggle();
+
+				console.log("Button state test page initialized");
+			});
+		</script>
+	</body>
+</html>

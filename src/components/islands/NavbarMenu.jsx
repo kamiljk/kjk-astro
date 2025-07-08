@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import ReactDOM from "react-dom";
 import styles from "./NavbarMenu.module.css";
 
 const SORT_OPTIONS = [
@@ -19,7 +18,6 @@ export default function NavbarMenu({
 	const [isClient, setIsClient] = useState(false);
 	const btnRef = useRef(null);
 	const menuRef = useRef(null);
-	const [portalTarget, setPortalTarget] = useState(null);
 
 	// State should reflect props from URL
 	const [activeType, setActiveType] = useState(type);
@@ -29,7 +27,6 @@ export default function NavbarMenu({
 	useEffect(() => {
 		if (typeof window !== 'undefined') {
 			setIsClient(true);
-			setPortalTarget(document.querySelector("#navbar-dropdown-portal"));
 
 			const url = new URL(window.location.href);
 			setActiveType(url.searchParams.get('type') || type);
@@ -102,14 +99,16 @@ export default function NavbarMenu({
 				onClick={toggleMenu}
 				aria-expanded={menuOpen}
 				aria-label="Open menu"
-				className="pill"
+				aria-controls="filter-sort-menu"
+				className="dropdown-button pill"
+				data-dropdown-trigger=""
 			>
-				<svg 
+				<svg
 					className={`${styles['menu-toggle-arrow']} ${menuOpen ? styles.open : ''}`}
-					width="24" 
-					height="24" 
-					viewBox="0 0 24 24" 
-					fill="none" 
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
 					stroke="currentColor"
 					strokeWidth="2"
 					strokeLinecap="round"
@@ -119,11 +118,16 @@ export default function NavbarMenu({
 				</svg>
 			</button>
 
-			{isClient && portalTarget && ReactDOM.createPortal(
+			{isClient && (
 				<div
 					ref={menuRef}
-					className={`${styles['menu-container']} ${menuOpen ? styles.visible : ''}`}
+					id="filter-sort-menu"
+					className={`liquid-glass-base liquid-glass-dropdown ${menuOpen ? 'dropdown-visible' : ''}`}
 					role="menu"
+					hidden={!menuOpen}
+					aria-hidden={!menuOpen}
+					aria-expanded={menuOpen}
+					tabIndex={menuOpen ? -1 : undefined}
 				>
 					<div className={styles['menu-content']}>
 						<div className={styles['menu-section']}>
@@ -182,8 +186,7 @@ export default function NavbarMenu({
 							{children}
 						</div>
 					</div>
-				</div>,
-				portalTarget
+				</div>
 			)}
 		</>
 	);

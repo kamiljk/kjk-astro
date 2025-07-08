@@ -1,25 +1,60 @@
 // Navbar dropdown and search functionality
 class NavbarManager {
 	constructor() {
+		console.log("[NavbarManager] Initializing...");
 		this.overlay = null;
 		this.isMenuOpen = false;
 		this.isSearchOpen = false;
-		this.searchObserver = null;
+		this.searchResults = [];
+		this.searchDebounceTimer = null;
 		this.initializeElements();
 		this.setupEventListeners();
-		this.initializeSearchPortal();
+		this.initializePagefind();
+		console.log("[NavbarManager] Initialization complete");
 	}
 
 	initializeElements() {
 		this.searchInput = document.querySelector(".pagefind-ui__search-input");
 		this.menuButton = document.querySelector("[data-dropdown-trigger]");
+		this.dropdownMenu = document.getElementById("filter-sort-menu");
 		this.searchPortal = document.getElementById("navbar-search-portal");
 		this.dropdownPortal = document.getElementById("navbar-dropdown-portal");
+
+		console.log("[NavbarManager] Initialized elements:", {
+			menuButton: !!this.menuButton,
+			dropdownMenu: !!this.dropdownMenu,
+			searchInput: !!this.searchInput,
+			searchPortal: !!this.searchPortal,
+			dropdownPortal: !!this.dropdownPortal,
+		});
+	}
+
+	async initializePagefind() {
+		// Load Pagefind if not already loaded
+		if (!window.Pagefind) {
+			try {
+				const script = document.createElement("script");
+				script.type = "module";
+				script.src = "/pagefind/pagefind.js";
+				script.onload = () => {
+					console.log("[NavbarManager] Pagefind loaded successfully");
+				};
+				script.onerror = () => {
+					console.error("[NavbarManager] Failed to load Pagefind script");
+				};
+				document.head.appendChild(script);
+			} catch (error) {
+				console.error("[NavbarManager] Error loading Pagefind:", error);
+			}
+		}
 	}
 
 	setupEventListeners() {
-		// Search input focus/blur
+		// Search input events
 		if (this.searchInput) {
+			this.searchInput.addEventListener("input", (e) =>
+				this.handleSearchInput(e)
+			);
 			this.searchInput.addEventListener("focus", () =>
 				this.handleSearchFocus()
 			);
@@ -48,43 +83,146 @@ class NavbarManager {
 		});
 	}
 
-	initializeSearchPortal() {
-		if (!this.searchPortal) return;
+	async handleSearchInput(e) {
+		const query = e.target.value.trim();
+		console.log(`[NavbarManager] Search input: "${query}"`);
 
-		// Create and observe for search results
-		this.searchObserver = new MutationObserver((mutations) => {
-			mutations.forEach((mutation) => {
-				mutation.addedNodes.forEach((node) => {
-					if (
-						node.nodeType === 1 &&
-						node.classList?.contains("pagefind-ui__results")
-					) {
-						this.moveSearchResultsToPortal(node);
-					}
-				});
-			});
-		});
+		// Clear previous debounce timer
+		if (this.searchDebounceTimer) {
+			clearTimeout(this.searchDebounceTimer);
+		}
 
-		// Start observing the document for search results
-		this.searchObserver.observe(document.body, {
-			childList: true,
-			subtree: true,
-		});
+		// For testing - show portal immediately with any input
+		if (query.length > 0) {
+			console.log("[NavbarManager] Showing test search results");
+			this.searchPortal.innerHTML = `
+				<div class="search-results-container">
+					<div class="search-results-header">Testing search for "${query}"</div>
+					<div class="search-results-list">
+						<div class="search-result-item">
+							<div class="search-result-title">Test Result</div>
+							<div class="search-result-excerpt">This is a test result to verify the search UI is working.</div>
+						</div>
+					</div>
+				</div>
+			`;
+			this.showSearch();
+			return;
+		}
+
+		// Debounce search to avoid too many requests
+		this.searchDebounceTimer = setTimeout(async () => {
+			if (query.length === 0) {
+				this.closeSearch();
+				return;
+			}
+
+			if (query.length < 2) {
+				return; // Don't search for single characters
+			}
+
+			await this.performSearch(query);
+		}, 300);
 	}
 
-	moveSearchResultsToPortal(resultsElement) {
-		if (this.searchPortal && resultsElement) {
-			// Clear existing results
-			this.searchPortal.innerHTML = "";
-			// Move results to portal
-			this.searchPortal.appendChild(resultsElement);
+	async performSearch(query) {
+		if (!window.Pagefind) {
+			console.warn("[NavbarManager] Pagefind not loaded yet");
+			return;
+		}
+
+		try {
+			console.log(`[NavbarManager] Searching for: "${query}"`);
+			const results = await window.Pagefind.search(query);
+
+			this.searchResults = results.results || [];
+			this.renderSearchResults(query);
+
+			if (this.searchResults.length > 0) {
+				this.showSearch();
+			} else {
+				this.showSearch(); // Still show "No results" message
+			}
+		} catch (error) {
+			console.error("[NavbarManager] Search error:", error);
 		}
 	}
 
+	renderSearchResults(query) {
+		if (!this.searchPortal) return;
+
+		if (this.searchResults.length === 0) {
+			this.searchPortal.innerHTML = `
+				<div class="search-results-container">
+					<div class="search-message">No results found for "${query}"</div>
+				</div>
+			`;
+			return;
+		}
+
+		const resultsHtml = this.searchResults
+			.map((result) => {
+				const title = result.meta?.title || "Untitled";
+				const excerpt = result.meta?.excerpt || "";
+				const url = result.url || "#";
+
+				return `
+				<a href="${url}" class="search-result-item">
+					<div class="search-result-title">${title}</div>
+					${excerpt ? `<div class="search-result-excerpt">${excerpt}</div>` : ""}
+				</a>
+			`;
+			})
+			.join("");
+
+		this.searchPortal.innerHTML = `
+			<div class="search-results-container">
+				<div class="search-results-header">
+					${this.searchResults.length} result${
+			this.searchResults.length !== 1 ? "s" : ""
+		} for "${query}"
+				</div>
+				<div class="search-results-list">
+					${resultsHtml}
+				</div>
+			</div>
+		`;
+	}
+
 	handleSearchFocus() {
+		console.log("[NavbarManager] Search focused");
+		if (this.searchInput.value.trim().length > 0) {
+			this.showSearch();
+		}
 		this.closeMenu();
+	}
+
+	handleSearchBlur(e) {
+		// Delay to allow clicks on search results
+		setTimeout(() => {
+			if (!this.searchPortal?.contains(document.activeElement)) {
+				this.closeSearch();
+			}
+		}, 150);
+	}
+
+	showSearch() {
 		this.isSearchOpen = true;
 		this.showOverlay();
+		if (this.searchPortal) {
+			this.searchPortal.setAttribute("data-show", "true");
+		}
+	}
+
+	closeSearch() {
+		this.isSearchOpen = false;
+		if (this.searchPortal) {
+			this.searchPortal.removeAttribute("data-show");
+			this.searchPortal.innerHTML = "";
+		}
+		if (!this.isMenuOpen) {
+			this.hideOverlay();
+		}
 	}
 
 	handleSearchBlur(e) {
@@ -110,26 +248,20 @@ class NavbarManager {
 	openMenu() {
 		this.closeSearch();
 		this.isMenuOpen = true;
-		this.menuButton?.classList.add("open");
+		this.menuButton?.setAttribute("aria-expanded", "true");
+		this.dropdownMenu?.removeAttribute("hidden");
+		this.dropdownMenu?.setAttribute("aria-hidden", "false");
 		this.dropdownPortal?.setAttribute("data-show", "true");
 		this.showOverlay();
 	}
 
 	closeMenu() {
 		this.isMenuOpen = false;
-		this.menuButton?.classList.remove("open");
+		this.menuButton?.setAttribute("aria-expanded", "false");
+		this.dropdownMenu?.setAttribute("hidden", "");
+		this.dropdownMenu?.setAttribute("aria-hidden", "true");
 		this.dropdownPortal?.removeAttribute("data-show");
 		if (!this.isSearchOpen) {
-			this.hideOverlay();
-		}
-	}
-
-	closeSearch() {
-		this.isSearchOpen = false;
-		if (this.searchPortal) {
-			this.searchPortal.innerHTML = "";
-		}
-		if (!this.isMenuOpen) {
 			this.hideOverlay();
 		}
 	}
@@ -148,6 +280,7 @@ class NavbarManager {
 			this.searchPortal?.contains(e.target);
 		const isMenuRelated =
 			this.menuButton?.contains(e.target) ||
+			this.dropdownMenu?.contains(e.target) ||
 			this.dropdownPortal?.contains(e.target);
 
 		if (!isSearchRelated && !isMenuRelated) {
@@ -158,33 +291,47 @@ class NavbarManager {
 	showOverlay() {
 		if (!this.overlay) {
 			this.overlay = document.createElement("div");
-			this.overlay.className = "overlay-active";
+			this.overlay.style.cssText = `
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+				z-index: 99998;
+				pointer-events: auto;
+				transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+			`;
 			document.body.appendChild(this.overlay);
 		}
-		// Apply theme-appropriate overlay using CSS classes
+
+		// Apply theme-appropriate overlay
 		const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-		this.overlay.dataset.theme = isDark ? "dark" : "light";
+		this.overlay.style.backgroundColor = isDark
+			? "rgba(0, 0, 0, 0.8)"
+			: "rgba(0, 0, 0, 0.6)";
+		this.overlay.classList.add("overlay-active");
 	}
 
 	hideOverlay() {
 		if (this.overlay) {
 			this.overlay.classList.remove("overlay-active");
-			setTimeout(() => {
-				if (!this.isMenuOpen && !this.isSearchOpen) {
-					this.overlay.remove();
-					this.overlay = null;
-				}
-			}, 250);
+			this.overlay.style.backgroundColor = "transparent";
 		}
 	}
 
 	destroy() {
-		if (this.searchObserver) {
-			this.searchObserver.disconnect();
+		// Clean up event listeners and observers
+		if (this.searchDebounceTimer) {
+			clearTimeout(this.searchDebounceTimer);
 		}
+
 		if (this.overlay) {
 			this.overlay.remove();
 		}
+
+		// Remove event listeners
+		document.removeEventListener("click", this.handleOutsideClick);
+		document.removeEventListener("keydown", this.handleEscape);
 	}
 }
 
@@ -196,3 +343,5 @@ if (document.readyState === "loading") {
 } else {
 	window.navbarManager = new NavbarManager();
 }
+
+export default NavbarManager;

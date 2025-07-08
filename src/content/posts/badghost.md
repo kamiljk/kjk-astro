@@ -7,6 +7,7 @@ dateUpdated: 2025-04-22T05:00:00.000Z
 keywords:
     - ghost
 show: true
+thumbnailSrc: "/games/badghost/thumbnail.png"
 ---
 
 # Bad Ghost

@@ -1,0 +1,89 @@
+/* === NAVBAR STYLES === */
+
+.navbar {
+	height: var(--navbar-height);
+	background-color: rgba(var(--color-bg-rgb), 0.8);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+	color: var(--color-text);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 var(--space-m);
+	box-shadow: var(--shadow-default);
+}
+
+.navbar a {
+	color: var(--color-link);
+	text-decoration: var(--text-decoration-none);
+	transition: color var(--transition-duration-fast) ease;
+}
+
+.navbar a:hover {
+	color: var(--color-link-hover);
+}
+
+.navbar .navbar-item {
+	margin: 0 var(--space-s);
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-medium);
+}
+
+.navbar .navbar-item.active {
+	color: var(--color-accent);
+	font-weight: var(--font-weight-bold);
+}
+
+/* New Navbar Layout */
+.navbar-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.navbar-section {
+	display: flex;
+	align-items: center;
+}
+
+.logo-section {
+	flex-shrink: 0;
+}
+
+.search-section {
+	flex-grow: 1;
+	margin: 0 var(--space-m);
+}
+
+.dropdown-section {
+	flex-shrink: 0;
+}
+
+.portal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100;
+	background-color: rgba(0, 0, 0, 0.1);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+}
+
+#dropdown-container-target {
+	position: absolute;
+	top: var(--navbar-height);
+	right: var(--space-m);
+	width: 280px;
+}
+
+.dropdown-menu {
+	background-color: var(--color-bg-semi-transparent);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-m);
+	padding: var(--space-s);
+	box-shadow: var(--shadow-dropdown);
+	width: 100%;
+}

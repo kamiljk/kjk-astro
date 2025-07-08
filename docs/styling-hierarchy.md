@@ -56,3 +56,65 @@ leakage.
 - **Avoid**: Manually overriding the library's internal class names with
   high-specificity selectors or `!important`. This approach is brittle and
   prone to breaking when the library is updated.
+
+## Modular CSS Structure
+
+Styles are organized into modular files, each scoped to a specific component or feature. This structure improves maintainability and scalability.
+
+### Example Structure
+
+```plaintext
+src/
+  components/
+    navbar/
+      navbar.css
+    pill/
+      pill.css
+    button/
+      button.css
+  assets/
+    global.css
+```
+
+### Importing Modular Styles
+
+Modular styles are imported into `global.css`:
+
+```css
+/* === PILL === */
+@import "../components/pill/pill.css";
+
+/* === NAVBAR === */
+@import "../components/navbar/navbar.css";
+
+/* === BUTTON === */
+@import "../components/button/button.css";
+```
+
+## Validation
+
+A style validation script (`scripts/style-validator.js`) ensures all styles reference tokens and flags hardcoded values.
+
+### Validation Details
+
+The script scans all CSS files in the `src` directory and checks for:
+
+- Hardcoded values (e.g., colors, spacing, etc.).
+- Missing references to tokens from `tokens.css`.
+
+This ensures consistency and adherence to the tokenization strategy.
+
+### Running the Validator
+
+Run the script using:
+
+```bash
+node scripts/style-validator.js
+```
+
+## Best Practices
+
+1. **Always use tokens**: Reference tokens from `tokens.css` for all reusable values.
+2. **Modularize styles**: Keep component-specific styles in their own files.
+3. **Document changes**: Update this document when adding new tokens or modular styles.
+4. **Validate regularly**: Run the style validator to ensure consistency.

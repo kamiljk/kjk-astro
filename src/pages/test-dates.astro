@@ -1,0 +1,398 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+// Get some example posts with both created and updated dates
+const allPosts = await getCollection("posts");
+
+// Helper function to format dates elegantly
+function formatDate(date) {
+    if (!date) return null;
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return null;
+    return dateObj.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+}
+
+function fuzzyDate(date) {
+    if (!date) return null;
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return null;
+    
+    const now = new Date();
+    const diffMs = now.getTime() - dateObj.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffMonths = now.getMonth() - dateObj.getMonth() + 12 * (now.getFullYear() - dateObj.getFullYear());
+    
+    if (diffDays < 1) return 'today';
+    if (diffDays === 1) return 'yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 31) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffMonths < 12) return `${diffMonths} months ago`;
+    return `${now.getFullYear() - dateObj.getFullYear()} years ago`;
+}
+
+function isRecent(date) {
+    if (!date) return false;
+    const dateObj = new Date(date);
+    const now = new Date();
+    const diffDays = (now.getTime() - dateObj.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays < 60; // Less than 2 months
+}
+
+function elegantDateRange(created, updated) {
+    if (!created && !updated) return "No date available";
+    if (!updated || created === updated) {
+        return isRecent(created) ? fuzzyDate(created) : formatDate(created);
+    }
+    
+    const createdRecent = isRecent(created);
+    const updatedRecent = isRecent(updated);
+    
+    // Calculate time span between dates
+    const createdDate = new Date(created);
+    const updatedDate = new Date(updated);
+    const diffMs = updatedDate.getTime() - createdDate.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffMonths = Math.floor(diffDays / 30);
+    const diffYears = Math.floor(diffDays / 365);
+    
+    let span = "";
+    if (diffYears >= 1) {
+        span = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+    } else if (diffMonths >= 1) {
+        span = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+    } else if (diffDays >= 7) {
+        const weeks = Math.floor(diffDays / 7);
+        span = `${weeks} week${weeks > 1 ? 's' : ''}`;
+    } else {
+        span = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    }
+    
+    // If both are old, use the chronological arrow format with span (newest → oldest)
+    if (!createdRecent && !updatedRecent) {
+        return `${formatDate(updated)} →(${span})→ ${formatDate(created)}`;
+    }
+    
+    // If updated is recent, emphasize that with chronological timeline
+    if (updatedRecent) {
+        return `${fuzzyDate(updated)} →(${span})→ ${formatDate(created)}`;
+    } else {
+        return `${formatDate(updated)} →(${span})→ ${formatDate(created)}`;
+    }
+}
+
+// Filter posts to get good examples
+const postsWithUpdated = allPosts.filter(post => post.data.dateUpdated && post.data.show);
+const postsWithoutUpdated = allPosts.filter(post => !post.data.dateUpdated && post.data.show).slice(0, 3);
+const urgentPosts = allPosts.filter(post => post.data.priority === "urgent" && post.data.show);
+
+// Create test cases for different scenarios - with more arrow format examples
+const testCases = [
+    {
+        title: "Recent Post (No Updates)",
+        posts: [{
+            title: "Fresh Content",
+            dateCreated: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+            dateUpdated: null,
+            description: "A recently created post with no updates"
+        }]
+    },
+    {
+        title: "Recent Creation → Recent Update",
+        posts: [{
+            title: "Active Development",
+            dateCreated: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 2 weeks ago
+            dateUpdated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+            description: "Recently created and recently updated - shows fuzzy update with timeline"
+        }]
+    },
+    {
+        title: "Old Creation → Recent Update",
+        posts: [{
+            title: "Revived Content",
+            dateCreated: new Date(2023, 5, 15), // June 15, 2023
+            dateUpdated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+            description: "Old post that was recently updated"
+        }]
+    },
+    {
+        title: "Old Creation → Old Update (Chronological Arrow Format)",
+        posts: [
+            {
+                title: "Historical Record A",
+                dateCreated: new Date(2023, 1, 15), // Feb 15, 2023
+                dateUpdated: new Date(2023, 8, 20), // Sep 20, 2023
+                description: "Shows chronological timeline: newest →(span)→ oldest"
+            },
+            {
+                title: "Historical Record B", 
+                dateCreated: new Date(2022, 11, 8), // Dec 8, 2022
+                dateUpdated: new Date(2024, 2, 12), // Mar 12, 2024
+                description: "Another example of chronological date arrow format"
+            },
+            {
+                title: "Historical Record C",
+                dateCreated: new Date(2023, 6, 3), // Jul 3, 2023
+                dateUpdated: new Date(2024, 0, 28), // Jan 28, 2024
+                description: "Six-month gap shown chronologically"
+            }
+        ]
+    },
+    {
+        title: "Long Development Cycles (Chronological Arrow Format)",
+        posts: [
+            {
+                title: "Research Project Alpha",
+                dateCreated: new Date(2022, 8, 5), // Sep 5, 2022
+                dateUpdated: new Date(2024, 4, 15), // May 15, 2024
+                description: "Long-term project spanning nearly 2 years - chronological timeline"
+            },
+            {
+                title: "Documentation Overhaul",
+                dateCreated: new Date(2023, 3, 22), // Apr 22, 2023
+                dateUpdated: new Date(2024, 10, 8), // Nov 8, 2024
+                description: "Major documentation revision after 1.5 years - newest → oldest format"
+            }
+        ]
+    },
+    {
+        title: "Mixed Timeline Examples",
+        posts: [
+            {
+                title: "Quick Iteration",
+                dateCreated: new Date(2024, 5, 1), // Jun 1, 2024
+                dateUpdated: new Date(2024, 5, 15), // Jun 15, 2024
+                description: "Same month creation and update"
+            },
+            {
+                title: "Seasonal Update",
+                dateCreated: new Date(2023, 11, 20), // Dec 20, 2023
+                dateUpdated: new Date(2024, 5, 20), // Jun 20, 2024
+                description: "Half-year gap for seasonal content"
+            }
+        ]
+    },
+    {
+        title: "Real Examples from Your Content",
+        posts: postsWithUpdated.slice(0, 5)
+    }
+];
+---
+
+<BaseLayout>
+    <div style="max-width: 840px; margin: 0 auto; padding: 2rem;">
+        <h1>Date Display Testing - Feed & Card Items</h1>
+        
+        <div style="margin-bottom: 3rem;">
+            <h2>Current System Analysis</h2>
+            <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <p><strong>Schema:</strong> Posts have <code>dateCreated</code> (required) and <code>dateUpdated</code> (optional)</p>
+                <p><strong>Current Issue:</strong> Only showing <code>dateCreated</code> in feed, not utilizing <code>dateUpdated</code></p>
+                <p><strong>Posts analyzed:</strong> {allPosts.length} total, {postsWithUpdated.length} with updates</p>
+            </div>
+        </div>
+
+        {testCases.map((testCase, index) => (
+            <section style="margin-bottom: 3rem;">
+                <h2>{testCase.title}</h2>
+                <div style="display: grid; gap: 1rem;">
+                    {testCase.posts.map((post, postIndex) => {
+                        const created = post.dateCreated || post.data?.dateCreated;
+                        const updated = post.dateUpdated || post.data?.dateUpdated;
+                        
+                        return (
+                            <article style="border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; background: white;">
+                                <h3 style="margin-top: 0; color: #333;">
+                                    {post.title || post.data?.title}
+                                </h3>
+                                
+                                <div style="margin: 1rem 0; display: grid; gap: 0.5rem;">
+                                    <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; font-size: 0.9rem;">
+                                        
+                                        <!-- Raw Dates -->
+                                        <strong>Created:</strong>
+                                        <span class="date-format-inter">{created ? formatDate(created) : "No date"}</span>
+                                        
+                                        {updated && (
+                                            <>
+                                                <strong>Updated:</strong>
+                                                <span class="date-format-inter">{formatDate(updated)}</span>
+                                            </>
+                                        )}
+                                        
+                                        <!-- Elegant Display Options -->
+                                        <strong>Arrow Format (You Liked):</strong>
+                                        <span class="date-arrow-inter" style="color: #666; font-weight: 600; font-style: italic;">
+                                            {updated ? 
+                                                `${formatDate(created)} — ${formatDate(updated)}` :
+                                                formatDate(created)
+                                            }
+                                        </span>
+                                        
+                                        <strong>Smart Arrow Format:</strong>
+                                        <span class="date-arrow-inter" style="color: #666; font-style: italic;">
+                                            {elegantDateRange(created, updated)}
+                                        </span>
+                                        
+                                        <strong>Compact Arrow:</strong>
+                                        <span class="date-arrow-inter" style="color: #666;">
+                                            {updated ? 
+                                                `${(formatDate(created) || '').replace(', ', ' ')} — ${(formatDate(updated) || '').replace(', ', ' ')}` :
+                                                formatDate(created)
+                                            }
+                                        </span>
+                                        
+                                        <strong>Timeline Style:</strong>
+                                        <span class="date-timeline-inter" style="color: #666;">
+                                            {updated ? 
+                                                `${formatDate(created)} —> ${formatDate(updated)}` :
+                                                formatDate(created)
+                                            }
+                                        </span>
+                                        
+                                        <strong>Evolution Style:</strong>
+                                        <span class="date-timeline-inter" style="color: #666;">
+                                            {updated ? 
+                                                `${formatDate(created)} —-> ${formatDate(updated)}` :
+                                                formatDate(created)
+                                            }
+                                        </span>
+                                        
+                                        <strong>Current System:</strong>
+                                        <span class="date-format-inter" style="color: #666;">
+                                            {updated ? 
+                                                (isRecent(updated) ? 
+                                                    `Updated ${fuzzyDate(updated)}` : 
+                                                    `Updated ${formatDate(updated)}`
+                                                ) :
+                                                (isRecent(created) ? 
+                                                    fuzzyDate(created) : 
+                                                    formatDate(created)
+                                                )
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <p style="color: #666; margin-bottom: 0;">
+                                    {post.description || post.data?.description || "No description available"}
+                                </p>
+                                
+                                {/* Analysis */}
+                                <details style="margin-top: 1rem; font-size: 0.85rem; color: #555;">
+                                    <summary style="cursor: pointer;">Analysis</summary>
+                                    <div style="margin-top: 0.5rem; padding: 0.5rem; background: #f9f9f9; border-radius: 4px;">
+                                        <p><strong>Age:</strong> Created {fuzzyDate(created)} 
+                                           {updated && `, updated ${fuzzyDate(updated)}`}</p>
+                                        <p><strong>Recency:</strong> 
+                                           Created is {isRecent(created) ? "recent" : "old"}
+                                           {updated && `, updated is ${isRecent(updated) ? "recent" : "old"}`}
+                                        </p>
+                                        <p><strong>Recommendation:</strong> 
+                                           {updated ? 
+                                               (isRecent(updated) ? 
+                                                   "Show fuzzy updated date prominently" : 
+                                                   "Show calendar updated date"
+                                               ) :
+                                               (isRecent(created) ? 
+                                                   "Show fuzzy created date" : 
+                                                   "Show calendar created date"
+                                               )
+                                           }
+                                        </p>
+                                    </div>
+                                </details>
+                            </article>
+                        );
+                    })}
+                </div>
+            </section>
+        ))}
+
+        <section style="margin-top: 4rem; padding: 2rem; background: #f0f8ff; border-radius: 8px;">
+            <h2>Recommended Implementation Strategy</h2>
+            
+            <div style="margin: 2rem 0;">
+                <h3>1. Enhanced Date Display Logic</h3>
+                <ul>
+                    <li><strong>Priority:</strong> Always show the most relevant date (updated if available and recent)</li>
+                    <li><strong>Format:</strong> Use fuzzy dates for recent content (&lt;2 months), calendar dates for older content</li>
+                    <li><strong>Range Display:</strong> Show date ranges elegantly for content with significant updates</li>
+                </ul>
+            </div>
+            
+            <div style="margin: 2rem 0;">
+                <h3>2. Feed Sorting Improvements</h3>
+                <ul>
+                    <li><strong>Default Sort:</strong> By most recent activity (updated date if available, otherwise created date)</li>
+                    <li><strong>Sort Options:</strong> "Recently Updated", "Recently Created", "Oldest First"</li>
+                    <li><strong>Mixed Content:</strong> Handle posts without updates gracefully</li>
+                </ul>
+            </div>
+            
+            <div style="margin: 2rem 0;">
+                <h3>3. Visual Hierarchy</h3>
+                <ul>
+                    <li><strong>Primary Date:</strong> Most relevant date displayed prominently</li>
+                    <li><strong>Secondary Info:</strong> Full date range available on hover/expansion</li>
+                    <li><strong>Urgency Indicators:</strong> Recent updates get visual priority</li>
+                </ul>
+            </div>
+
+            <div style="margin: 2rem 0;">
+                <h3>4. Implementation Code Examples</h3>
+                <pre style="background: #222; color: #fff; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>// Elegant date range function
+function elegantDateRange(created, updated) &#123;
+  if (!updated || created === updated) &#123;
+    return isRecent(created) ? fuzzyDate(created) : formatDate(created);
+  &#125;
+  
+  if (isRecent(updated)) &#123;
+    return `Updated $&#123;fuzzyDate(updated)&#125;`;
+  &#125; else &#123;
+    return `Updated $&#123;formatDate(updated)&#125;`;
+  &#125;
+&#125;</code></pre>
+            </div>
+        </section>
+        
+        <div style="margin-top: 3rem; text-align: center;">
+            <a href="/" style="display: inline-block; padding: 0.75rem 1.5rem; background: #007acc; color: white; text-decoration: none; border-radius: 4px;">
+                ← Back to Feed
+            </a>
+        </div>
+    </div>
+</BaseLayout>
+
+<style>
+    h1, h2, h3 {
+        color: #333;
+    }
+    
+    code {
+        background: #f0f0f0;
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+    }
+    
+    article {
+        transition: box-shadow 0.2s ease;
+    }
+    
+    article:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    summary {
+        font-weight: 600;
+    }
+    
+    details[open] summary {
+        margin-bottom: 0.5rem;
+    }
+</style>

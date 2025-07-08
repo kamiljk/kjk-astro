@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Refined Dropdown Layout', () => {
   test('should have balanced section proportions with theme toggle present', async ({ page }) => {
-    await page.goto('http://localhost:4324/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     // Open the dropdown
@@ -52,7 +52,7 @@ test.describe('Refined Dropdown Layout', () => {
   });
   
   test('should maintain elegant spacing and alignment', async ({ page }) => {
-    await page.goto('http://localhost:4324/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     await page.click('.nav__menu-btn');

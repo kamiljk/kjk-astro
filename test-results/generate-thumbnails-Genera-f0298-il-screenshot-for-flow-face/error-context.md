@@ -5,10 +5,9 @@
   - link "Logo":
     - /url: /
     - img "Logo"
-  - search "Search this site":
-    - text: 🔍
-    - textbox "Search"
-    - button "Clear"
+  - searchbox "Search..."
+  - button:
+    - img
   - button "Open menu":
     - img
 - main:

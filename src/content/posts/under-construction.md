@@ -1,10 +1,11 @@
 ---
-title: "Under Construction"
-dateCreated: "2025-06-30"
-description: "This site is under construction and evolving as a digital garden."
-type: "about"
-priority: "urgent"
+title: Under Construction
+dateCreated: 2025-06-30
+description: This site is under construction and evolving as a digital garden.
+type: about
+priority: urgent
 show: true
+dateUpdated: 2025-07-03T05:00:00.000Z
 ---
 
 # 🚧 Under Construction

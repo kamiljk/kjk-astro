@@ -1,0 +1,178 @@
+/* Liquid Glass Effect - Clean Architecture */
+/* Based on: https://github.com/kevinbism/liquid-glass-effect */
+
+/* CSS Custom Properties - Single Source of Truth */
+:root {
+	/* Light mode glass properties */
+	--glass-bg: rgba(255, 255, 255, 0.25);
+	--glass-border: rgba(255, 255, 255, 0.8);
+	--glass-shadow-outer: rgba(31, 38, 135, 0.2);
+	--glass-shadow-inner: rgba(255, 255, 255, 0.4);
+	--glass-pseudo-bg: rgba(255, 255, 255, 0.15);
+	--glass-pseudo-shadow-1: rgba(255, 255, 255, 0.9);
+	--glass-pseudo-shadow-2: rgba(255, 255, 255, 0.8);
+
+	/* Glass effect intensity */
+	--glass-blur: blur(20px);
+	--glass-saturation: saturate(180%);
+	--glass-radius: 1.5rem;
+}
+
+[data-theme="dark"] {
+	/* Dark mode glass properties */
+	--glass-bg: rgba(26, 26, 26, 0.25);
+	--glass-border: rgba(255, 255, 255, 0.3);
+	--glass-shadow-outer: rgba(0, 0, 0, 0.4);
+	--glass-shadow-inner: rgba(255, 255, 255, 0.2);
+	--glass-pseudo-bg: rgba(255, 255, 255, 0.08);
+	--glass-pseudo-shadow-1: rgba(255, 255, 255, 0.3);
+	--glass-pseudo-shadow-2: rgba(255, 255, 255, 0.2);
+}
+
+/* Base Glass Mixin - Core liquid glass effect */
+.liquid-glass-base {
+	position: relative;
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturation);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturation);
+	border: 1px solid var(--glass-border);
+	border-radius: var(--glass-radius);
+	box-shadow: 0 8px 32px var(--glass-shadow-outer),
+		inset 0 4px 20px var(--glass-shadow-inner);
+
+	/* Performance optimization */
+	will-change: backdrop-filter;
+}
+
+/* Liquid depth effect via pseudo-element */
+.liquid-glass-base::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--glass-pseudo-bg);
+	border-radius: inherit;
+	backdrop-filter: blur(1px);
+	-webkit-backdrop-filter: blur(1px);
+	box-shadow: inset -8px -6px 0px -8px var(--glass-pseudo-shadow-1),
+		inset 0px -4px 0px -2px var(--glass-pseudo-shadow-2);
+	opacity: 0.7;
+	z-index: -1;
+	filter: blur(0.5px) drop-shadow(5px 2px 4px rgba(0, 0, 0, 0.2))
+		brightness(112%);
+	pointer-events: none;
+}
+
+/* Semantic Glass Components */
+
+/* Navbar glass - no border radius, fixed positioning optimized */
+.liquid-glass-navbar {
+	--glass-radius: 0;
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturation);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturation);
+	border: none;
+	border-bottom: 1px solid var(--glass-border);
+	box-shadow: 0 1px 20px var(--glass-shadow-outer),
+		inset 0 1px 0 var(--glass-shadow-inner);
+	will-change: backdrop-filter;
+}
+
+.liquid-glass-navbar::after {
+	background: var(--glass-pseudo-bg);
+	border-radius: 0;
+	box-shadow: inset -20px -2px 0px -18px var(--glass-pseudo-shadow-1),
+		inset 0px -1px 0px 0px var(--glass-pseudo-shadow-2);
+	filter: blur(0.5px) brightness(110%);
+}
+
+/* Dropdown glass - inherits from base with positioning tweaks */
+.liquid-glass-dropdown {
+	/* Positioning and layout - match navbar container width */
+	position: absolute;
+	top: 100%;
+	left: calc(-50vw + 50%); /* Center relative to viewport */
+	z-index: 1000;
+	width: 100vw;
+	max-width: 1200px; /* Match navbar max-width */
+
+	/* Initial hidden state */
+	opacity: 0;
+	transform: translateY(-8px);
+	pointer-events: none;
+	visibility: hidden;
+
+	/* Smooth transitions */
+	transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+
+	/* Ensure glass effect inheritance - override if needed */
+	background: var(--glass-bg) !important;
+	backdrop-filter: var(--glass-blur) var(--glass-saturation) !important;
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturation) !important;
+	border: 1px solid var(--glass-border) !important;
+	border-radius: var(--glass-radius) !important;
+	box-shadow: 0 8px 32px var(--glass-shadow-outer),
+		inset 0 4px 20px var(--glass-shadow-inner) !important;
+}
+
+/* Shared container positioning for dropdown portal */
+#shared-container {
+	position: relative;
+	z-index: 999;
+}
+
+/* Dropdown visible state */
+.liquid-glass-dropdown.dropdown-visible {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+	visibility: visible;
+}
+
+/* Interactive states */
+.liquid-glass-base:hover {
+	background: rgba(255, 255, 255, 0.22);
+	border-color: rgba(255, 255, 255, 0.9);
+	transform: translateY(-1px);
+	transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .liquid-glass-base:hover {
+	background: rgba(26, 26, 26, 0.25);
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.liquid-glass-base:hover::after {
+	opacity: 0.8;
+	filter: blur(0.5px) brightness(120%);
+}
+
+/* Browser compatibility */
+@supports not (backdrop-filter: blur(20px)) {
+	.liquid-glass-base,
+	.liquid-glass-navbar {
+		background: rgba(255, 255, 255, 0.9);
+	}
+
+	[data-theme="dark"] .liquid-glass-base,
+	[data-theme="dark"] .liquid-glass-navbar {
+		background: rgba(26, 26, 26, 0.9);
+	}
+}
+
+/* High contrast accessibility */
+@media (prefers-contrast: high) {
+	.liquid-glass-base,
+	.liquid-glass-navbar {
+		background: rgba(255, 255, 255, 0.95);
+		border-color: rgba(0, 0, 0, 0.5);
+	}
+
+	[data-theme="dark"] .liquid-glass-base,
+	[data-theme="dark"] .liquid-glass-navbar {
+		background: rgba(0, 0, 0, 0.95);
+		border-color: rgba(255, 255, 255, 0.5);
+	}
+}

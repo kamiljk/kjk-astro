@@ -1,0 +1,51 @@
+/* Styles for PagefindSearch component */
+
+#search-results-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	background: var(--frosted-bg);
+	backdrop-filter: var(--frosted-blur);
+	border: var(--frosted-border);
+	box-shadow: var(--shadow-elevation-3);
+	z-index: 100;
+	max-height: 400px;
+	overflow-y: auto;
+	border-radius: 0 0 var(--radius-unified) var(--radius-unified);
+	padding: var(--fluid-space-s);
+}
+
+#search-results-dropdown .result-count {
+	margin-bottom: var(--fluid-space-xs);
+	font-size: 0.875rem;
+	color: var(--color-desc);
+	font-weight: 500;
+}
+
+#search-results-dropdown a {
+	display: block;
+	padding: var(--fluid-space-xs);
+	margin-bottom: var(--fluid-space-xs);
+	border-radius: var(--radius-unified);
+	text-decoration: none;
+	color: var(--color-text);
+	background: transparent;
+	transition: background 0.15s ease;
+}
+
+#search-results-dropdown a:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+#search-results-dropdown a .result-title {
+	font-weight: 600;
+	margin-bottom: var(--fluid-space-2xs);
+	font-size: 0.95rem;
+}
+
+#search-results-dropdown a .result-excerpt {
+	color: var(--color-desc);
+	font-size: 0.875rem;
+	line-height: 1.4;
+}

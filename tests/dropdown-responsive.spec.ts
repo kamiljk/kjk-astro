@@ -4,7 +4,7 @@ test.describe('Dropdown Responsive Design', () => {
 	test('dropdown layout consistency across breakpoints', async ({ page }) => {
 		// Test desktop view (1200px)
 		await page.setViewportSize({ width: 1200, height: 800 });
-		await page.goto('http://localhost:4321');
+		await page.goto('/');
 		await page.click('[aria-label="Open menu"]');
 		await page.waitForSelector('[role="menu"]', { state: 'visible' });
 		

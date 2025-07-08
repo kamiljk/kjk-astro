@@ -6,7 +6,7 @@ test.describe("Navbar Menu Hover Effects", () => {
     await page.goto("/");
 
     // Open the navbar menu
-    const menuToggle = page.locator("button[aria-label='Open menu']");
+    const menuToggle = page.locator(".dropdown-button");
     await menuToggle.click();
 
     // Wait for the menu to be visible

@@ -3,15 +3,15 @@ import ReactDOM from "react-dom";
 import styles from "./NavbarMenuImproved.module.css";
 
 const SORT_OPTIONS = [
-	{ key: "updated", label: "Updated", icon: "🔄" },
-	{ key: "created", label: "Created", icon: "📅" },
-	{ key: "alpha", label: "A-Z", icon: "🔤" },
+	{ key: "activity", label: "Activity", icon: "" },
+	{ key: "created", label: "Created", icon: "" },
+	{ key: "alpha", label: "A-Z", icon: "" },
 ];
 
 export default function NavbarMenuImproved({ 
 	taxonomy = ["all", "read", "play", "about"], 
 	type = "all", 
-	sort = "updated", 
+	sort = "activity", 
 	order = "desc", 
 	children 
 }) {
@@ -39,7 +39,7 @@ export default function NavbarMenuImproved({
 	useEffect(() => {
 		setIsClient(true);
 		if (typeof window !== "undefined") {
-			const target = document.querySelector("#navbar-dropdown-portal");
+			const target = document.querySelector("#shared-container");
 			setPortalTarget(target);
 		}
 	}, []);
@@ -98,7 +98,9 @@ export default function NavbarMenuImproved({
 
 	const toggleMenu = (e) => {
 		e.stopPropagation();
+		console.log(`[NavbarMenuImproved] Before toggleMenu: menuOpen=${menuOpen}, aria-hidden=${!menuOpen}`);
 		setMenuOpen(!menuOpen);
+		console.log(`[NavbarMenuImproved] After toggleMenu: menuOpen=${!menuOpen}, aria-hidden=${menuOpen}`);
 	};
 
 	// Get current filter display info
@@ -113,6 +115,8 @@ export default function NavbarMenuImproved({
 	// Debug logs for dropdown rendering
 	console.log(`[Debug] menuOpen state: ${menuOpen}`);
 	console.log(`[Debug] portalTarget: ${portalTarget}`);
+	console.log(`[NavbarMenuImproved] Portal target:`, portalTarget);
+	console.log(`[NavbarMenuImproved] menuOpen state:`, menuOpen);
 
 	return (
 		<div className={styles.menuContainer}>
@@ -147,7 +151,8 @@ export default function NavbarMenuImproved({
 					ref={menuRef}
 					className={styles.dropdown}
 					role="menu"
-					aria-hidden="false"
+					aria-hidden={!menuOpen}
+					aria-expanded={menuOpen}
 				>
 					<div className={styles.dropdownContent}>
 						
@@ -235,6 +240,8 @@ export default function NavbarMenuImproved({
 				</div>,
 				portalTarget
 			)}
+
+			{children && <div className={styles.menuContent}>{children}</div>}
 		</div>
 	);
 }

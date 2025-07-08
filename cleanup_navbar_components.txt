@@ -1,0 +1,23 @@
+Remove the following redundant/variant navbar menu components and their CSS:
+
+/src/components/islands/NavbarMenuImproved.jsx
+/src/components/islands/NavbarMenuImproved.module.css
+/src/components/islands/NavbarMenuCompact.jsx
+/src/components/islands/NavbarMenuElegant.jsx
+/src/components/islands/NavbarMenu.simple.jsx
+/src/components/islands/NavbarMenu.layout.module.css
+/src/components/islands/NavbarMenu.module.css (if not used by the main NavbarMenu.jsx)
+/src/components/common/Navbar.clean.astro
+
+Keep only:
+- NavbarMenu.jsx (and its required CSS)
+- HorizontalNavbar.astro (main entry)
+- Navbar.astro (if still referenced)
+- ThemeToggle.jsx
+- navbar-manager.js
+
+After deletion, update all imports/usages in HorizontalNavbar.astro to use only NavbarMenu.jsx.
+
+---
+
+This file is a checklist for the agent to perform the cleanup. Please delete the listed files and update imports accordingly.

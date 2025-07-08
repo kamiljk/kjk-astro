@@ -27,7 +27,7 @@ test.describe('Pagefind Search UI', () => {
     
     // Check that we navigated to a page (URL should have changed)
     const url = page.url();
-    expect(url).not.toBe('http://localhost:4323/');
+    expect(url).not.toBe('http://localhost:4322/');
   });
 
   test('dedicated search page works correctly', async ({ page }) => {

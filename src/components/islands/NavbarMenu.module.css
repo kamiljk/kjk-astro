@@ -1,11 +1,5 @@
-@import "/styles/tokens.css";
 /* NavbarMenu.module.css */
-
-/* 
-  This module handles the layout and positioning of the dropdown menu.
-  All visual styling (colors, backgrounds, borders, shadows) is applied 
-  using design tokens defined in /src/assets/global.css.
-*/
+/* Layout and positioning only - visual styling handled by liquid-glass classes */
 
 .menu-toggle-arrow {
 	display: inline-block;
@@ -18,36 +12,6 @@
 	transform: rotate(180deg);
 }
 
-.menu-container {
-	position: absolute;
-	top: 100%;
-	left: 0;
-	width: 100%;
-
-	/* Frosted glass effect from global tokens */
-	background: var(--frosted-bg);
-	backdrop-filter: var(--frosted-blur);
-	-webkit-backdrop-filter: var(--frosted-blur);
-	border: var(--frosted-border);
-	box-shadow: var(--shadow-3);
-	border-radius: 0 0 var(--radius-medium) var(--radius-medium);
-
-	/* Animation */
-	transition: opacity 0.25s ease, transform 0.25s ease;
-	opacity: 0;
-	transform: translateY(8px);
-	pointer-events: none;
-	visibility: hidden;
-	z-index: 1000;
-}
-
-.menu-container.visible {
-	opacity: 1;
-	transform: translateY(0);
-	pointer-events: auto;
-	visibility: visible;
-}
-
 .menu-content {
 	display: flex;
 	flex-direction: row;
@@ -55,8 +19,7 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--space-m);
-	max-width: var(--max-width);
-	margin: 0 auto;
+	/* Let parent dropdown handle max-width and centering */
 	width: 100%;
 	padding: var(--space-s) var(--space-m);
 	box-sizing: border-box;

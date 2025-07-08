@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Border Consistency', () => {
 	test('navbar, dropdown, and feed cards have consistent border styling', async ({ page }) => {
-		await page.goto('http://localhost:4321');
+		await page.goto('/');
 		await page.waitForSelector('.site-header');
 		
 		// Open dropdown to test all elements
@@ -109,7 +109,7 @@ test.describe('Border Consistency', () => {
 	});
 	
 	test('dark mode border consistency', async ({ page }) => {
-		await page.goto('http://localhost:4321');
+		await page.goto('/');
 		
 		// Switch to dark mode
 		await page.evaluate(() => {

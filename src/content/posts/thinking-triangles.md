@@ -4,6 +4,7 @@ description: "A conceptual tool for exploring relationships and dynamics between
 dateCreated: "2025-04-01"
 type: "play"
 show: true
+thumbnailSrc: "/games/thinking-triangles/thumbnail.png"
 ---
 
 Play the game [here](/games/thinking-triangles/index.html).

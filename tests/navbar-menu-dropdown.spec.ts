@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('NavbarMenu Dropdown', () => {
   test('opens and closes on click and outside click', async ({ page }) => {
     await page.goto('/');
-    const menuBtn = page.locator('.nav__menu-btn');
+    const menuBtn = page.locator('.dropdown-button');
     const menu = page.locator('#filter-sort-menu');
     await expect(menu).not.toBeVisible();
     await menuBtn.click();
@@ -15,7 +15,7 @@ test.describe('NavbarMenu Dropdown', () => {
 
   test('closes on Escape and restores focus', async ({ page }) => {
     await page.goto('/');
-    const menuBtn = page.locator('.nav__menu-btn');
+    const menuBtn = page.locator('.dropdown-button');
     await menuBtn.click();
     await expect(page.locator('#filter-sort-menu')).toBeVisible();
     await page.keyboard.press('Escape');
@@ -25,7 +25,7 @@ test.describe('NavbarMenu Dropdown', () => {
 
   test('keyboard navigation: arrow keys, Home/End', async ({ page }) => {
     await page.goto('/');
-    const menuBtn = page.locator('.nav__menu-btn');
+    const menuBtn = page.locator('.dropdown-button');
     await menuBtn.click();
     const pills = page.locator('#filter-sort-menu button[class*="pill"]');
     await expect(pills.first()).toBeFocused();
@@ -41,7 +41,7 @@ test.describe('NavbarMenu Dropdown', () => {
 
   test('selecting a filter closes menu and updates URL', async ({ page }) => {
     await page.goto('/');
-    const menuBtn = page.locator('.nav__menu-btn');
+    const menuBtn = page.locator('.dropdown-button');
     await menuBtn.click();
     const aboutPill = page.locator('#filter-sort-menu button[class*="pill"]', { hasText: 'About' });
     await aboutPill.click();
@@ -51,7 +51,7 @@ test.describe('NavbarMenu Dropdown', () => {
 
   test('ARIA attributes and focus are correct', async ({ page }) => {
     await page.goto('/');
-    const menuBtn = page.locator('.nav__menu-btn');
+    const menuBtn = page.locator('.dropdown-button');
     await expect(menuBtn).toHaveAttribute('aria-expanded', 'false');
     await menuBtn.click();
     await expect(menuBtn).toHaveAttribute('aria-expanded', 'true');

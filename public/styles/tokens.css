@@ -1,59 +1,48 @@
 /*
   Design Tokens for Neon/Neutrals Theme
-  Neon accent is always present, not a separate theme
+  Clean, consolidated token system with proper light/dark mode support
 */
 
 :root {
-	/* Neutrals (light) */
-	--color-bg: #f7f7f8;
+	/* === LIGHT THEME (DEFAULT) === */
+
+	/* Core Colors */
+	--color-bg: #f8f7f2;
 	--color-bg-alt: #fff;
-	--color-navbar-bg: rgba(255, 255, 255, 0.82);
-	--color-text: #18181b;
+	--color-text: #181c17;
+	--color-text-rgb: 24, 28, 23; /* RGB values for rgba usage */
 	--color-text-muted: #71717a;
 	--color-border: #d6d5c9;
-	--color-accent: #00ffe7; /* Neon cyan */
+
+	/* Accent Colors - Unified neon system */
+	--color-accent: #00ffe7; /* Primary neon cyan */
 	--color-accent-rgb: 0, 255, 231; /* RGB values for rgba usage */
 	--color-accent-glow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
-	--border-radius-xs: 6px;
 
-	/* Unified border and radius tokens */
-	--border-unified: 1px solid var(--color-border);
-	--radius-unified: 12px;
-	--radius-btn: 8px;
+	/* Intelligent contrast system */
+	--color-accent-contrast: var(--color-text-on-accent, #000000);
+	--color-text-on-accent: #000000; /* Default fallback for light theme */
 
-	/* Frosted glass effect tokens */
+	/* Frosted Glass Effect */
 	--frosted-bg: rgba(255, 255, 255, 0.1);
 	--frosted-blur: blur(20px);
 	--frosted-saturate: saturate(150%);
 	--frosted-border: 1px solid rgba(255, 255, 255, 0.2);
 	--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 
-	/* Responsive max-widths for layout elements */
-	--navbar-max-width: clamp(340px, 90vw, 1200px);
-	--dropdown-max-width: calc(var(--navbar-max-width) - 1rem);
-	--feed-max-width: calc(var(--dropdown-max-width) - 3rem);
+	/* Unified Border and Radius */
+	--border-unified: 1px solid var(--color-border);
+	--radius-unified: 12px;
+	--radius-btn: 8px;
 
-	/* Fixed navbar height to prevent resize issues */
-	--navbar-height: 76px;
-
-	/* Spacing tokens */
-	--space-2xs: 0.25rem;
-	--space-xs: 0.5rem;
-	--space-s: 0.75rem;
-	--space-m: 1rem;
-	--space-l: 1.5rem;
-	--space-xl: 2rem;
-
-	/* Font tokens */
-	--font-family-heading: "Oswald", "Oswald-VariableFont_wght", Arial, sans-serif;
-	--font-size-sm: 0.875rem;
-
-	/* Shadow tokens */
+	/* Shadow System */
+	--shadow-color: 220 3% 15%;
+	--shadow-strength: 1%;
 	--shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12);
 	--shadow-elevation-2: 0 4px 6px rgba(0, 0, 0, 0.1);
 	--shadow-elevation-3: 0 10px 20px rgba(0, 0, 0, 0.15);
 
-	/* Component-specific shadow tokens */
+	/* Component Shadows */
 	--shadow-button: 0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
 	--shadow-button-hover: 0 6px 20px rgba(0, 0, 0, 0.15),
 		0 2px 8px rgba(0, 0, 0, 0.1);
@@ -61,69 +50,187 @@
 	--shadow-card-hover: var(--shadow-elevation-3);
 	--shadow-dropdown: var(--frosted-shadow);
 	--shadow-navbar: var(--frosted-shadow);
+
+	/* Layout and Spacing */
+	--navbar-max-width: clamp(340px, 90vw, 1200px);
+	--dropdown-max-width: calc(var(--navbar-max-width) - 1rem);
+	--feed-max-width: calc(var(--dropdown-max-width) - 3rem);
+	--navbar-height: 76px;
+
+	/* Fluid Spacing */
+	--space-2xs: clamp(0.25rem, 0.5vw, 0.5rem);
+	--space-xs: clamp(0.5rem, 1vw, 0.75rem);
+	--space-s: clamp(0.75rem, 1.25vw, 1rem);
+	--space-m: clamp(1rem, 1.5vw, 1.5rem);
+	--space-l: clamp(1.5rem, 2vw, 2rem);
+	--space-xl: clamp(2rem, 3vw, 3rem);
+
+	/* Typography */
+	--font-family-base: "Merriweather", serif, system-ui, -apple-system,
+		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--font-family-heading: "Oswald", "Oswald-VariableFont_wght", Arial, sans-serif;
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+	--font-weight-bold: 700;
+
+	/* Enhanced text rendering */
+	--text-rendering-optimized: antialiased;
+
+	/* Button state tokens */
+	--button-bg-inactive: rgba(255, 255, 255, 0.1);
+	--button-text-inactive: var(--color-text-muted);
+	--button-border-inactive: rgba(255, 255, 255, 0.2);
+
+	--button-bg-hover: var(--color-accent);
+	--button-text-hover: var(--color-text-on-accent);
+	--button-border-hover: var(--color-accent);
+
+	--button-bg-disabled: rgba(255, 255, 255, 0.05);
+	--button-text-disabled: var(--color-text-muted);
+	--button-border-disabled: rgba(255, 255, 255, 0.1);
+
+	/* Accent enhancements */
+	--shadow-glow-accent: 0 0 0 2px rgba(var(--color-accent-rgb), 0.2);
+	--shadow-glow-accent-strong: 0 0 0 3px rgba(var(--color-accent-rgb), 0.3);
+
+	/* === UNIFIED BUTTON SYSTEM === */
+	/* Foundation button tokens - implemented from the ground up */
+	--button-font-family: "Roboto", system-ui, -apple-system, sans-serif;
+	--button-font-size: 0.875rem;
+	--button-font-weight: 500;
+	--button-line-height: 1.25;
+	--button-letter-spacing: 0.025em;
+
+	/* Button sizing */
+	--button-padding-x: 1rem;
+	--button-padding-y: 0.5rem;
+	--button-min-height: 2.5rem;
+	--button-border-width: 1px;
+	--button-border-radius: var(--radius-btn);
+
+	/* Button colors - inactive state (default) */
+	--button-bg: var(--button-bg-inactive);
+	--button-text: var(--button-text-inactive);
+	--button-border: var(--button-border-inactive);
+
+	/* Button colors - active/selected state */
+	--button-bg-active: var(--color-accent);
+	--button-text-active: var(--color-text-on-accent);
+	--button-border-active: var(--color-accent);
+
+	/* Button colors - focus state */
+	--button-outline-focus: 2px solid var(--color-accent);
+	--button-outline-offset: 2px;
+
+	/* Button shadows */
+	--button-shadow: var(--shadow-button);
+	--button-shadow-hover: var(--shadow-button-hover);
+	--button-shadow-active: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+
+	/* Glyph button specific */
+	--glyph-size: 2.5rem;
+	--glyph-font-size: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--color-bg: #18181b;
-		--color-bg-alt: #23232a;
-		--color-navbar-bg: rgba(26, 26, 26, 0.82);
-		--color-text: #f7f7f8;
-		--color-border: #23232a;
-		--color-accent: #00ffe7;
-		--color-accent-rgb: 0, 255, 231; /* RGB values for rgba usage */
-		--color-accent-glow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
-
-		/* Frosted glass effect tokens - dark mode */
-		--frosted-bg: rgba(26, 26, 26, 0.2);
-		--frosted-blur: blur(20px);
-		--frosted-saturate: saturate(150%);
-		--frosted-border: 1px solid rgba(255, 255, 255, 0.1);
-		--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-
-		/* Component-specific shadow tokens - dark mode */
-		--shadow-button: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
-		--shadow-button-hover: 0 6px 20px rgba(0, 0, 0, 0.25),
-			0 2px 8px rgba(0, 0, 0, 0.15);
-		--shadow-card: 0 4px 6px rgba(0, 0, 0, 0.15);
-		--shadow-card-hover: 0 10px 20px rgba(0, 0, 0, 0.25);
-		--shadow-dropdown: var(--frosted-shadow);
-		--shadow-navbar: var(--frosted-shadow);
-	}
-}
-
+/* === DARK THEME === */
 [data-theme="dark"] {
+	/* Core Colors */
 	--color-bg: #18181b;
 	--color-bg-alt: #23232a;
-	--color-navbar-bg: rgba(26, 26, 26, 0.82);
 	--color-text: #f7f7f8;
+	--color-text-rgb: 247, 247, 248; /* RGB values for rgba usage */
 	--color-text-muted: #a1a1aa;
 	--color-border: #23232a;
+
+	/* Accent Colors - Same neon system */
 	--color-accent: #00ffe7;
-	--color-accent-rgb: 0, 255, 231; /* RGB values for rgba usage */
+	--color-accent-rgb: 0, 255, 231;
 	--color-accent-glow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
 
-	/* Frosted glass effect tokens - dark mode */
+	/* Dark theme contrast */
+	--color-text-on-accent: #ffffff; /* Default fallback for dark theme */
+
+	/* Frosted Glass Effect - Dark Mode */
 	--frosted-bg: rgba(26, 26, 26, 0.2);
 	--frosted-blur: blur(20px);
 	--frosted-saturate: saturate(150%);
 	--frosted-border: 1px solid rgba(255, 255, 255, 0.1);
 	--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 
-	/* Component-specific shadow tokens - dark mode */
+	/* Shadow System - Dark Mode */
+	--shadow-color: 220 40% 2%;
+	--shadow-strength: 25%;
+	--shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.2);
+	--shadow-elevation-2: 0 4px 6px rgba(0, 0, 0, 0.15);
+	--shadow-elevation-3: 0 10px 20px rgba(0, 0, 0, 0.25);
+
+	/* Component Shadows - Dark Mode */
 	--shadow-button: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
 	--shadow-button-hover: 0 6px 20px rgba(0, 0, 0, 0.25),
 		0 2px 8px rgba(0, 0, 0, 0.15);
-	--shadow-card: 0 4px 6px rgba(0, 0, 0, 0.15);
-	--shadow-card-hover: 0 10px 20px rgba(0, 0, 0, 0.25);
+	--shadow-card: var(--shadow-elevation-2);
+	--shadow-card-hover: var(--shadow-elevation-3);
 	--shadow-dropdown: var(--frosted-shadow);
 	--shadow-navbar: var(--frosted-shadow);
+
+	/* Dark theme button states */
+	--button-bg-inactive: rgba(26, 26, 26, 0.3);
+	--button-text-inactive: var(--color-text-muted);
+	--button-border-inactive: rgba(255, 255, 255, 0.1);
+
+	--button-bg-hover: var(--color-accent);
+	--button-text-hover: var(--color-text-on-accent);
+	--button-border-hover: var(--color-accent);
+
+	--button-bg-disabled: rgba(26, 26, 26, 0.1);
+	--button-text-disabled: var(--color-text-muted);
+	--button-border-disabled: rgba(255, 255, 255, 0.05);
+
+	/* Dark theme intelligent contrast */
+	--color-text-on-accent: #000000; /* Most neon colors work better with black text */
 }
 
+/* === SYSTEM PREFERENCE FALLBACK === */
+/* Only applies if no explicit data-theme is set */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) {
+		/* Core Colors */
+		--color-bg: #18181b;
+		--color-bg-alt: #23232a;
+		--color-text: #f7f7f8;
+		--color-text-rgb: 247, 247, 248; /* RGB values for rgba usage */
+		--color-text-muted: #a1a1aa;
+		--color-border: #23232a;
+
+		/* Frosted Glass Effect - Dark Mode */
+		--frosted-bg: rgba(26, 26, 26, 0.2);
+		--frosted-border: 1px solid rgba(255, 255, 255, 0.1);
+		--frosted-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+		/* Shadow System - Dark Mode */
+		--shadow-color: 220 40% 2%;
+		--shadow-strength: 25%;
+		--shadow-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.2);
+		--shadow-elevation-2: 0 4px 6px rgba(0, 0, 0, 0.15);
+		--shadow-elevation-3: 0 10px 20px rgba(0, 0, 0, 0.25);
+
+		/* Component Shadows - Dark Mode */
+		--shadow-button: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+		--shadow-button-hover: 0 6px 20px rgba(0, 0, 0, 0.25),
+			0 2px 8px rgba(0, 0, 0, 0.15);
+		--shadow-card: var(--shadow-elevation-2);
+		--shadow-card-hover: var(--shadow-elevation-3);
+		--shadow-dropdown: var(--frosted-shadow);
+		--shadow-navbar: var(--frosted-shadow);
+	}
+}
+
+/* === GLOBAL STYLES === */
 body {
 	background: var(--color-bg);
 	color: var(--color-text);
-	transition: background 0.3s, color 0.3s;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .menu-open {

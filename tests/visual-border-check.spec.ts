@@ -25,7 +25,7 @@ const captureScreenshot = async (page, theme, element, fileName) => {
 
 test.describe('Visual Border Consistency Check', () => {
 	test('take screenshots of navbar and dropdown in both themes', async ({ page }) => {
-		await page.goto('http://localhost:4321');
+		await page.goto('/');
 		await page.waitForSelector('.site-header');
 
 		const themes = ['light', 'dark'];

@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 
+const SORT_OPTIONS = [
+	{ key: "activity", label: "Activity", icon: "" },
+	{ key: "created", label: "Created", icon: "" },
+	{ key: "alpha", label: "A→Z", icon: "" },
+];
+
 const FILTER_OPTIONS = [
 	{ key: "all", label: "All" },
 	{ key: "read", label: "Read" },
@@ -10,7 +16,7 @@ const FILTER_OPTIONS = [
 export default function NavbarMenuElegant({ 
 	taxonomy = ["all", "read", "play", "about"], 
 	type = "all", 
-	sort = "updated", 
+	sort = "activity", 
 	order = "desc", 
 	children 
 }) {

@@ -1,0 +1,257 @@
+---
+import NavbarHorizontal from "../components/navbar/NavbarHorizontal.astro";
+---
+
+<html lang="en">
+	<head>
+		<title>Navbar Test - Backdrop Filter</title>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<link
+			rel="stylesheet"
+			href="/styles/tokens.css"
+		/>
+		<style>
+			/* Reset */
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: var(--font-family-base);
+				background: var(--color-bg);
+				color: var(--color-text);
+				padding-top: calc(var(--navbar-height) + 2rem);
+				min-height: 100vh;
+			}
+
+			/* Colorful background to test blur */
+			.test-background {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: linear-gradient(
+					45deg,
+					#ff6b6b 0%,
+					#4ecdc4 25%,
+					#45b7d1 50%,
+					#96ceb4 75%,
+					#feca57 100%
+				);
+				background-size: 400% 400%;
+				animation: gradientBG 15s ease infinite;
+				z-index: -1;
+			}
+
+			@keyframes gradientBG {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			/* Text content to test readability behind blur */
+			.content-container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2rem;
+				position: relative;
+				z-index: 1;
+			}
+
+			.test-section {
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				border-radius: 12px;
+				padding: 2rem;
+				margin-bottom: 2rem;
+				backdrop-filter: blur(10px);
+				-webkit-backdrop-filter: blur(10px);
+			}
+
+			.text-pattern {
+				background: repeating-linear-gradient(
+					45deg,
+					rgba(0, 0, 0, 0.1) 0px,
+					rgba(0, 0, 0, 0.1) 10px,
+					transparent 10px,
+					transparent 20px
+				);
+				padding: 1rem;
+				border-radius: 8px;
+				margin: 1rem 0;
+			}
+
+			.blur-test-indicator {
+				position: fixed;
+				bottom: 1rem;
+				right: 1rem;
+				background: rgba(0, 0, 0, 0.8);
+				color: white;
+				padding: 0.5rem 1rem;
+				border-radius: 8px;
+				font-size: 0.875rem;
+				z-index: 10001;
+			}
+
+			h1,
+			h2,
+			h3 {
+				margin-bottom: 1rem;
+				color: var(--color-text);
+			}
+
+			p {
+				margin-bottom: 1rem;
+				line-height: 1.6;
+			}
+
+			.visual-test-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+				gap: 1rem;
+				margin: 2rem 0;
+			}
+
+			.test-card {
+				background: rgba(255, 255, 255, 0.2);
+				border: 1px solid rgba(255, 255, 255, 0.3);
+				border-radius: 8px;
+				padding: 1rem;
+				text-align: center;
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="test-background"></div>
+
+		<NavbarHorizontal
+			taxonomy={["all", "read", "play", "about"]}
+			type="all"
+			sort="updated"
+			order="desc"
+		/>
+
+		<div class="content-container">
+			<div class="test-section">
+				<h1>🧪 Navbar Backdrop Filter Test</h1>
+				<p>
+					This page tests the horizontal navbar's backdrop-filter blur effect.
+					The colorful animated background should be blurred behind the navbar
+					and dropdown containers.
+				</p>
+			</div>
+
+			<div class="test-section">
+				<h2>📝 Test Instructions</h2>
+				<ol style="list-style: decimal; margin-left: 2rem;">
+					<li style="margin-bottom: 0.5rem;">
+						Look at the navbar at the top - the colorful background should be
+						blurred behind it
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						Click the search input - the background should be blurred behind the
+						search results container
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						Click the dropdown button (three dots) - the background should be
+						blurred behind the dropdown menu
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						Search and dropdown should be mutually exclusive - opening one
+						closes the other
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						Both containers should have the same frosted glass styling as the
+						navbar
+					</li>
+				</ol>
+			</div>
+
+			<div class="test-section">
+				<h2>🎨 Visual Test Pattern</h2>
+				<p>
+					The patterns below help verify that content behind dropdowns is
+					properly blurred:
+				</p>
+
+				<div class="text-pattern">
+					<strong
+						>SHARP TEXT PATTERN - This should be blurred when behind dropdown
+						containers</strong
+					>
+				</div>
+
+				<div class="visual-test-grid">
+					<div class="test-card">CARD 1</div>
+					<div class="test-card">CARD 2</div>
+					<div class="test-card">CARD 3</div>
+					<div class="test-card">CARD 4</div>
+					<div class="test-card">CARD 5</div>
+					<div class="test-card">CARD 6</div>
+				</div>
+			</div>
+
+			<div class="test-section">
+				<h2>🔍 Expected Behavior</h2>
+				<ul style="list-style: disc; margin-left: 2rem;">
+					<li style="margin-bottom: 0.5rem;">
+						<strong>Navbar:</strong> Fixed horizontal layout with logo, search, and
+						dropdown button
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						<strong>Search:</strong> Clicking search input opens results container
+						below navbar
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						<strong>Dropdown:</strong> Clicking dots button opens menu with filter/sort/theme
+						controls
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						<strong>Blur Effect:</strong> All containers should blur the colorful
+						background behind them
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						<strong>Mutual Exclusion:</strong> Search and dropdown cannot be open
+						simultaneously
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						<strong>Consistent Styling:</strong> All containers use the same frosted
+						glass tokens
+					</li>
+				</ul>
+			</div>
+
+			<div class="test-section">
+				<h2>📱 Responsive Test</h2>
+				<p>Resize the browser window to test responsiveness:</p>
+				<ul style="list-style: disc; margin-left: 2rem;">
+					<li style="margin-bottom: 0.5rem;">
+						Desktop: Full horizontal layout
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						Tablet: Reduced padding, adjusted search width
+					</li>
+					<li style="margin-bottom: 0.5rem;">
+						Mobile: Stacked filter buttons, smaller logo
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="blur-test-indicator">✅ Backdrop Filter Test Page</div>
+	</body>
+</html>

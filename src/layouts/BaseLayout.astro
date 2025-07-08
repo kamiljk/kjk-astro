@@ -12,7 +12,7 @@ const sortedPosts =
 		})
 	:	[];
 
-import Navbar from "../components/common/Navbar.astro";
+import NavbarHorizontal from "../components/navbar/NavbarHorizontal.astro";
 import Feed from "../components/islands/Feed.jsx";
 import { normalizeType } from "../utils/normalizeType.js";
 import "../assets/global.css";
@@ -39,17 +39,17 @@ import "../assets/global.css";
 			type="module"
 		></script>
 		<!-- DEBUG: Backdrop filter test styles -->
-		<link
+		<!-- <link
 			rel="stylesheet"
 			href="/styles/debug-backdrop.css"
-		/>
+		/> -->
 		<!-- Prevent FOUC: Set theme instantly on page load -->
 		<script>
 			(function () {
 				try {
 					var theme = localStorage.getItem("theme");
 					if (theme) {
-						document.body.dataset.theme = theme;
+						document.documentElement.dataset.theme = theme;
 					}
 				} catch (e) {}
 			})();
@@ -58,23 +58,15 @@ import "../assets/global.css";
 			rel="stylesheet"
 			href="/src/assets/global.css"
 		/>
-		<link
-			rel="stylesheet"
-			href="/styles/navbar-dropdowns.css"
-		/>
-		<!-- Load unified button system LAST to ensure maximum CSS cascade priority -->
-		<link
-			rel="stylesheet"
-			href="/styles/unified-button-system.css"
-		/>
+		<!-- All navbar, button, and effect styling is now integrated into core components and tokens -->
 	</head>
 	<body>
 		<div class="site-container">
-			<Navbar
+			<NavbarHorizontal
 				taxonomy={taxonomy}
 				type={type}
 				sort={sort}
-				currentPage={currentPage}
+				order={order}
 			/>
 			<div
 				class="parallax-dot-grid-bg"
@@ -110,14 +102,15 @@ import "../assets/global.css";
 			}
 		</style>
 		<script>
-			// Set fixed navbar height to prevent resize feedback loop
-			function setNavbarHeightVar() {
-				document.documentElement.style.setProperty(
-					"--navbar-height",
-					"76px" // Fixed height based on navbar content (logo + padding)
-				);
-			}
-			window.addEventListener("DOMContentLoaded", setNavbarHeightVar);
+			// Don't set fixed navbar height - let NavbarHorizontal handle it dynamically
+			// function setNavbarHeightVar() {
+			// 	document.documentElement.style.setProperty(
+			// 		"--navbar-height",
+			// 		"76px" // Fixed height based on navbar content (logo + padding)
+			// 	);
+			// }
+			// window.addEventListener("DOMContentLoaded", setNavbarHeightVar);
+
 			// Ensure Feed island always uses current URL params for type/sort/order
 			function updateFeedIslandProps() {
 				const url = new URL(window.location.href);

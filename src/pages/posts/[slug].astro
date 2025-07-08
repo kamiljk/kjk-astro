@@ -20,8 +20,64 @@ if (!post || post.data.show !== true) {
 
 const rendered = await post.render();
 
-// Convert dateCreated to a JS Date object at build time
+// Convert dates to JS Date objects at build time
 const dateCreated = new Date(post.data.dateCreated);
+const dateUpdated =
+	post.data.dateUpdated ? new Date(post.data.dateUpdated) : null;
+
+// Helper functions for elegant date display
+function formatDate(date) {
+	if (!date) return "";
+	return date.toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
+}
+
+function fuzzyDate(date) {
+	if (!date) return "";
+	const now = new Date();
+	const diffMs = now.getTime() - date.getTime();
+	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	const diffMonths =
+		now.getMonth() -
+		date.getMonth() +
+		12 * (now.getFullYear() - date.getFullYear());
+
+	if (diffDays < 1) return "today";
+	if (diffDays === 1) return "yesterday";
+	if (diffDays < 7) return `${diffDays} days ago`;
+	if (diffDays < 31) return `${Math.floor(diffDays / 7)} weeks ago`;
+	if (diffMonths < 12) return `${diffMonths} months ago`;
+	return `${now.getFullYear() - date.getFullYear()} years ago`;
+}
+
+function isRecent(date) {
+	if (!date) return false;
+	const now = new Date();
+	const diffDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+	return diffDays < 60; // Less than 2 months
+}
+
+function elegantDateDisplay(created, updated) {
+	if (!created && !updated) return "";
+
+	// If no update or same date, show created date
+	if (!updated || created.getTime() === updated.getTime()) {
+		const createdText =
+			isRecent(created) ? fuzzyDate(created) : formatDate(created);
+		return `Created ${createdText}`;
+	}
+
+	// Show both dates for context on detail page
+	const createdText =
+		isRecent(created) ? fuzzyDate(created) : formatDate(created);
+	const updatedText =
+		isRecent(updated) ? fuzzyDate(updated) : formatDate(updated);
+
+	return `Created ${createdText}, updated ${updatedText}`;
+}
 ---
 
 <BaseLayout>
@@ -91,7 +147,7 @@ const dateCreated = new Date(post.data.dateCreated);
 						{post.data.title}
 					</a>
 					<div class="post-date color-muted mb-xs min-h-date">
-						{dateCreated ? `Created: ${dateCreated.toLocaleDateString()}` : ""}
+						{elegantDateDisplay(dateCreated, dateUpdated)}
 					</div>
 					{
 						post.data.description && (

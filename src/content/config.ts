@@ -18,6 +18,7 @@ export const collections = {
       slug: z.string().optional(),
       show: z.boolean().default(false),
       priority: z.string().optional(),
+      thumbnailSrc: z.string().optional(),
     }),
     async getEntry(filePath) {
       console.log('[config.ts] Processing file:', filePath);

@@ -1,22 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
 
 const SORT_OPTIONS = [
-	{ key: "updated", label: "Latest", icon: "⏰" },
-	{ key: "created", label: "Created", icon: "📅" },
-	{ key: "alpha", label: "A→Z", icon: "🔤" },
+	{ key: "activity", label: "Activity", icon: "" },
+	{ key: "created", label: "Created", icon: "" },
+	{ key: "alpha", label: "A→Z", icon: "" },
 ];
 
 const FILTER_OPTIONS = [
-	{ key: "all", label: "All", color: "#6366f1" },
-	{ key: "read", label: "Read", color: "#10b981" }, 
-	{ key: "play", label: "Play", color: "#f59e0b" },
-	{ key: "about", label: "About", color: "#8b5cf6" },
+	{ key: "all", label: "All", color: "var(--color-filter-all, #6366f1)" },
+	{ key: "read", label: "Read", color: "var(--color-filter-read, #10b981)" }, 
+	{ key: "play", label: "Play", color: "var(--color-filter-play, #f59e0b)" },
+	{ key: "about", label: "About", color: "var(--color-filter-about, #8b5cf6)" },
 ];
 
 export default function NavbarMenuCompact({ 
 	taxonomy = ["all", "read", "play", "about"], 
 	type = "all", 
-	sort = "updated", 
+	sort = "activity", 
 	order = "desc", 
 	children 
 }) {

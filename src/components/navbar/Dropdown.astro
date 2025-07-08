@@ -1,0 +1,43 @@
+---
+import ThemeToggle from "../islands/ThemeToggle.jsx";
+---
+
+<div class="dropdown-container">
+	<button
+		class="dropdown-trigger"
+		data-dropdown-trigger
+	>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			class="icon icon-tabler icons-tabler-outline icon-tabler-dots-vertical"
+			><path
+				stroke="none"
+				d="M0 0h24v24H0z"
+				fill="none"
+			></path><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path
+				d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path><path
+				d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path></svg
+		>
+	</button>
+	<div
+		class="dropdown-menu"
+		id="filter-sort-menu"
+		hidden
+	>
+		<div class="dropdown-content">
+			<button class="dropdown-item">Sort</button>
+			<button class="dropdown-item">Filter</button>
+			<div class="dropdown-item">
+				<ThemeToggle client:load />
+			</div>
+		</div>
+	</div>
+</div>

@@ -13,6 +13,7 @@ const {
 	<div class="site-header-inner">
 		<div class="navbar-content-inner">
 			<div class="navbar-header-row">
+				<!-- Logo -->
 				<a
 					href="/"
 					class="nav__logo"
@@ -23,47 +24,51 @@ const {
 						class="nav__logo-img"
 					/>
 				</a>
-				<!-- Inline search bar -->
+
+				<!-- Search Form -->
 				<div class="search-container-inline">
 					<div
 						id="pagefind-search-inline"
 						class="search-bar-inline"
 					>
+						<!-- Search component can be loaded here -->
 					</div>
 				</div>
+
+				<!-- Dropdown Button -->
 				<div class="navbar-menu-wrapper">
-					<NavbarMenu
-						taxonomy={taxonomy}
-						type={type}
-						sort={sort}
-						order="desc"
-						client:load
+					<button
+						class="dropdown-button"
+						aria-expanded="false"
+						aria-controls="dropdown-menu"
 					>
-						<ThemeToggle client:load />
-					</NavbarMenu>
+						Menu
+					</button>
+					<div
+						id="dropdown-menu"
+						class="dropdown-menu"
+						hidden
+					>
+						<NavbarMenu
+							taxonomy={taxonomy}
+							type={type}
+							sort={sort}
+							order="desc"
+							client:load
+						>
+							<!-- Add menu items or placeholder content here -->
+							<ul>
+								<li><a href="/read">Read</a></li>
+								<li><a href="/play">Play</a></li>
+								<li><a href="/about">About</a></li>
+							</ul>
+						</NavbarMenu>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </header>
-
-<!-- Dropdown containers positioned outside navbar -->
-<div
-	class="dropdown-portal-container"
-	id="navbar-dropdown-portal"
->
-</div>
-<div
-	class="search-portal-container"
-	id="navbar-search-portal"
->
-</div>
-
-<!-- Import external stylesheets -->
-<link
-	rel="stylesheet"
-	href="/src/components/common/navbar-dropdowns.css"
-/>
 
 <style>
 	/* Core Navbar Styles */
@@ -148,6 +153,24 @@ const {
 		position: relative;
 		flex-shrink: 0;
 		min-width: fit-content;
+	}
+
+	.dropdown-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 1rem;
+	}
+
+	.dropdown-menu {
+		display: none;
+		position: absolute;
+		background: white;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.dropdown-button[aria-expanded="true"] + .dropdown-menu {
+		display: block;
 	}
 
 	/* Dropdown Styles */

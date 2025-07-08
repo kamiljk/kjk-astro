@@ -10,12 +10,13 @@ const ThemeToggle = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      document.body.dataset.theme = theme;
+      document.documentElement.dataset.theme = theme;
       localStorage.setItem('theme', theme);
     }
   }, [theme]);
 
-  const toggleTheme = () => {
+  const toggleTheme = (e) => {
+    e.stopPropagation(); // Prevent event bubbling to close the dropdown
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 

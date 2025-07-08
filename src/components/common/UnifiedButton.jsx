@@ -14,7 +14,6 @@ const UnifiedButton = forwardRef(({
   ariaCurrent,
   ariaExpanded,
   tabIndex = 0,
-  style,
   ...props 
 }, ref) => {
   const baseClass = type; // 'pill', 'button', 'menu-toggle-btn', etc.
@@ -31,7 +30,6 @@ const UnifiedButton = forwardRef(({
       aria-expanded={ariaExpanded}
       tabIndex={tabIndex}
       type="button"
-      style={style}
       {...props}
     >
       {children}

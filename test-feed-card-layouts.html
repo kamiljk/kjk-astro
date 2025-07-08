@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Feed Card Layout Test - Design Variations</title>
+		<style>
+			/* Reset and base styles */
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			:root {
+				/* Design tokens */
+				--color-bg: #fafafa;
+				--color-card-bg: #ffffff;
+				--color-text: #1a1a1a;
+				--color-text-muted: #6b7280;
+				--color-accent: #3b82f6;
+				--color-border: #e5e7eb;
+				--color-shadow-light: rgba(0, 0, 0, 0.05);
+				--color-shadow-medium: rgba(0, 0, 0, 0.1);
+				--color-shadow-dark: rgba(0, 0, 0, 0.15);
+
+				/* Spacing tokens */
+				--space-xs: 0.25rem;
+				--space-s: 0.5rem;
+				--space-m: 1rem;
+				--space-l: 1.5rem;
+				--space-xl: 2rem;
+
+				/* Radius tokens */
+				--radius-s: 4px;
+				--radius-m: 8px;
+				--radius-l: 12px;
+				--radius-xl: 16px;
+
+				/* Typography tokens */
+				--font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI",
+					system-ui, sans-serif;
+				--font-family-heading: -apple-system, BlinkMacSystemFont, "Segoe UI",
+					system-ui, sans-serif;
+
+				/* Layout tokens */
+				--feed-max-width: 680px;
+				--card-min-height: 120px;
+			}
+
+			body {
+				font-family: var(--font-family-base);
+				background: var(--color-bg);
+				color: var(--color-text);
+				line-height: 1.6;
+				padding: var(--space-xl);
+			}
+
+			.container {
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			h1 {
+				font-size: 2rem;
+				font-weight: 700;
+				margin-bottom: var(--space-xl);
+				text-align: center;
+				color: var(--color-text);
+			}
+
+			.layout-section {
+				margin-bottom: 4rem;
+			}
+
+			.layout-title {
+				font-size: 1.5rem;
+				font-weight: 600;
+				margin-bottom: var(--space-l);
+				padding-bottom: var(--space-s);
+				border-bottom: 2px solid var(--color-accent);
+				color: var(--color-text);
+			}
+
+			.layout-description {
+				margin-bottom: var(--space-l);
+				color: var(--color-text-muted);
+				font-size: 0.95rem;
+			}
+
+			.feed-container {
+				max-width: var(--feed-max-width);
+				margin: 0 auto;
+			}
+
+			/* Base card styles */
+			.card {
+				background: var(--color-card-bg);
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-l);
+				margin-bottom: var(--space-l);
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				position: relative;
+				overflow: hidden;
+			}
+
+			.card:hover {
+				box-shadow: 0 8px 32px var(--color-shadow-medium);
+				border-color: var(--color-accent);
+				transform: translateY(-1px);
+			}
+
+			/* Layout 1: Current Design (Baseline) */
+			.layout-current .card {
+				padding: var(--space-l);
+			}
+
+			.layout-current .card-inner {
+				display: flex;
+				gap: var(--space-l);
+				align-items: flex-start;
+			}
+
+			.layout-current .card-content {
+				flex: 1;
+			}
+
+			.layout-current .card-thumbnail {
+				flex-shrink: 0;
+				width: 140px;
+				height: 140px;
+				border-radius: var(--radius-m);
+				overflow: hidden;
+				background: var(--color-bg);
+				border: 1px solid var(--color-border);
+			}
+
+			.layout-current .card-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			/* Layout 2: Compact Horizontal */
+			.layout-compact .card {
+				padding: var(--space-m);
+				min-height: var(--card-min-height);
+			}
+
+			.layout-compact .card-inner {
+				display: flex;
+				gap: var(--space-m);
+				align-items: center;
+			}
+
+			.layout-compact .card-content {
+				flex: 1;
+			}
+
+			.layout-compact .card-thumbnail {
+				flex-shrink: 0;
+				width: 80px;
+				height: 80px;
+				border-radius: var(--radius-s);
+				overflow: hidden;
+				background: var(--color-bg);
+			}
+
+			.layout-compact .card-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			/* Layout 3: Magazine Style */
+			.layout-magazine .card {
+				padding: 0;
+				overflow: hidden;
+			}
+
+			.layout-magazine .card-inner {
+				display: flex;
+				flex-direction: row;
+			}
+
+			.layout-magazine .card-thumbnail {
+				flex-shrink: 0;
+				width: 200px;
+				height: 160px;
+				background: var(--color-bg);
+			}
+
+			.layout-magazine .card-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.layout-magazine .card-content {
+				flex: 1;
+				padding: var(--space-l);
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+			}
+
+			/* Layout 4: Minimal List */
+			.layout-minimal .card {
+				padding: var(--space-m) var(--space-l);
+				border-radius: var(--radius-s);
+				border: none;
+				box-shadow: 0 1px 3px var(--color-shadow-light);
+			}
+
+			.layout-minimal .card-inner {
+				display: flex;
+				gap: var(--space-s);
+				align-items: center;
+			}
+
+			.layout-minimal .card-content {
+				flex: 1;
+			}
+
+			.layout-minimal .card-thumbnail {
+				flex-shrink: 0;
+				width: 48px;
+				height: 48px;
+				border-radius: 50%;
+				overflow: hidden;
+				background: var(--color-bg);
+			}
+
+			.layout-minimal .card-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			/* Layout 5: Vertical Stack */
+			.layout-vertical .card {
+				padding: var(--space-l);
+			}
+
+			.layout-vertical .card-inner {
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-m);
+			}
+
+			.layout-vertical .card-thumbnail {
+				width: 100%;
+				height: 200px;
+				border-radius: var(--radius-m);
+				overflow: hidden;
+				background: var(--color-bg);
+				order: -1;
+			}
+
+			.layout-vertical .card-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			/* Layout 6: Split Panel */
+			.layout-split .card {
+				padding: 0;
+				height: 180px;
+			}
+
+			.layout-split .card-inner {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				height: 100%;
+			}
+
+			.layout-split .card-thumbnail {
+				background: var(--color-bg);
+			}
+
+			.layout-split .card-thumbnail img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.layout-split .card-content {
+				padding: var(--space-l);
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
+
+			/* Typography hierarchy */
+			.card-title {
+				font-family: var(--font-family-heading);
+				font-size: 1.25rem;
+				font-weight: 600;
+				line-height: 1.3;
+				margin-bottom: var(--space-xs);
+				color: var(--color-text);
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+
+			.card-title a {
+				color: inherit;
+				text-decoration: none;
+				transition: color 0.2s ease;
+			}
+
+			.card-title a:hover {
+				color: var(--color-accent);
+			}
+
+			.card-date {
+				font-size: 0.75rem;
+				color: var(--color-text-muted);
+				margin-bottom: var(--space-s);
+				font-weight: 400;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+			}
+
+			.card-description {
+				font-size: 0.9rem;
+				color: var(--color-text-muted);
+				line-height: 1.5;
+				display: -webkit-box;
+				-webkit-line-clamp: 3;
+				line-clamp: 3;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+
+			/* Layout-specific typography adjustments */
+			.layout-compact .card-title {
+				font-size: 1.1rem;
+				-webkit-line-clamp: 1;
+				line-clamp: 1;
+			}
+
+			.layout-compact .card-description {
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+				font-size: 0.85rem;
+			}
+
+			.layout-minimal .card-title {
+				font-size: 1rem;
+				-webkit-line-clamp: 1;
+				line-clamp: 1;
+				margin-bottom: 0;
+			}
+
+			.layout-minimal .card-date {
+				font-size: 0.7rem;
+				margin-bottom: 0;
+			}
+
+			.layout-minimal .card-description {
+				display: none;
+			}
+
+			.layout-magazine .card-title {
+				font-size: 1.4rem;
+			}
+
+			.layout-vertical .card-title {
+				font-size: 1.3rem;
+			}
+
+			/* Responsive adjustments */
+			@media (max-width: 768px) {
+				.layout-magazine .card-inner,
+				.layout-split .card-inner {
+					flex-direction: column;
+				}
+
+				.layout-magazine .card-thumbnail,
+				.layout-split .card-thumbnail {
+					width: 100%;
+					height: 120px;
+				}
+
+				.layout-split .card {
+					height: auto;
+				}
+
+				.layout-split .card-inner {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			/* Meta information styling */
+			.card-meta {
+				display: flex;
+				align-items: center;
+				gap: var(--space-s);
+				margin-top: var(--space-s);
+			}
+
+			.card-type {
+				background: var(--color-accent);
+				color: white;
+				padding: var(--space-xs) var(--space-s);
+				border-radius: var(--radius-s);
+				font-size: 0.7rem;
+				font-weight: 500;
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+			}
+
+			.urgent-indicator {
+				color: #ef4444;
+				font-weight: 600;
+			}
+
+			/* Sample data styling */
+			.no-image {
+				background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--color-text-muted);
+				font-size: 0.8rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Feed Card Layout Variations</h1>
+
+			<!-- Layout 1: Current Design -->
+			<div class="layout-section layout-current">
+				<h2 class="layout-title">1. Current Design (Baseline)</h2>
+				<p class="layout-description">
+					The existing layout with right-aligned thumbnails and generous
+					padding. Good for detailed content viewing.
+				</p>
+				<div class="feed-container">
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-content">
+								<h3 class="card-title"><a href="#">Under Construction</a></h3>
+								<div class="card-date">1 day ago ←2y Mar 14, 2023</div>
+								<p class="card-description">
+									This site is under construction and evolving as a digital
+									garden. Exploring new ways to present content and ideas in an
+									organic, interconnected way.
+								</p>
+								<div class="card-meta">
+									<span class="card-type">Post</span>
+								</div>
+							</div>
+							<div class="card-thumbnail">
+								<div class="no-image">No Image</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">⚠️ Test Old Updated Post</a>
+								</h3>
+								<div class="card-date urgent-indicator">1 day ago</div>
+								<p class="card-description">
+									An old post with a very recent update to test timeline logic
+									and urgent priority handling in the feed system.
+								</p>
+								<div class="card-meta">
+									<span class="card-type">Read</span>
+								</div>
+							</div>
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/200/200?random=1"
+									alt="Sample thumbnail"
+								/>
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+
+			<!-- Layout 2: Compact Horizontal -->
+			<div class="layout-section layout-compact">
+				<h2 class="layout-title">2. Compact Horizontal</h2>
+				<p class="layout-description">
+					Tighter spacing with smaller thumbnails. More posts visible in the
+					viewport, better for scanning.
+				</p>
+				<div class="feed-container">
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-content">
+								<h3 class="card-title"><a href="#">Under Construction</a></h3>
+								<div class="card-date">1 day ago ←2y Mar 14, 2023</div>
+								<p class="card-description">
+									This site is under construction and evolving as a digital
+									garden.
+								</p>
+							</div>
+							<div class="card-thumbnail">
+								<div class="no-image">No Image</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">⚠️ Test Old Updated Post</a>
+								</h3>
+								<div class="card-date urgent-indicator">1 day ago</div>
+								<p class="card-description">
+									An old post with a very recent update to test timeline logic.
+								</p>
+							</div>
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/200/200?random=2"
+									alt="Sample thumbnail"
+								/>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">Advanced React Patterns</a>
+								</h3>
+								<div class="card-date">3 days ago</div>
+								<p class="card-description">
+									Exploring advanced patterns in React development.
+								</p>
+							</div>
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/200/200?random=3"
+									alt="Sample thumbnail"
+								/>
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+
+			<!-- Layout 3: Magazine Style -->
+			<div class="layout-section layout-magazine">
+				<h2 class="layout-title">3. Magazine Style</h2>
+				<p class="layout-description">
+					Large prominent images with content beside them. Great for visual
+					content and featured posts.
+				</p>
+				<div class="feed-container">
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<div class="no-image">No Image</div>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title"><a href="#">Under Construction</a></h3>
+								<div class="card-date">1 day ago ←2y Mar 14, 2023</div>
+								<p class="card-description">
+									This site is under construction and evolving as a digital
+									garden. Exploring new ways to present content and ideas.
+								</p>
+								<div class="card-meta">
+									<span class="card-type">Post</span>
+								</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/400/300?random=4"
+									alt="Sample thumbnail"
+								/>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">⚠️ Test Old Updated Post</a>
+								</h3>
+								<div class="card-date urgent-indicator">1 day ago</div>
+								<p class="card-description">
+									An old post with a very recent update to test timeline logic
+									and urgent priority handling.
+								</p>
+								<div class="card-meta">
+									<span class="card-type">Read</span>
+								</div>
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+
+			<!-- Layout 4: Minimal List -->
+			<div class="layout-section layout-minimal">
+				<h2 class="layout-title">4. Minimal List</h2>
+				<p class="layout-description">
+					Clean, text-focused design with small circular avatars. Maximum
+					information density.
+				</p>
+				<div class="feed-container">
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<div class="no-image">📄</div>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title"><a href="#">Under Construction</a></h3>
+								<div class="card-date">1 day ago ←2y Mar 14, 2023</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/100/100?random=5"
+									alt="Sample thumbnail"
+								/>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">⚠️ Test Old Updated Post</a>
+								</h3>
+								<div class="card-date urgent-indicator">1 day ago</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/100/100?random=6"
+									alt="Sample thumbnail"
+								/>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">Advanced React Patterns</a>
+								</h3>
+								<div class="card-date">3 days ago</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<div class="no-image">🎮</div>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">Game Development Insights</a>
+								</h3>
+								<div class="card-date">1 week ago</div>
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+
+			<!-- Layout 5: Vertical Stack -->
+			<div class="layout-section layout-vertical">
+				<h2 class="layout-title">5. Vertical Stack</h2>
+				<p class="layout-description">
+					Image-first design with content below. Similar to social media posts,
+					great for visual storytelling.
+				</p>
+				<div class="feed-container">
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<div class="no-image">No Image Available</div>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title"><a href="#">Under Construction</a></h3>
+								<div class="card-date">1 day ago ←2y Mar 14, 2023</div>
+								<p class="card-description">
+									This site is under construction and evolving as a digital
+									garden. Exploring new ways to present content and ideas in an
+									organic, interconnected way.
+								</p>
+								<div class="card-meta">
+									<span class="card-type">Post</span>
+								</div>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/600/300?random=7"
+									alt="Sample thumbnail"
+								/>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">⚠️ Test Old Updated Post</a>
+								</h3>
+								<div class="card-date urgent-indicator">1 day ago</div>
+								<p class="card-description">
+									An old post with a very recent update to test timeline logic
+									and urgent priority handling in the feed system.
+								</p>
+								<div class="card-meta">
+									<span class="card-type">Read</span>
+								</div>
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+
+			<!-- Layout 6: Split Panel -->
+			<div class="layout-section layout-split">
+				<h2 class="layout-title">6. Split Panel</h2>
+				<p class="layout-description">
+					Equal weight given to image and content in a grid layout. Balanced
+					visual presentation.
+				</p>
+				<div class="feed-container">
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-thumbnail">
+								<div class="no-image">No Image</div>
+							</div>
+							<div class="card-content">
+								<h3 class="card-title"><a href="#">Under Construction</a></h3>
+								<div class="card-date">1 day ago ←2y Mar 14, 2023</div>
+								<p class="card-description">
+									This site is under construction and evolving as a digital
+									garden.
+								</p>
+							</div>
+						</div>
+					</article>
+
+					<article class="card">
+						<div class="card-inner">
+							<div class="card-content">
+								<h3 class="card-title">
+									<a href="#">⚠️ Test Old Updated Post</a>
+								</h3>
+								<div class="card-date urgent-indicator">1 day ago</div>
+								<p class="card-description">
+									An old post with a very recent update to test timeline logic.
+								</p>
+							</div>
+							<div class="card-thumbnail">
+								<img
+									src="https://picsum.photos/400/300?random=8"
+									alt="Sample thumbnail"
+								/>
+							</div>
+						</div>
+					</article>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
